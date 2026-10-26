@@ -10,7 +10,7 @@
     "android": "expo run:android",
     "android:release": "expo run:android --variant release",
     "test": "jest --watch=false",
-    "test:domain": "node --experimental-strip-types --test",
+    "test:domain": "node scripts/test-domain.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "validate:decks": "node --experimental-strip-types scripts/validate-decks.ts"
