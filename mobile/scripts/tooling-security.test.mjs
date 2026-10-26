@@ -11,6 +11,16 @@ const { z } = cliRequire('zod');
 const { PluginSchema, DevToolsPluginOutputSchema } = cliRequire('./build/src/start/server/DevToolsPlugin.schema.js');
 const { createMCPDevToolsExtensionSchema } = cliRequire('./build/src/start/server/createMCPDevToolsExtensionSchema.js');
 
+test('installed React satisfies React DOM peer metadata so npm can resolve the security update', () => {
+  const react = require('react/package.json');
+  const reactDOM = require('react-dom/package.json');
+  // Semver is a declared dependency of this exact CLI, not an undeclared
+  // project dependency or an assumed root-level npm hoist.
+  const { satisfies } = cliRequire('semver');
+  assert.equal(satisfies(react.version, reactDOM.peerDependencies.react), true,
+    `React ${react.version} does not satisfy React DOM ${reactDOM.version} peer ${reactDOM.peerDependencies.react}`);
+});
+
 test('CLI Zod rejects oversized bounded arrays before validating elements', () => {
   // GHSA-mrhx-c7xc-m3w5: a small input proves the size gate without an OOM test.
   let parsedElements = 0;

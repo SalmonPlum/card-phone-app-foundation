@@ -37,12 +37,16 @@ Use trusted signing certificates/keys and plugins. Prefer USB/emulator developme
 
 ## Installation and verification
 
-The managed shell's one bounded registry check failed with `EAI_AGAIN`. Offline installation failed with `ENOTCACHED` for React metadata before changing the lockfile. The existing lock already has `react@19.3.0` and `react-dom@19.3.1`, whose peer requires `react@^19.3.1`; `npm ls react react-dom --all --json` reports `ELSPROBLEMS`. This preexisting peer mismatch is separate from the Zod advisory and is not silently repaired or bypassed.
+The managed shell's one bounded registry check failed with `EAI_AGAIN`. Offline installation failed with `ENOTCACHED` for React metadata before changing the lockfile. The baseline lock already has `react@19.3.0` and `react-dom@19.3.1`, whose peer requires `react@^19.3.1`; `npm ls react react-dom --all --json` reports `ELSPROBLEMS`. The controller inspected the host install log and confirmed this same mismatch caused `ERESOLVE` on the first real remediation install.
 
-The network-enabled host must resolve the prepared override using npm, review the actual lock diff, and save a fresh audit:
+The manifest now pins direct `react-dom@19.3.0` to repair that blocker, matching the [official Expo SDK 58 template](https://raw.githubusercontent.com/expo/expo/sdk-58/templates/expo-template-default/package.json). [React DOM 19.3.0's source metadata](https://raw.githubusercontent.com/facebook/react/v19.3.0/packages/react-dom/package.json) declares the compatible React `^19.3.0` peer. React and native package versions are unchanged. The fifth security check validates the actual installed React version against React DOM's declared peer range, using `semver` resolved from the CLI that explicitly depends on it. It failed against the old DOM copy and now passes after the host's real npm install, whose lock diff contains only the expected DOM patch and direct-dependency declaration. No peer bypass is used.
+
+That install retained the CLI's old Zod 3.25.76 despite the new override: `npm ls zod --all` reports it invalid against 4.6.7, and the security suite reports 4 pass / 1 failing collection-bound check. Scoped override syntax matches [npm's documented semantics](https://docs.npmjs.com/cli/configuring-npm/package-json/); existing-lock override refresh problems are also tracked in [npm/cli #4232](https://github.com/npm/cli/issues/4232). A targeted `npm update zod` is needed to refresh resolution without a blanket update or lockfile deletion. Offline attempts failed for missing full Zod registry metadata, including a writable cache seeded with actual host entries. No installed Zod remediation or fresh post-remediation audit is claimed yet.
+
+The network-enabled host must resolve the prepared override and React DOM pin using npm, review the actual lock diff, and save a fresh audit:
 
 ```sh
-npm install --fetch-retries=0 --fetch-timeout=10000
+npm update zod --fetch-retries=0 --fetch-timeout=10000
 npm audit --json > docs/security/npm-audit-after.json
 npm run test:security
 ```
