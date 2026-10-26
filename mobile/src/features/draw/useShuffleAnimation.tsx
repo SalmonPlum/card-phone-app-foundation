@@ -2,10 +2,12 @@ import { useCallback, useEffect, useRef } from 'react';
 import { cancelAnimation, Easing, ReduceMotion, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import type { Pose, SessionState } from '../../domain/contracts';
+import { renderFrame } from './renderFrame';
 import { phaseDurationMs, regripPose, returnPose, SOURCE } from './motion';
 
 export function useShuffleAnimation(state: SessionState, paused: boolean, reducedMotion: boolean, onComplete: (sessionId: string, epoch: number) => void) {
   const progress = useSharedValue(0);
+  const frame = useSharedValue(renderFrame(state));
   const generation = useSharedValue(0);
   const sequence = useRef(0);
   const { sessionId, epoch, phase } = state;
@@ -25,6 +27,7 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
     let active = true;
     const token = sequence.current;
     const deliver = (id: string, token: number) => { if (active) onComplete(id, token); };
+    const nextFrame = renderFrame(state);
     const phaseDuration = phaseDurationMs(phase);
     const duration = reducedMotion ? 400 : phaseDuration;
     scheduleOnUI(() => {
@@ -36,6 +39,9 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
         generation.value = token;
         progress.value = 0;
       }
+      // Mappers may be replaced before or after this job. Both versions read
+      // this same UI snapshot, paired with the reset clock, never RN closures.
+      frame.value = nextFrame;
       if (paused || !phaseDuration) return;
       progress.value = withTiming(1, {duration: duration * (1-progress.value), reduceMotion: ReduceMotion.Never, easing: reducedMotion ? (t: number) => { 'worklet'; return t < 1 ? 0 : 1; } : Easing.linear}, finished => {
         if (finished && generation.value === token) scheduleOnRN(deliver, sessionId, epoch);
@@ -48,7 +54,7 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
         if (generation.value === token) cancelAnimation(progress);
       });
     };
-  }, [progress, generation, sessionId, epoch, phase, paused, reducedMotion, onComplete]);
+  }, [progress, generation, frame, state, sessionId, epoch, phase, paused, reducedMotion, onComplete]);
   const samplePose = useCallback((callback: (pose: Pose, sessionId: string, epoch: number) => void) => {
     const token = sequence.current;
     const deliver = (pose: Pose, id: string, currentEpoch: number) => {
@@ -62,5 +68,5 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
       scheduleOnRN(deliver, pose, sessionId, epoch);
     }, progress, generation);
   }, [progress, generation, phase, sessionId, epoch]);
-  return {progress, samplePose};
+  return {progress, frame, samplePose};
 }

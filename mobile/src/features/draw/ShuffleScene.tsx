@@ -9,21 +9,19 @@ import { useShuffleAnimation } from './useShuffleAnimation';
 type Props={state:SessionState;deck:DeckManifest;locale:Locale;onDraw:(pose:Pose,sessionId:string,epoch:number)=>void;onConfirm:()=>void;onPhaseComplete:(sessionId:string,epoch:number)=>void;paused:boolean;reducedMotion?:boolean};
 export function ShuffleScene({state,deck,locale,onDraw,onConfirm,onPhaseComplete,paused,reducedMotion=false}:Props) {
  const [size,setSize]=useState({width:0,height:0}), [failedId,setFailedId]=useState<number|null>(null);
- const assetFailed=state.selectedId!==null && failedId===state.selectedId;
- const {progress,samplePose}=useShuffleAnimation(state,paused,reducedMotion,onPhaseComplete);
- const selected=deck.cards.find(c=>c.id===state.selectedId), name=selected?.translations[locale].name;
+ // Keep the last revealed artwork through the RN→UI confirmation boundary.
+ const displayId=state.selectedId ?? state.drawnIds.at(-1) ?? null;
+ const assetFailed=displayId!==null && failedId===displayId;
+ const {progress,frame,samplePose}=useShuffleAnimation(state,paused,reducedMotion,onPhaseComplete);
+ const selected=deck.cards.find(c=>c.id===displayId), name=selected?.translations[locale].name;
  const faceKey=selected?.translations[locale].faceAsset ?? selected?.faceAsset;
  const assets:AssetRegistry=assetRegistry;
  const back=assets[deck.localizedBackAssets?.[locale] ?? deck.backAsset];
  const scale=Math.min(size.width/900,size.height/960);
- const intact=['regrip','return','lower'].includes(state.phase);
- const reveal=['lift','flip','reveal'].includes(state.phase);
  const canDraw=['regrip','ready','strip','contact','return','lower'].includes(state.phase)&&!state.drawQueued&&!paused;
  return <View style={styles.outer} onLayout={e=>setSize(e.nativeEvent.layout)}>
   {scale>0 && <View pointerEvents="none" style={{position:'absolute',width:900,height:960,left:(size.width-900)/2,top:(size.height-960)/2,transform:[{scale}]}}>
-    {intact && <Stack role="intact" count={state.remainingIds.length} state={state} progress={progress} back={back} />}
-    {!intact && <>{state.phase !== 'resume' && <Stack role="source" count={state.sourceIds.length} state={state} progress={progress} back={back}/>}<Stack role="receiver" count={state.receivedIds.length} state={state} progress={progress} back={back}/>{state.phase === 'resume' && <Stack role="source" count={state.sourceIds.length} state={state} progress={progress} back={back}/>}<Stack role="flying" count={state.flyingIds.length} state={state} progress={progress} back={back}/></>}
-    {reveal && <Stack role="selected" count={1} state={state} progress={progress} back={back} face={assetFailed?undefined:faceKey?assets[faceKey]:undefined} name={name} onAssetError={()=>setFailedId(state.selectedId)}/>}
+    {(['intact','source','receiver','flying','selected'] as const).map(role=><Stack key={role} role={role} frame={frame} revealed={state.phase==='reveal'} progress={progress} back={back} face={role==='selected'&&!assetFailed&&faceKey?assets[faceKey]:undefined} name={role==='selected'?name:undefined} onAssetError={()=>setFailedId(displayId)}/>)}
   </View>}
   {state.phase==='reveal' && <View style={styles.label}><Text style={styles.name}>{name}</Text>{assetFailed && <Pressable onPress={()=>setFailedId(null)} accessibilityRole="button"><Text style={styles.error}>{t('assetError',locale)} {t('retry',locale)}</Text></Pressable>}</View>}
   <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={t(state.phase==='reveal'?'confirm':'draw',locale)} disabled={paused||(!canDraw&&state.phase!=='reveal')} onPress={()=>state.phase==='reveal'?onConfirm():samplePose(onDraw)} />

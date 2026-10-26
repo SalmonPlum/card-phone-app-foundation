@@ -24,7 +24,7 @@ jest.mock('react-native-reanimated',()=>{
  const React=require('react');
  return {
   Easing:{linear:(n:number)=>n}, ReduceMotion:{Never:'never'},
-  useSharedValue:(initial:number)=>{const ref=React.useRef(null);if(!ref.current){const v:Value={current:initial,get value(){return v.current;},set value(next:number){if(typeof next==='number'){v.current=next;v.timing=undefined;}else{const a=next as unknown as Timing;v.timing={...a,start:v.current,elapsed:0};}}};ref.current=v;mockValues.push(v);}return ref.current;},
+  useSharedValue:(initial:number)=>{const ref=React.useRef(null);if(!ref.current){const v:Value={current:initial,get value(){return v.current;},set value(next:number){if(typeof next!=='object'||next===null||!('target' in next)){v.current=next;v.timing=undefined;}else{const a=next as unknown as Timing;v.timing={...a,start:v.current,elapsed:0};}}};ref.current=v;mockValues.push(v);}return ref.current;},
   withTiming:(target:number, config:{duration:number;easing:(n:number)=>number;reduceMotion?:string},callback:(done:boolean)=>void)=>({target,...config,duration:mockSystemReduce && config.reduceMotion !== 'never' ? 1 : config.duration,callback}),
   cancelAnimation:(v:Value)=>{const a=v.timing;v.timing=undefined;if(a)a.callback(false);},
  };

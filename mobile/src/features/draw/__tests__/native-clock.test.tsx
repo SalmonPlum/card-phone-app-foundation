@@ -1,4 +1,8 @@
-import { act, renderHook } from '@testing-library/react-native';
+import { act, fireEvent, render, renderHook } from '@testing-library/react-native';
+import { StyleSheet } from 'react-native';
+import type { TestInstance } from 'test-renderer';
+import { ShuffleScene } from '../ShuffleScene';
+import { Stack } from '../Stack';
 import type { SessionState } from '../../../domain/contracts';
 import { sampleDeck } from '../../../decks/sample';
 import { usePreviewSession } from '../usePreviewSession';
@@ -31,6 +35,10 @@ jest.mock('react-native-reanimated', () => {
   // eslint-disable-next-line @typescript-eslint/no-require-imports
   const React = require('react');
   return {
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    __esModule: true, default: { View: require('react-native').View },
+    // Retain callable mapper snapshots to test either side of an async commit.
+    useAnimatedStyle: (updater: () => unknown) => ({ __read: updater }),
     Easing: { linear: (n: number) => n }, ReduceMotion: { Never: 'never' },
     useSharedValue: (initial: number) => {
       const ref = React.useRef(null);
@@ -41,7 +49,7 @@ jest.mock('react-native-reanimated', () => {
           set value(next: number) {
             const apply = () => {
               const old = v.timing; v.timing = undefined; old?.callback(false);
-              if (typeof next === 'number') v.current = next;
+              if (typeof next !== 'object' || next === null || !('target' in next)) v.current = next;
               else {
                 const a = next as unknown as Timing;
                 if (a.duration === 0 || a.target === v.current) { v.current = a.target; a.callback(true); }
@@ -123,4 +131,150 @@ test('native pause samples on UI after the final frame and resumes the remaining
   await rerender({ paused: false }); await settle();
   await advance(311); expect(complete).not.toHaveBeenCalled();
   await advance(1); expect(complete).toHaveBeenCalledWith('one', 0);
+});
+
+
+const handlers = { onDraw: jest.fn(), onConfirm: jest.fn(), onPhaseComplete: jest.fn() };
+async function scene(state: SessionState) {
+  const view = await render(<ShuffleScene state={state} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+  await fireEvent(view.container.queryAll(n => typeof n.props.onLayout === 'function')[0], 'layout', { nativeEvent: { layout: { width: 900, height: 960 } } });
+  await settle();
+  return view;
+}
+function stacks(view: Awaited<ReturnType<typeof scene>>) {
+  return view.container.queryAll(n => Array.isArray(n.props.style) && StyleSheet.flatten(n.props.style[0])?.width === 238 && typeof n.props.style[1]?.__read === 'function' && 'left' in n.props.style[1].__read());
+}
+function roleOf(host: TestInstance): string {
+  // Test Renderer 1.3 exposes only hosts; walk ownership to label the real Stack.
+  for (let owner = host.unstable_fiber; owner; owner = owner.return) if (owner.type === Stack) return owner.memoizedProps.role;
+  throw new Error('Stack owner missing');
+}
+function mapper(view: Awaited<ReturnType<typeof scene>>, role: string) {
+  const host = stacks(view).find(s => roleOf(s) === role)!;
+  return (host.props.style[1] as { __read: () => Record<string, unknown> }).__read;
+}
+function backImages(view: Awaited<ReturnType<typeof scene>>) {
+  return stacks(view).map(stack => ({ role: roleOf(stack), images: stack.queryAll(n => n.type === 'Image') }));
+}
+const full = { ...base, remainingIds: [0, 1, 2, 3, 4, 5, 6, 7] };
+const ready = { ...full, phase: 'ready' as const, sourceIds: full.remainingIds };
+const strip = { ...full, epoch: 1, phase: 'strip' as const, sourceIds: [2, 3, 4, 5, 6, 7], flyingIds: [0, 1] };
+const contact = { ...full, epoch: 2, phase: 'contact' as const, sourceIds: strip.sourceIds, receivedIds: [0, 1] };
+
+test('React commit before UI phase reset keeps the previous visible surfaces and top depth', async () => {
+  const view = await scene(ready);
+  await act(() => mockAdvance(144));
+  const before = mapper(view, 'source')();
+  const beforeDepth = backImages(view).find(s => s.role === 'source')!.images[0].parent!.props.style[1].__read?.();
+  await view.rerender(<ShuffleScene state={strip} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+  // New RN closures must not paint a packet at the previous clock's endpoint.
+  const flying = mapper(view, 'flying')();
+  expect(flying.opacity === 0 ? 'previous frame' : flying.left).toBe('previous frame');
+  expect(mapper(view, 'source')()).toEqual(before);
+  expect(backImages(view).find(s => s.role === 'source')!.images[0].parent!.props.style[1].__read?.()).toEqual(beforeDepth);
+  await settle();
+  expect(mapper(view, 'flying')().opacity).toBe(1);
+  expect(mapper(view, 'flying')().left).toBeGreaterThan(450);
+});
+
+test('UI phase reset before mapper replacement makes old mappers read the same phase and counts', async () => {
+  const prior = { ...strip, sourceIds: [2, 3, 4, 5, 6], receivedIds: [7] };
+  const landed = { ...contact, sourceIds: prior.sourceIds, receivedIds: [0, 1, 7] };
+  const view = await scene(prior);
+  await act(() => mockAdvance(496));
+  const oldFlying = mapper(view, 'flying');
+  const oldReceiver = mapper(view, 'receiver');
+  await view.rerender(<ShuffleScene state={landed} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+  await settle();
+  await act(() => mockAdvance(24));
+  expect(oldReceiver()).toEqual(mapper(view, 'receiver')());
+  expect(oldFlying().opacity).toBe(0);
+});
+
+test('back images survive packets, intact return, and resume order changes without native fade', async () => {
+  const view = await scene(ready);
+  const initial = backImages(view);
+  expect(initial).toHaveLength(5);
+  for (const { images } of initial) {
+    expect(images).toHaveLength(1);
+    expect(images[0].props.fadeDuration).toBe(0);
+  }
+  const states: SessionState[] = [strip, contact, { ...strip, epoch: 3 }, { ...full, phase: 'return', epoch: 4 }, { ...ready, epoch: 5 }, { ...contact, phase: 'resume', epoch: 6 }, { ...full, phase: 'return', epoch: 7 }];
+  for (const state of states) {
+    await view.rerender(<ShuffleScene state={state} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+    await settle();
+    const next = backImages(view);
+    for (const saved of initial) expect(next.find(s => s.role === saved.role)!.images[0]).toBe(saved.images[0]);
+  }
+});
+
+
+test('selected face stays mounted until UI leaves reveal and still supports asset error retry', async () => {
+  const selected = { ...contact, phase: 'reveal' as const, epoch: 3, selectedId: 0, remainingIds: full.remainingIds.slice(1), receivedIds: [1], drawnIds: [0] };
+  const view = await scene(selected);
+  const image = () => backImages(view).find(s => s.role === 'selected')!.images;
+  expect(image()).toHaveLength(2);
+  expect(image()[1].props.fadeDuration).toBe(0);
+  await fireEvent(image()[1], 'error');
+  expect(image()).toHaveLength(1);
+  await fireEvent.press(view.getAllByRole('button', { name: 'Try again' })[0]);
+  expect(image()).toHaveLength(2);
+  const face = image()[1];
+  await view.rerender(<ShuffleScene state={{...selected,phase:'resume',epoch:4,selectedId:null}} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+  expect(image()[1]).toBe(face);
+  expect(mapper(view, 'selected')().opacity).toBe(1);
+  await settle();
+  expect(mapper(view, 'selected')().opacity).toBe(0);
+});
+
+
+test.each([1, 8, 100])('intact return waits for a coherent UI boundary for %i cards', async count => {
+  const all = Array.from({length:count}, (_,i)=>i);
+  const landed = { ...base, remainingIds: all, receivedIds: all, phase: 'contact' as const };
+  const returning = { ...landed, receivedIds: [], epoch: 1, phase: 'return' as const };
+  const next = { ...returning, sourceIds: all, epoch: 2, phase: 'ready' as const };
+  const view = await scene(landed);
+  await act(()=>mockAdvance(96));
+  const prior = mapper(view,'receiver')();
+  await view.rerender(<ShuffleScene state={returning} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  expect(mapper(view,'receiver')()).toEqual(prior);
+  expect(mapper(view,'intact')().opacity).toBe(0);
+  await settle();
+  expect(mapper(view,'intact')()).toMatchObject({opacity:1,left:181,top:396});
+  await act(()=>mockAdvance(864));
+  const oldIntact=mapper(view,'intact');
+  await view.rerender(<ShuffleScene state={next} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  expect(mapper(view,'intact')()).toMatchObject({opacity:1,left:501,top:151});
+  expect(mapper(view,'source')().opacity).toBe(0);
+  await settle();
+  expect(oldIntact().opacity).toBe(0);
+  expect(mapper(view,'source')()).toMatchObject({opacity:1,left:501,top:151});
+  const edges=stacks(view).find(s=>roleOf(s)==='source')!.children.slice(0,12) as TestInstance[];
+  expect(edges.filter(e=>e.props.style[1].__read().opacity===1)).toHaveLength(Math.min(count,12));
+  expect(edges).toHaveLength(12);
+});
+
+
+test('native flying image identity survives its zero-count contact interval', async () => {
+  const view=await scene(strip);
+  const flying=()=>backImages(view).find(s=>s.role==='flying')?.images[0];
+  const first=flying();
+  expect(first).toBeDefined();
+  await view.rerender(<ShuffleScene state={contact} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  await view.rerender(<ShuffleScene state={{...strip,epoch:3}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  expect(flying() === first).toBe(true);
+});
+
+test('native source image identity survives the whole-deck return interval', async () => {
+  const view=await scene(ready);
+  const source=()=>backImages(view).find(s=>s.role==='source')?.images[0];
+  const first=source();
+  expect(first).toBeDefined();
+  await view.rerender(<ShuffleScene state={{...full,epoch:1,phase:'return'}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  await view.rerender(<ShuffleScene state={{...ready,epoch:2}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  expect(source() === first).toBe(true);
 });
