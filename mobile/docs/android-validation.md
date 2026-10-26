@@ -1,5 +1,9 @@
 # Android motion validation (pending)
 
-The temporary home action opens the draw preview in the existing development client. Start Metro from `mobile` with `npm start`, connect the already-built client, and refresh the JavaScript bundle. No new native dependencies were added.
+The temporary home action opens the draw preview in the existing development client. After the phase-clock fix, stop any old Metro process and restart from `mobile` with `npm start -- --clear`, connect the already-built client, and fully reload the JavaScript bundle. No new native dependencies were added.
 
 Compare the native motion against `prototypes/overhand-shuffle.html` at 1.25×: observe multiple complete passes, tap at regrip, ready, strip, contact and return, then confirm that the moving packet lands before a card lifts and flips. Check that the card name stays visible until confirmation, the source parks and rejoins, and Stop opens committed results. Repeat with a narrow display, increased font size, reduced motion and background/foreground during a flip. Check the 100-card fixture through the controller tests; physical 100-card rendering still needs a device fixture. Capture device identity and a recording if available. Native appearance, fluidity, performance and approval are not established by Metro export or mocked tests.
+
+## Phase-clock regression to retest
+
+The first phone run exposed rapid, nearly invisible packet transfers and late taps being ignored without an error screen. The old clock reset a shared value on JavaScript and immediately read the previous phase's completed progress, producing zero-duration later phases. Commit `a25014e` moves reset and timing setup into one UI-thread operation. A deferred-write integration test reproduced the original failure and now checks multiple timed transfers, a full return, and a second-pass tap through one held reveal. This is automated evidence; the corrected build still needs phone confirmation. Let one full pass finish before tapping, then repeat a late draw and confirmation.
