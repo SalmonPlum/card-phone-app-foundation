@@ -2,15 +2,15 @@
 
 ## Current validation status
 
-Task 1 is a source-only foundation under the controller's revised scope. Registry access failed with `EAI_AGAIN registry.npmjs.org` before the official scaffold could run. The minimal source was authored manually from the official SDK 58 template and Router installation guidance. There are no installed packages or generated native projects, and no fabricated package-lock.json. Jest, TypeScript, ESLint, Expo Doctor, Metro bundling, and Android launch remain unverified.
+The npm registry is unavailable inside this managed session, so the minimal shell was initially authored from official SDK58 source. The user subsequently ran `npm install` in the normal terminal. Dependencies are now installed and the real `package-lock.json` is committed. Domain tests (68), the shell UI test, TypeScript, lint with no warnings, deck validation, and an offline Android Metro/Hermes export have passed. See [phase-one status](phase-one-status.md) for scope and evidence.
 
-The shell test was authored before the shell source but could not execute. There is **no observed behavioural RED or GREEN**. A missing-module error would not count as RED. Tests are in `src/__tests__/`, outside Expo Router's `src/app/` route tree; future navigation tests must follow the same rule.
+Expo Doctor/online compatibility verification and native Android build/device checks remain pending. Offline `expo install --check` exited successfully but warned its compatibility validation is unreliable without network access; that is not an online compatibility pass.
 
-Node `v22.23.1` and npm `10.9.8` are available. Built-in Node syntax checks and source-config loading ran successfully; these are not substitutes for typecheck or a device build.
+The shell test was authored before its source but only executed after installation; no historical behavioural RED is claimed for that test. Domain work has recorded test-first failures and passing implementations. Tests stay outside Expo Router's `src/app/` route tree. Node `v22.23.1` and npm `10.9.8` were used.
 
 ## Version provenance
 
-Direct versions are exact in package.json; transitive resolution is pending. Sources were inspected on 2026-10-26. No native package versions were chosen independently of Expo's compatibility map.
+Direct versions are exact in package.json; transitive resolution is recorded in the committed lockfile. Sources were inspected on 2026-10-26. No native package versions were chosen independently of Expo's compatibility map.
 
 | Package set | Source versions |
 | --- | --- |
@@ -31,27 +31,24 @@ Direct versions are exact in package.json; transitive resolution is pending. Sou
 
 These sources establish a candidate compatible set. Registry availability and actual resolved compatibility must be verified by installation and Expo's checks.
 
-## Bootstrap on a network-enabled host
+## Install and check on a network-enabled host
 
-Run from `mobile/`, preserving and reviewing the committed exact dependency pins:
+For a fresh checkout, run from `mobile/`:
 
 ```sh
-npm install
-npx expo install expo-router expo-constants expo-linking expo-status-bar react-native-safe-area-context react-native-screens react-native-gesture-handler expo-crypto expo-localization expo-dev-client react-native-reanimated react-native-worklets -- --save-exact
-npx expo install jest-expo --dev -- --save-exact
-npx expo install --check
-npm test -- --runInBand src/__tests__/shell.test.tsx
+npm ci
+npm run test:domain
+npm run validate:decks
+npm test -- --runInBand
 npm run typecheck
 npm run lint
+npx expo install --check
 npx expo-doctor
-npm test -- --runInBand
 ```
 
-Review any version changes from `expo install`, then commit package.json and the genuinely generated package-lock.json after all checks pass. Subsequent clean installs use `npm ci`. Only the integrator modifies dependency/configuration files after this foundation.
+Use `npm ci` for the existing lockfile. Dependency changes belong to the integrator; review any Expo-compatible update before changing package.json/lockfile. The saved audit findings are scheduled for the next iteration—see [security follow-up](security/follow-up.md). Do not run automatic major-version audit fixes.
 
-To establish the deferred behavioural RED, temporarily render an empty container without the `home-screen` test ID; the focused test must fail its screen query, then pass after restoring HomeShell. Do not accept an import/configuration failure as RED. This verification remains pending.
-
-`validate:decks` reserves `scripts/validate-decks.ts` for Task 2 and is not runnable until that task adds the validator. `android:release` is a local release-variant build/install command; production signing/store delivery is separate and is not configured here.
+`android:release` builds/installs the local release variant; production signing/store delivery is separate.
 
 ## Framework-free domain tests without downloads
 
@@ -61,7 +58,7 @@ Node 22's built-in TypeScript stripping and test runner allow domain work while 
 npm run test:domain -- src/domain/__tests__/deck.node.test.ts
 ```
 
-Use explicit test file arguments. Name these suites `*.node.test.ts`, import `test` from `node:test` and assertions from `node:assert/strict`, use explicit `.ts` paths for local imports, and use `import type` for contracts. Jest ignores these suites. Built-in stripping does not typecheck, transpile TSX, resolve Expo path aliases, or support non-erasable TypeScript constructs. Keep domain code free of React Native types and APIs; deck asset keys are strings, and Task 2 owns the native asset registry.
+Without arguments, the test runner discovers all domain suites. Optional explicit test file arguments select a focused run. Name these suites `*.node.test.ts`, import `test` from `node:test` and assertions from `node:assert/strict`, use explicit `.ts` paths for local imports, and use `import type` for contracts. Jest ignores these suites. Built-in stripping does not typecheck, transpile TSX, resolve Expo path aliases, or support non-erasable TypeScript constructs. Keep domain code free of React Native types and APIs; deck asset keys are strings, and `src/decks/assets.ts` supplies the native asset registry.
 
 ## Android host prerequisites
 

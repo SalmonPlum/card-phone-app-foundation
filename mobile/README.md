@@ -1,7 +1,9 @@
 # Temporary card foundation
 
-Android-first Expo Router/TypeScript source foundation. The app name and `com.example.temporarycards` application ID are temporary. The configured bundled deck is `sample`; deck content and session logic follow in later tasks.
+Android-first Expo Router/TypeScript app in the first development phase. The app name and `com.example.temporarycards` application ID remain temporary. The configured bundled deck is `sample`.
 
-Dependencies have **not been installed** in this environment: npm registry DNS is blocked. There is deliberately no lockfile. On a network-enabled development host, follow [development setup](docs/development.md) to install, validate compatibility, generate the lockfile, and run the shell test before treating this as a runnable app.
+The foundation includes complete Czech/English sample content, validated replaceable decks, secure-random primitives, and the packet-aware session engine. Native shuffle rendering and catalogue/results screens are the next implementation milestones; the current app opens a neutral foundation shell.
 
-The shell currently displays a neutral bilingual placeholder. System-locale selection and translated content are implemented with the deck/content task; there is no language or speed settings screen.
+Dependencies are installed and the genuine npm lockfile is committed. Domain/UI tests, TypeScript, lint, deck validation, and an Android Metro bundle have passed. Native APK build/device launch remain unverified.
+
+See [phase-one status and phone launch instructions](docs/phase-one-status.md), [development setup](docs/development.md), [deck authoring](docs/deck-authoring.md), and the [security follow-up](docs/security/follow-up.md). The user requested the recorded audit findings be addressed next iteration.
