@@ -21,14 +21,14 @@ export function Stack({role,count,state,progress,back,face,name,onAssetError}: P
     if(role==='flying') { p=mix(above(SOURCE,state.sourceIds.length,total),above(RECEIVER,state.receivedIds.length,total),e); p={...p,x:p.x-Math.sin(Math.PI*t)*13,y:p.y-Math.sin(Math.PI*t)*9,angle:p.angle-Math.sin(Math.PI*t)*.025}; }
     if(role==='selected') { p=mix(above(RECEIVER,state.receivedIds.length,total),FOREGROUND,phase==='lift'?e:1); if(phase==='lift') p={...p,x:p.x-Math.sin(Math.PI*t)*18,angle:p.angle-Math.sin(Math.PI*t)*.06}; }
     const turn=role==='selected'?(phase==='flip'?ease(t):phase==='reveal'?1:0):0;
-    return {left:p.x-119,top:p.y-179,transform:[{rotate:`${p.angle}rad`},{scaleX:p.scale*(role==='selected'?Math.max(.012,Math.abs(Math.cos(Math.PI*turn))):1)},{scaleY:p.scale*.88}]};
+    return {left:p.x-119,top:p.y-179,transform:[{scaleX:p.scale},{scaleY:p.scale*.88},{rotate:`${p.angle}rad`},{scaleX:role==='selected'?Math.max(.012,Math.abs(Math.cos(Math.PI*turn))):1}]};
   });
   const frontStyle = useAnimatedStyle(() => ({opacity: state.phase==='reveal'||(state.phase==='flip'&&progress.value>=.5)?1:0}));
   if (!count) return null;
   const layers=Math.min(count,12), depth=layerStep(total)*Math.max(0,count-1);
   return <Animated.View style={[styles.stack,style]} accessible={role==='selected' && state.phase==='reveal'} accessibilityLabel={name}>
-    {Array.from({length:layers},(_,i) => { const d=layers===1?0:depth*(layers-1-i)/(layers-1); return <View key={i} style={[styles.edge,{left:-d*.8/4.2,top:-d}]} />; })}
-    <Image source={back} style={styles.image} resizeMode="cover" />
+    {Array.from({length:layers},(_,i) => { const d=layers===1?0:depth*i/(layers-1); return <View key={i} style={[styles.edge,{left:-d*.8/4.2,top:-d}]} />; })}
+    <Image source={back} style={[styles.image,{position:'absolute',left:-depth*.8/4.2,top:-depth}]} resizeMode="cover" />
     {role==='selected' && <Animated.View style={[styles.front,frontStyle]}>{face ? <Image source={face} style={styles.image} resizeMode="cover" onError={onAssetError} /> : <View style={styles.placeholder} />}</Animated.View>}
   </Animated.View>;
 }
