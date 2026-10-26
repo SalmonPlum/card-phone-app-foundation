@@ -1,5 +1,7 @@
 # First development phase
 
+This document records the historical foundation checkpoint. A native draw preview was added afterward; see [current motion validation](android-validation.md).
+
 This phase implements Tasks 1–3 of the approved plan: the Expo application shell, bilingual deck packages and secure-random primitives, and the packet-aware session engine. It does not yet implement the native shuffle scene, catalogue grid, results, or complete navigation. Launching the current app shows the foundation shell.
 
 ## Implemented

@@ -2,9 +2,9 @@
 
 ## Current validation status
 
-The npm registry is unavailable inside this managed session, so the minimal shell was initially authored from official SDK58 source. The user subsequently ran `npm install` in the normal terminal. Dependencies are now installed and the real `package-lock.json` is committed. Domain tests (68), the shell UI test, TypeScript, lint with no warnings, deck validation, and an offline Android Metro/Hermes export have passed. See [phase-one status](phase-one-status.md) for scope and evidence.
+The npm registry is unavailable inside this managed session, so the minimal shell was initially authored from official SDK58 source. The user subsequently ran `npm install` in the normal terminal. Dependencies are now installed and the real `package-lock.json` is committed. The foundation checks passed, followed by native-preview checks: 71 Node tests, 20 Jest tests, TypeScript, lint with no warnings, deck validation, and an Android Metro export. The separate security regression is still pending the targeted Zod refresh. See [phase-one status](phase-one-status.md) for scope and evidence.
 
-Expo Doctor/online compatibility verification and native Android build/device checks remain pending. Offline `expo install --check` exited successfully but warned its compatibility validation is unreliable without network access; that is not an online compatibility pass.
+The user confirmed a baseline Android development build runs on the phone. New native motion visual/performance checks and Expo Doctor/online compatibility verification remain pending. Offline `expo install --check` exited successfully but warned its compatibility validation is unreliable without network access; that is not an online compatibility pass.
 
 The shell test was authored before its source but only executed after installation; no historical behavioural RED is claimed for that test. Domain work has recorded test-first failures and passing implementations. Tests stay outside Expo Router's `src/app/` route tree. Node `v22.23.1` and npm `10.9.8` were used.
 
@@ -15,7 +15,7 @@ Direct versions are exact in package.json; transitive resolution is recorded in 
 | Package set | Source versions |
 | --- | --- |
 | Expo | 58.0.17 |
-| React / React Native | 19.3.0 / 0.88.0 |
+| React / React DOM / React Native | 19.3.0 / 19.3.0 / 0.88.0 |
 | Reanimated / Worklets | 4.7.1 / 0.13.0 |
 | TypeScript / React types | 6.0.3 / 19.3.0 |
 | Jest Expo / Jest / RNTL | 58.0.12 / 30.4.2 / 14.1.0 |
@@ -33,7 +33,7 @@ These sources establish a candidate compatible set. Registry availability and ac
 
 ## Install and check on a network-enabled host
 
-For a fresh checkout, run from `mobile/`:
+The CLI Zod override is not yet reflected in the lockfile; its targeted refresh and security validation must finish before claiming clean-install reproducibility. Follow [security follow-up](security/follow-up.md) for the pending host command. After that gate is closed, run from `mobile/` for a fresh checkout:
 
 ```sh
 npm ci
