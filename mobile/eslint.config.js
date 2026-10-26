@@ -1,0 +1,6 @@
+import expoConfig from 'eslint-config-expo/flat.js';
+
+export default [
+  ...expoConfig,
+  { ignores: ['.expo/**', 'dist/**', 'coverage/**', 'android/**', 'ios/**'] },
+];
