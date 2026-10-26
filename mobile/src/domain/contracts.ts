@@ -9,7 +9,7 @@ export type DeckManifest = {
   name: Record<Locale, string>;
   backAsset: string;
   localizedBackAssets?: Partial<Record<Locale, string>>;
-  cards: Array<{
+  cards: {
     id: CardId;
     faceAsset: string;
     translations: Record<Locale, {
@@ -18,7 +18,7 @@ export type DeckManifest = {
       description: string;
       faceAsset?: string;
     }>;
-  }>;
+  }[];
 };
 
 export type Card = DeckManifest['cards'][number];
