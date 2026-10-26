@@ -278,3 +278,55 @@ test('native source image identity survives the whole-deck return interval', asy
   await settle();
   expect(source() === first).toBe(true);
 });
+
+test.each([true,false])('queue-only DRAW preserves the existing packet deadline (reduced=%s)', async reduced => {
+  const complete=jest.fn();
+  const {result,rerender}=await renderHook(({state}:{state:SessionState})=>useShuffleAnimation(state,false,reduced,complete),{initialProps:{state:strip}});
+  await settle();
+  await act(()=>mockAdvance(300));
+  const poseProgress=result.current.progress.value;
+  await rerender({state:{...strip,drawQueued:true}});
+  await settle();
+  expect(result.current.progress.value).toBe(poseProgress);
+  const remaining=reduced?100:196;
+  await advance(remaining-1);
+  expect(complete).not.toHaveBeenCalled();
+  await advance(1);
+  expect(complete).toHaveBeenCalledTimes(1);
+  expect(complete).toHaveBeenCalledWith(strip.sessionId,strip.epoch);
+  await advance(1000);
+  expect(complete).toHaveBeenCalledTimes(1);
+});
+
+test('reduced-motion late queued draw lands at the original deadline and commits once after contact', async () => {
+  const {result}=await renderHook(()=>{
+    const session=usePreviewSession(sampleDeck);
+    const animation=useShuffleAnimation(session.state ?? base,!session.state,true,session.complete);
+    return {session,animation};
+  });
+  await act(()=>result.current.session.reset());
+  await settle();
+  await advance(400);
+  await advance(400);
+  expect(result.current.session.state!.phase).toBe('strip');
+  const packetTop=result.current.session.state!.flyingIds[0];
+  const epoch=result.current.session.state!.epoch;
+  await advance(300);
+  await act(()=>result.current.animation.samplePose(result.current.session.draw));
+  await settle();
+  await settle();
+  expect(result.current.session.state).toMatchObject({phase:'strip',epoch,drawQueued:true});
+  await advance(99);
+  expect(result.current.session.state!.phase).toBe('strip');
+  await advance(1);
+  expect(result.current.session.state).toMatchObject({phase:'contact',epoch:epoch+1});
+  expect(result.current.session.state!.drawnIds).toHaveLength(0);
+  await advance(400);
+  expect(result.current.session.state).toMatchObject({phase:'lift',epoch:epoch+2,selectedId:packetTop});
+  expect(result.current.session.state!.drawnIds).toHaveLength(1);
+  await advance(400);
+  await advance(400);
+  await advance(1000);
+  expect(result.current.session.state!.phase).toBe('reveal');
+  expect(result.current.session.state!.drawnIds).toHaveLength(1);
+});

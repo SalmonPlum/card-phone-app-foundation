@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { cancelAnimation, Easing, ReduceMotion, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import type { Pose, SessionState } from '../../domain/contracts';
@@ -7,10 +7,19 @@ import { phaseDurationMs, regripPose, returnPose, SOURCE } from './motion';
 
 export function useShuffleAnimation(state: SessionState, paused: boolean, reducedMotion: boolean, onComplete: (sessionId: string, epoch: number) => void) {
   const progress = useSharedValue(0);
-  const frame = useSharedValue(renderFrame(state));
+  const { sessionId, epoch, phase } = state;
+  const { total, remaining, source, received, flying, selected } = renderFrame(state);
+  const hasOrigin = state.phaseOrigin !== null;
+  const { x = 0, y = 0, angle = 0, scale = 1 } = state.phaseOrigin ?? {};
+  // A queue-only DRAW changes the session object, not its visual boundary.
+  // Keep this identity stable so it cannot cancel/restart a stepped hold.
+  const nextFrame = useMemo(() => ({
+    phase, phaseOrigin: hasOrigin ? { x, y, angle, scale } : null,
+    total, remaining, source, received, flying, selected,
+  }), [phase, hasOrigin, x, y, angle, scale, total, remaining, source, received, flying, selected]);
+  const frame = useSharedValue(nextFrame);
   const generation = useSharedValue(0);
   const sequence = useRef(0);
-  const { sessionId, epoch, phase } = state;
   useEffect(() => {
     const token = ++sequence.current;
     return () => {
@@ -27,7 +36,6 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
     let active = true;
     const token = sequence.current;
     const deliver = (id: string, token: number) => { if (active) onComplete(id, token); };
-    const nextFrame = renderFrame(state);
     const phaseDuration = phaseDurationMs(phase);
     const duration = reducedMotion ? 400 : phaseDuration;
     scheduleOnUI(() => {
@@ -54,7 +62,7 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
         if (generation.value === token) cancelAnimation(progress);
       });
     };
-  }, [progress, generation, frame, state, sessionId, epoch, phase, paused, reducedMotion, onComplete]);
+  }, [progress, generation, frame, nextFrame, sessionId, epoch, phase, paused, reducedMotion, onComplete]);
   const samplePose = useCallback((callback: (pose: Pose, sessionId: string, epoch: number) => void) => {
     const token = sequence.current;
     const deliver = (pose: Pose, id: string, currentEpoch: number) => {

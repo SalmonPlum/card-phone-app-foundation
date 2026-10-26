@@ -94,3 +94,19 @@ test('sampled RN delivery is invalidated by unmount',async()=>{
  const draw=jest.fn(),complete=jest.fn();const {result,unmount}=await renderHook(()=>useShuffleAnimation(base,false,false,complete));await act(mockFlushUi);
  await act(()=>result.current.samplePose(draw));await act(()=>mockUiQueue.shift()!());await unmount();await act(mockFlush);expect(draw).not.toHaveBeenCalled();
 });
+
+test('late queue-only reduced-motion DRAW retains the original 400ms packet hold',async()=>{
+ const state:SessionState={...base,phase:'strip',epoch:1,remainingIds:[0,1],sourceIds:[1],flyingIds:[0]};
+ const complete=jest.fn();
+ const {result,rerender}=await renderHook(({queued}:{queued:boolean})=>useShuffleAnimation({...state,drawQueued:queued},false,true,complete),{initialProps:{queued:false}});
+ await act(mockFlushUi);
+ await act(()=>mockAdvance(300));
+ expect(result.current.progress.value).toBe(0);
+ await rerender({queued:true});
+ await act(mockFlushUi);
+ await act(()=>{mockAdvance(99);mockFlush();});
+ expect(complete).not.toHaveBeenCalled();
+ await act(()=>{mockAdvance(1);mockFlush();});
+ expect(complete).toHaveBeenCalledTimes(1);
+ expect(complete).toHaveBeenCalledWith(state.sessionId,state.epoch);
+});
