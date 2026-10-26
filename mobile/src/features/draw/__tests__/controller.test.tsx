@@ -2,7 +2,8 @@ import { act, renderHook } from '@testing-library/react-native';
 import { usePreviewSession } from '../usePreviewSession';
 import { sampleDeck } from '../../../decks/sample';
 import type { DeckManifest } from '../../../domain/contracts';
-jest.mock('expo-crypto', () => ({randomUUID: () => 'test-session', getRandomValues: (a: Uint32Array) => {a[0]=0; return a;}}));
+let mockId=0;
+jest.mock('expo-crypto', () => ({randomUUID: () => `test-session-${++mockId}`,  getRandomValues: (a: Uint32Array) => {a[0]=0; return a;}}));
 const deck:DeckManifest={...sampleDeck,cards:Array.from({length:100},(_,id)=>({...sampleDeck.cards[0],id}))};
 test('early taps commit only the lower top after the current packet lands',async()=>{
  const {result}=await renderHook(()=>usePreviewSession(deck));
@@ -19,4 +20,14 @@ test('early taps commit only the lower top after the current packet lands',async
  await act(()=>result.current.complete(s.sessionId,s.epoch));
  s=result.current.state!;expect(s.phase).toBe('lift');expect(s.selectedId).toBe(top);expect(s.drawnIds).toEqual([top]);
  await act(()=>result.current.confirm());expect(result.current.state!.phase).toBe('lift');
+});
+
+test('old completion tokens cannot advance a reset session',async()=>{
+ const {result}=await renderHook(()=>usePreviewSession(deck));
+ await act(()=>result.current.reset());const old=result.current.state!;
+ await act(()=>result.current.reset());const fresh=result.current.state!;expect(fresh.sessionId).not.toBe(old.sessionId);
+ await act(()=>result.current.complete(old.sessionId,old.epoch));
+ expect(result.current.state).toBe(fresh);
+ await act(()=>result.current.complete(fresh.sessionId,fresh.epoch));const next=result.current.state!;
+ await act(()=>result.current.complete(fresh.sessionId,fresh.epoch));expect(result.current.state).toBe(next);
 });

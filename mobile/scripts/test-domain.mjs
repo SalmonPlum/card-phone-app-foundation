@@ -11,8 +11,8 @@ async function discover(directory) {
   }));
   return nested.flat();
 }
-const files = (await Promise.all(['src/domain', 'src/i18n', 'src/platform'].map(discover))).flat().sort();
-if (files.length === 0) throw new Error('No domain Node tests discovered');
+const files = (await discover('src')).sort();
+if (files.length === 0) throw new Error('No Node tests discovered');
 const result = spawnSync(process.execPath, ['--experimental-strip-types', '--test', '--experimental-test-isolation=none', ...files], { cwd: root, stdio: 'inherit' });
 if (result.error) throw result.error;
 process.exit(result.status ?? 1);
