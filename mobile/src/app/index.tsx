@@ -1,3 +1,4 @@
+import { Link } from 'expo-router';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -8,6 +9,7 @@ export function HomeShell(): React.JSX.Element {
         <View style={styles.heading}>
           <Text accessibilityRole="header" style={styles.title}>Karty · Cards</Text>
           <Text style={styles.subtitle}>Ukázková aplikace · Sample app</Text>
+        <Link href={"/draw-preview" as never} style={styles.link}>Vytahovat karty · Draw cards</Link>
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -22,5 +24,6 @@ const styles = StyleSheet.create({
   content: { flexGrow: 1, justifyContent: 'center', padding: 24 },
   heading: { gap: 12 },
   title: { color: '#252923', fontSize: 32, fontWeight: '600' },
+  link: { color: '#315b47', fontSize: 18, paddingVertical: 16 },
   subtitle: { color: '#53594f', fontSize: 18, lineHeight: 28 },
 });

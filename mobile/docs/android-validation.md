@@ -1,0 +1,5 @@
+# Android motion validation (pending)
+
+The temporary home action opens the draw preview in the existing development client. Start Metro from `mobile` with `npm start`, connect the already-built client, and refresh the JavaScript bundle. No new native dependencies were added.
+
+Compare the native motion against `prototypes/overhand-shuffle.html` at 1.25×: observe multiple complete passes, tap at regrip, ready, strip, contact and return, then confirm that the moving packet lands before a card lifts and flips. Check that the card name stays visible until confirmation, the source parks and rejoins, and Stop opens committed results. Repeat with a narrow display, increased font size, reduced motion and background/foreground during a flip. Check the 100-card fixture through the controller tests; physical 100-card rendering still needs a device fixture. Capture device identity and a recording if available. Native appearance, fluidity, performance and approval are not established by Metro export or mocked tests.

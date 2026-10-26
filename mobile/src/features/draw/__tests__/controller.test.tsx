@@ -1,0 +1,22 @@
+import { act, renderHook } from '@testing-library/react-native';
+import { usePreviewSession } from '../usePreviewSession';
+import { sampleDeck } from '../../../decks/sample';
+import type { DeckManifest } from '../../../domain/contracts';
+jest.mock('expo-crypto', () => ({randomUUID: () => 'test-session', getRandomValues: (a: Uint32Array) => {a[0]=0; return a;}}));
+const deck:DeckManifest={...sampleDeck,cards:Array.from({length:100},(_,id)=>({...sampleDeck.cards[0],id}))};
+test('early taps commit only the lower top after the current packet lands',async()=>{
+ const {result}=await renderHook(()=>usePreviewSession(deck));
+ await act(()=>result.current.reset());
+ let s=result.current.state!;
+ await act(()=>result.current.complete(s.sessionId,s.epoch));
+ s=result.current.state!;
+ await act(()=>result.current.complete(s.sessionId,s.epoch));
+ s=result.current.state!; expect(s.phase).toBe('strip'); expect(s.sourceIds.length).toBeGreaterThan(90);
+ await act(()=>{result.current.draw({x:620,y:330,angle:.12,scale:1},s.sessionId,s.epoch);result.current.draw({x:620,y:330,angle:.12,scale:1},s.sessionId,s.epoch);});
+ expect(result.current.state!.drawQueued).toBe(true);
+ await act(()=>result.current.complete(s.sessionId,s.epoch));
+ s=result.current.state!;const top=s.receivedIds[0];
+ await act(()=>result.current.complete(s.sessionId,s.epoch));
+ s=result.current.state!;expect(s.phase).toBe('lift');expect(s.selectedId).toBe(top);expect(s.drawnIds).toEqual([top]);
+ await act(()=>result.current.confirm());expect(result.current.state!.phase).toBe('lift');
+});
