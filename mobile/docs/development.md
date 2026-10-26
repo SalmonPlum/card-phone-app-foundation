@@ -2,7 +2,7 @@
 
 ## Current validation status
 
-The npm registry is unavailable inside this managed session, so the minimal shell was initially authored from official SDK58 source. The user subsequently ran `npm install` in the normal terminal. Dependencies are now installed and the real `package-lock.json` is committed. The foundation checks passed, followed by native-preview checks: 71 Node tests, 22 Jest tests, TypeScript, lint with no warnings, deck validation, and an Android Metro export. The separate security regression is still pending the targeted Zod refresh. See [phase-one status](phase-one-status.md) for scope and evidence.
+The npm registry is unavailable inside this managed session, so the minimal shell was initially authored from official SDK58 source. The user subsequently ran `npm install` in the normal terminal. Dependencies are now installed and the real `package-lock.json` is committed. The foundation checks passed, followed by native-preview checks: 71 Node tests, 35 Jest tests, TypeScript, lint with no warnings, deck validation, and an Android Metro export. The separate security regression is still pending the targeted Zod refresh. See [phase-one status](phase-one-status.md) for scope and evidence.
 
 The user confirmed a baseline Android development build runs on the phone. New native motion visual/performance checks and Expo Doctor/online compatibility verification remain pending. Offline `expo install --check` exited successfully but warned its compatibility validation is unreliable without network access; that is not an online compatibility pass.
 
