@@ -4,3 +4,6 @@ ios/
 node_modules/
 coverage/
 dist/
+
+# Raw local audit export; versioned baseline lives in docs/security/.
+/npm-audit.json
