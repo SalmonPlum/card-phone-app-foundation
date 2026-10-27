@@ -1,17 +1,14 @@
 # Larger foreground card reveal — deferred design
 
-Status: planning only; requested by the user, not implemented. Exact animation sequencing and final size remain to be confirmed. The current native shuffle and flicker correction have been visually accepted on the user's phone.
+Status: planning only; requested by the user, not implemented. The user confirmed full enlargement before flipping; final size still needs visual validation. The current native shuffle and flicker correction have been visually accepted on the user's phone.
 
 ## Confirmed intent
 
 After a draw, the selected card should feel as though it comes closer to the viewer and becomes large enough to fill the majority of the screen. Enlarge the selected card only. Preserve the accepted overhand shuffle and the existing face/name-only inspection, explicit confirmation, unique draws, and Stop/results rules. Implement this later; no application code changes are authorized by this note.
 
-## Approaches
+## Confirmed sequencing
 
-1. **Grow during foreground travel, then flip — recommended proposal.** Extend the existing lift toward the viewer to a much larger responsive destination. Finish travelling/growing before the accepted flip begins. This builds on the current lift → flip → hold sequence.
-2. **Grow while flipping — alternative.** Overlap enlargement and rotation, then settle at the same large inspection size. This combines the motions, but changes the currently accepted flip presentation more noticeably.
-
-Neither sequencing choice is recorded as user-approved yet. The open decision is whether enlargement finishes before the flip or overlaps it.
+Move the drawn card toward the viewer and grow it to its full display size first. Only after that movement finishes, flip it to reveal the face. Hold the large face and name until explicit confirmation. The user confirmed this sequence; implementation remains deferred.
 
 ## Proposed presentation
 
@@ -39,4 +36,4 @@ Neither sequencing choice is recorded as user-approved yet. The open decision is
 - The large face/name hold remains under user control, and confirmation does not return that card to the remaining deck.
 - Pause, reduced motion, stale callbacks, image failure/retry, and a 100-card session preserve correctness and bounded memory.
 
-Before implementation: settle the sequencing choice, validate the proposed large-card destination visually, and add a scoped implementation task to the existing plan. This note is not an instruction to implement it now.
+Before implementation: validate the proposed large-card destination visually, and add a scoped implementation task to the existing plan. This note is not an instruction to implement it now.
