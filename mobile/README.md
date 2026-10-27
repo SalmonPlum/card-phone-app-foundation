@@ -14,4 +14,4 @@ For the native preview, start Metro with `npm start`, reload the existing develo
 
 Restart Metro with `npm start -- --clear`, reload the existing development app, and choose **Prohlížet karty / Browse cards** on Home. No native rebuild or dependency installation is required for this change. Tap a face to read its name, meaning, and full description; Back returns to the catalogue. Czech/English follows the device/app locale.
 
-Check the two-column layout, large-text one-column fallback, full artwork without cropping, and opening a card after scrolling then returning with Back. Detail entry adds a 260ms forward movement; Android native fade/Back duration is platform-controlled. Reduced motion disables movement. Physical visual and scroll-position acceptance remain pending.
+Check the two-column layout, large-text one-column fallback, full artwork without cropping, and opening a card after scrolling then returning with Back. Detail entry adds a 420ms forward movement after the native fade; Android native fade/Back duration is platform-controlled. Reduced motion disables movement. Physical visual and scroll-position acceptance remain pending.
