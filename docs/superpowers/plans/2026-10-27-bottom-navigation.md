@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** Implemented through `fee60c3`; both task reviews and final integration fix review approved. App143/domain71/typecheck/lint/decks/Android export pass. Phone dock/motion/Back/accessibility acceptance remains pending.
+
 **Goal:** Remove the Home landing page, open directly on Draw, and provide the selected Stitch-style Draw/Catalogue bottom dock without losing a live session.
 
 **Architecture:** A root in-memory provider owns the existing secure session controller. Expo Router JS tabs retain the Draw/Catalogue screen instances and native focus handling; a custom safe-area dock reserves layout space. Catalogue overlay state temporarily locks/hides dock interactions without resizing its host.

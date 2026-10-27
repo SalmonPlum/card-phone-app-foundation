@@ -1,6 +1,6 @@
 # Bottom navigation — deferred follow-up
 
-Status: scheduled by the user’s “lets continue” after the completed draw-proportion correction. Implement the recorded navigation change while preserving the prepared animations.
+Status: implemented through `fee60c3` after the user’s “lets continue”; source reviews and automated checks passed. Physical phone acceptance remains pending.
 
 ## Confirmed request
 
