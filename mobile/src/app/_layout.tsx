@@ -1,7 +1,7 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { useReducedMotion } from '../features/cards/DetailTransition';
+import { useReducedMotion } from '../features/cards/useReducedMotion';
 
 export default function RootLayout(): React.JSX.Element {
   const reduced = useReducedMotion();

@@ -10,6 +10,7 @@ export const cs = {
   results: 'Vytažené karty',
   newSession: 'Nové vykládání',
   resume: 'Pokračovat ve vytahování',
+  close: 'Zavřít',
   back: 'Zpět',
   meaning: 'Význam',
   description: 'Popis',

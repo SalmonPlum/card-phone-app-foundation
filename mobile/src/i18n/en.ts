@@ -9,6 +9,7 @@ export const en = {
   results: 'Drawn cards',
   newSession: 'New session',
   resume: 'Resume drawing',
+  close: 'Close',
   back: 'Back',
   meaning: 'Meaning',
   description: 'Description',
