@@ -12,7 +12,7 @@ jest.mock('react-native-reanimated', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     __esModule: true, default: { View: require('react-native').View },
     useAnimatedStyle: (read: () => unknown) => ({ __read: read }),
-    Easing: { cubic: (n: number) => n ** 3, out: (fn: (n: number) => number) => (n: number) => 1 - fn(1 - n) },
+    Easing: { linear: (n: number) => n, cubic: (n: number) => n ** 3, out: (fn: (n: number) => number) => (n: number) => 1 - fn(1 - n) },
     ReduceMotion: { Never: 'never' },
     useSharedValue: (initial: unknown) => {
       const ref = React.useRef(null);
@@ -63,3 +63,5 @@ export async function advance(ms: number) {
     }
   }));
 }
+
+export function runningClocks() { return mockValues.filter(v => v.timing).map(v => ({ value: v.current as number, duration: v.timing!.duration })); }

@@ -1,5 +1,7 @@
 import type { TranslationKey } from './en.ts';
 export const cs = {
+  drawTab: 'Tahání',
+  catalogueTab: 'Katalog',
   home: 'Domů',
   drawCards: 'Vytahovat karty',
   browseCards: 'Prohlížet karty',

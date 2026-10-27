@@ -12,6 +12,7 @@ export default function RootLayout(): React.JSX.Element {
       <SessionProvider>
         <StatusBar style="dark" />
         <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.canvas } }}>
+          <Stack.Screen name="(tabs)" options={{ animation: 'none' }} />
           <Stack.Screen name="card/[id]" options={{ animation: reduced === false ? 'fade' : 'none', animationDuration: 260, gestureEnabled: false }} />
         </Stack>
       </SessionProvider>

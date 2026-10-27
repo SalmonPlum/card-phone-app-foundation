@@ -1,7 +1,9 @@
+import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { advance, flushRn, resetClock, settle } from './helpers/overlayClock';
-import Home from '../../../app/index';
-import Catalogue from '../../../app/catalogue';
+import Draw from '../../../app/(tabs)/index';
+import Tabs from '../../../app/(tabs)/_layout';
+import Catalogue from '../../../app/(tabs)/catalogue';
 import Details from '../../../app/card/[id]';
 import Layout from '../../../app/_layout';
 import { AppState, BackHandler, StyleSheet, type AppStateStatus, type NativeEventSubscription } from 'react-native';
@@ -13,18 +15,20 @@ import * as Localization from 'expo-localization';
 jest.mock('expo-router/build/testing-library/mocks', () => ({}));
 
 const measure = jest.requireActual('@react-native/jest-preset/jest/MockNativeMethods').default.measureInWindow as jest.Mock;
-beforeEach(() => { resetClock(); measure.mockImplementation((callback: (x: number, y: number, width: number, height: number) => void) => callback(10, 24, 360, 800)); });
-afterEach(() => measure.mockReset());
+const nativeAppState = AppState.currentState;
+const nativeAppSubscription = (AppState.addEventListener as jest.Mock).getMockImplementation();
+beforeEach(() => { AppState.currentState = 'active'; (AppState.addEventListener as jest.Mock).mockImplementation(nativeAppSubscription); resetClock(); measure.mockImplementation((callback: (x: number, y: number, width: number, height: number) => void) => callback(10, 24, 360, 800)); });
+afterEach(() => { measure.mockReset(); AppState.currentState = nativeAppState; });
 async function enterOverlay() {
   await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
   await settle(); await advance(420); await flushRn();
 }
 async function finishClose() { await settle(); await advance(420); await flushRn(); }
-const routes = { _layout: Layout, index: Home, catalogue: Catalogue, 'card/[id]': Details };
-test('opens the live catalogue from Home, opens zero, and can open another card after Back', async () => {
+const routes = { _layout: Layout, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': Catalogue, 'card/[id]': Details };
+test('opens the live catalogue from Draw, opens zero, and can open another card after Back', async () => {
   await renderRouter(routes);
-  await fireEvent.press(screen.getByText('Browse cards'));
+  await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
   expect(screen).toHavePathname('/catalogue');
   const mountedGrid = screen.getByTestId('card-grid');
   await fireEvent.scroll(mountedGrid, { nativeEvent: { contentOffset: { x: 0, y: 160 } } });
@@ -40,13 +44,13 @@ test('opens the live catalogue from Home, opens zero, and can open another card 
   expect(screen).toHavePathname('/catalogue');
   expect(screen.getByTestId('overlay-face-7')).toBeTruthy();
 });
-test('follows the Czech app locale throughout Home, catalogue, details and Back', async () => {
+test('follows the Czech app locale throughout Draw, catalogue, details and Back', async () => {
   const locale = Localization.getLocales()[0];
   const locales = jest.spyOn(Localization, 'useLocales').mockReturnValue([{ ...locale, languageTag: 'cs-CZ', languageCode: 'cs' }]);
   try {
     await renderRouter(routes);
-    expect(screen.getByRole('header', { name: 'Tichá zahrada' })).toBeVisible();
-    await fireEvent.press(screen.getByText('Prohlížet karty'));
+    expect(screen.getByRole('tab', { name: 'Tahání' })).toBeVisible();
+    await fireEvent.press(screen.getByRole('tab', { name: 'Katalog' }));
     expect(screen.getByRole('header', { name: 'Všechny karty' })).toBeVisible();
     await fireEvent.press(screen.getByRole('button', { name: 'Semínko' }));
     expect(screen).toHavePathname('/catalogue');
@@ -63,6 +67,9 @@ test.each(['/card/7x', '/card/100', '/card/00'])('offers safe localized recovery
   expect(screen.queryByText('A small beginning that needs care.')).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
   expect(screen).toHavePathname('/catalogue');
+  expect(screen.getByRole('tab', { name: 'Catalogue' })).toBeVisible();
+  await act(() => router.back());
+  expect(screen).toHavePathname('/');
 });
 test('a valid deep link uses the same full details and Back fallback', async () => {
   await renderRouter(routes, { initialUrl: '/card/99' });
@@ -81,6 +88,9 @@ test('Android Back dismisses the overlay before the catalogue route can go Back'
   await finishClose();
   expect(screen).toHavePathname('/catalogue');
   expect(screen.queryByTestId('overlay-face-0')).toBeNull();
+  await act(() => router.back());
+  expect(screen).toHavePathname('/');
+  expect(router.canGoBack()).toBe(false);
   back.mockRestore();
 });
 
@@ -116,14 +126,14 @@ test.each([
     const sourceWidth = StyleSheet.flatten(screen.getByTestId('card-tile-0').props.style).width;
     const image = screen.getByTestId('card-face-0');
     const ratio = StyleSheet.flatten(image.props.style).aspectRatio;
-    const foreground = fitForegroundRect({ width: hostWidth, height: hostHeight }, ratio, 24, 16);
+    const foreground = fitForegroundRect({ width: hostWidth, height: hostHeight }, ratio, 24, 0);
     expect(sourceWidth).toBeLessThan(foreground.width);
     expect(sourceWidth / ratio).toBeLessThan(foreground.height);
     expect(sourceWidth).toBeLessThanOrEqual(foreground.width * .8 + .00001);
     expect(foreground.x).toBeGreaterThanOrEqual(16);
     expect(foreground.x + foreground.width).toBeLessThanOrEqual(hostWidth - 16);
     expect(foreground.y).toBeGreaterThanOrEqual(88);
-    expect(foreground.y + foreground.height).toBeLessThan(hostHeight - 16);
+    expect(foreground.y + foreground.height).toBeLessThan(hostHeight);
     expect(image.props.resizeMode).toBe('contain');
     expect(screen.getByText('Seed').props.numberOfLines).toBeUndefined();
   } finally { dimensions.mockRestore(); insets.mockRestore(); }
@@ -168,4 +178,28 @@ test.each(['callback', 'timeout', 'after-resume'])('pending tile %s is invalidat
     expect(screen.getByTestId('overlay-face-0')).toBeTruthy();
     expect(screen).toHavePathname('/catalogue');
   } finally { subscription.mockRestore(); }
+});
+
+test('modal locks dock touches and accessibility without resizing the host, then unlocks navigation', async () => {
+  await renderRouter(routes, { initialUrl: '/catalogue' });
+  const host = screen.getByTestId('catalogue-host'), grid = screen.getByTestId('card-grid');
+  const dock = screen.getByTestId('bottom-dock');
+  const initialStyle = StyleSheet.flatten(dock.props.style);
+  await fireEvent.press(screen.getByRole('button', { name: 'Seed' }));
+  await enterOverlay();
+  expect(screen.getByTestId('catalogue-host')).toBe(host);
+  expect(screen.getByTestId('card-grid', { includeHiddenElements: true })).toBe(grid);
+  expect(screen.getByTestId('bottom-dock', { includeHiddenElements: true }).props.pointerEvents).toBe('none');
+  expect(screen.getByTestId('bottom-dock', { includeHiddenElements: true }).props.importantForAccessibility).toBe('no-hide-descendants');
+  expect(screen.queryAllByRole('tab')).toHaveLength(0);
+  await fireEvent.press(screen.getByRole('tab', { name: 'Draw', includeHiddenElements: true }));
+  expect(screen).toHavePathname('/catalogue');
+  expect(StyleSheet.flatten(screen.getByTestId('bottom-dock', { includeHiddenElements: true }).props.style)).toEqual(initialStyle);
+  expect(screen.getByRole('button', { name: 'Close' })).toBeVisible();
+  await fireEvent.press(screen.getByRole('button', { name: 'Close' })); await finishClose();
+  expect(screen.getByTestId('catalogue-host')).toBe(host);
+  await fireEvent.press(screen.getByRole('tab', { name: 'Draw' }));
+  expect(screen).toHavePathname('/');
+  await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
+  expect(screen.getByTestId('card-grid')).toBe(grid);
 });

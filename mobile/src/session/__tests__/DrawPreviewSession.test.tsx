@@ -1,10 +1,12 @@
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
-import { AppState, Text } from 'react-native';
+import { AppState } from 'react-native';
 import { resetClock } from '../../features/cards/__tests__/helpers/overlayClock';
 import RootLayout from '../../app/_layout';
-import DrawPreview from '../../app/draw-preview';
+import DrawPreview from '../../app/(tabs)/index';
+import Tabs from '../../app/(tabs)/_layout';
+import Catalogue from '../../app/(tabs)/catalogue';
 import Details from '../../app/card/[id]';
 import { useSession } from '../SessionProvider';
 
@@ -22,15 +24,16 @@ let current: ReturnType<typeof useSession>;
 function Idle() {
   const session = useSession();
   useLayoutEffect(() => { current = session; }, [session]);
-  return <Text>Idle route</Text>;
+  return <Catalogue />;
 }
 const nativeAppState = AppState.currentState;
 beforeEach(() => { mockId = 0; resetClock(); AppState.currentState = 'active'; });
 afterEach(() => { AppState.currentState = nativeAppState; });
 
 test('Draw consumes the root session and configured artwork/results without resetting on mount', async () => {
-  await renderRouter({ _layout: RootLayout, index: Idle, 'draw-preview': DrawPreview, 'card/[id]': Details });
+  await renderRouter({ _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': DrawPreview, '(tabs)/catalogue': Idle, 'card/[id]': Details }, { initialUrl: '/catalogue' });
   expect(current.state).toMatchObject({ sessionId: 'draw-owner-1', deckId: 'alternate' });
+  expect(screen.getByRole('button', { name: 'Wave' })).toBeVisible();
   const first = current.state!;
   await act(() => current.draw({ x: 620, y: 330, angle: .12, scale: 1 }, first.sessionId, first.epoch));
   for (let i = 0; i < 3; i++) {
@@ -38,7 +41,7 @@ test('Draw consumes the root session and configured artwork/results without rese
     await act(() => current.complete(state.sessionId, state.epoch));
   }
   expect(current.state).toMatchObject({ phase: 'reveal', drawnIds: [7] });
-  await act(() => router.push('/draw-preview'));
+  await act(() => router.navigate('/'));
   expect(screen.getByText('Wave')).toBeVisible();
   expect(current.state!.sessionId).toBe(first.sessionId);
   await fireEvent.press(screen.getByRole('button', { name: 'Confirm card' }));

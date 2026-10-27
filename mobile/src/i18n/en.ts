@@ -1,4 +1,6 @@
 export const en = {
+  drawTab: 'Draw',
+  catalogueTab: 'Catalogue',
   home: 'Home',
   drawCards: 'Draw cards',
   browseCards: 'Browse cards',
