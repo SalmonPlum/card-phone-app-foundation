@@ -76,3 +76,37 @@ test('Czech text and Close stay accessible after entry', async () => {
   await fireEvent.press(screen.getByRole('button', { name: 'Zavřít' }));
   expect(props.onClose).toHaveBeenCalledTimes(1);
 });
+
+test('missing opening geometry fades at the fixed foreground pose before revealing details', async () => {
+  const state = { ...props.state, source: null };
+  const view = await render(<CardDetailOverlay {...props} state={state} />);
+  await ready();
+  const foreground = facePose().transform;
+  expect(facePose().opacity).toBe(0);
+  await view.rerender(<CardDetailOverlay {...props} state={{ ...state, stage: 'opening' }} />);
+  await settle(); await advance(160); await flushRn();
+  expect(facePose().opacity).toBeGreaterThan(0);
+  expect(facePose().opacity).toBeLessThan(1);
+  expect(facePose().transform).toEqual(foreground);
+  expect(screen.queryByText('A small beginning that needs care.')).toBeNull();
+  expect(props.onComplete).not.toHaveBeenCalled();
+  await advance(260); await flushRn();
+  expect(facePose().opacity).toBe(1);
+  expect(facePose().transform).toEqual(foreground);
+  expect(props.onComplete).toHaveBeenCalledWith(1);
+  await view.rerender(<CardDetailOverlay {...props} state={{ ...state, stage: 'open' }} />);
+  expect(screen.getByText('A small beginning that needs care.')).toBeVisible();
+});
+
+test('reduced motion keeps missing-source opening immediate at the foreground pose', async () => {
+  const state = { ...props.state, source: null };
+  const view = await render(<CardDetailOverlay {...props} reducedMotion state={state} />);
+  await ready();
+  const foreground = facePose().transform;
+  expect(facePose().opacity).toBe(1);
+  await view.rerender(<CardDetailOverlay {...props} reducedMotion state={{ ...state, stage: 'opening' }} />);
+  await settle();
+  expect(facePose().opacity).toBe(1);
+  expect(facePose().transform).toEqual(foreground);
+  expect(props.onComplete).toHaveBeenCalledWith(1);
+});

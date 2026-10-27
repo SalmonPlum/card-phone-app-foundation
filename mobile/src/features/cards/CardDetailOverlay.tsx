@@ -46,7 +46,8 @@ export function CardDetailOverlay({ card, locale, assetRegistry, state, reducedM
     scheduleOnUI(() => {
       'worklet';
       const from = reducedMotion === false ? source ?? target : target;
-      motion.value = { from, to: from, dimFrom: 0, dimTo: 0, opacityFrom: 1, opacityTo: 1, visible: 1, run: `ready:${generation}` };
+      const opacity = reducedMotion === false && source === null ? 0 : 1;
+      motion.value = { from, to: from, dimFrom: 0, dimTo: 0, opacityFrom: opacity, opacityTo: opacity, visible: 1, run: `ready:${generation}` };
       progress.value = 0;
       scheduleOnRN(onReady, generation);
     });
