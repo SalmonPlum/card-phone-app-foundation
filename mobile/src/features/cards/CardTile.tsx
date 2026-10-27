@@ -5,6 +5,7 @@ import { localizeCard } from '../../domain/deck';
 import type { AssetRegistry } from '../../decks/assets';
 import { validRect, type Rect } from './overlayGeometry';
 import { t } from '../../i18n/locale';
+import { colors, type, spacing, radius, shadow } from '../../ui/theme';
 
 export type TileOrigin = {
   rect: { x: number; y: number; width: number; height: number } | null;
@@ -116,13 +117,14 @@ export const CardTile = forwardRef<CardTileHandle, {
       if (!measurement.current?.open) timeout.current = setTimeout(() => { measurement.current = null; }, 0);
     }}
     style={({ pressed }) => ({ width, minHeight: 48, opacity: pressed ? 0.8 : 1 })}>
-    <View testID={`card-face-host-${card.id}`} ref={face} collapsable={false} style={{ opacity: hidden ? 0 : 1 }}>
+    <View testID={`card-face-host-${card.id}`} ref={face} collapsable={false} style={{ ...styles.face, opacity: hidden ? 0 : 1 }}>
       <CardFace card={card} locale={locale} assetRegistry={assetRegistry} testID={`card-face-${card.id}`} />
     </View>
     <Text style={styles.caption}>{content.name}</Text>
   </Pressable>;
 });
 const styles = StyleSheet.create({
-  caption: { color: '#252923', fontSize: 18, lineHeight: 26, paddingTop: 8 },
-  missing: { width: '100%', justifyContent: 'center', backgroundColor: '#e7e5de', padding: 12 },
+  face: { ...shadow.card, borderRadius: radius.card },
+  caption: { color: colors.deepForest, fontFamily: type.serif, fontSize: 20, lineHeight: 28, paddingTop: spacing.sm, textAlign: 'center' },
+  missing: { width: '100%', justifyContent: 'center', backgroundColor: colors.panel, padding: spacing.md, borderRadius: radius.card },
 });

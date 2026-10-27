@@ -12,6 +12,7 @@ import { useCardOverlay } from '../features/cards/useCardOverlay';
 import { useReducedMotion } from '../features/cards/useReducedMotion';
 import { t } from '../i18n/locale';
 import { useLocale } from '../i18n/useLocale';
+import { colors, type, spacing, radius } from '../ui/theme';
 
 export default function Catalogue() {
   const locale = useLocale(), focused = useIsFocused(), reducedMotion = useReducedMotion();
@@ -61,7 +62,8 @@ export default function Catalogue() {
   </View>;
 }
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8f6f0' }, heading: { paddingHorizontal: 16, paddingTop: 8, gap: 8 },
-  title: { color: '#252923', fontSize: 28, fontWeight: '600' },
-  link: { color: '#315b47', fontSize: 18, paddingVertical: 12 },
+  screen: { flex: 1, backgroundColor: colors.canvas },
+  heading: { paddingHorizontal: spacing.lg, paddingTop: spacing.sm, gap: spacing.sm, paddingBottom: spacing.sm, borderBottomWidth: 1, borderBottomColor: colors.sage },
+  title: { ...type.title, fontFamily: type.serif, color: colors.deepForest },
+  link: { ...type.label, fontFamily: type.sans, color: colors.forest, backgroundColor: colors.panel, borderRadius: radius.pill, overflow: 'hidden', alignSelf: 'flex-start', paddingHorizontal: spacing.lg, paddingVertical: spacing.md, minHeight: 48 },
 });

@@ -3,6 +3,7 @@ import Animated, { useAnimatedStyle, type SharedValue } from 'react-native-reani
 import type { Pose } from '../../domain/contracts';
 import { above, ASIDE, ease, FOREGROUND, layerStep, mix, RECEIVER, regripPose, returnPose, SOURCE } from './motion';
 import { stackCount, type RenderFrame, type StackRole } from './renderFrame';
+import { colors } from '../../ui/theme';
 
 type Props = { role: StackRole; frame: SharedValue<RenderFrame>; progress: SharedValue<number>; back: ImageSourcePropType; face?: ImageSourcePropType; revealed?: boolean; name?: string; onAssetError?: () => void };
 function Edge({role,frame,index}: Pick<Props,'role'|'frame'> & {index:number}) {
@@ -44,4 +45,4 @@ export function Stack({role,frame,progress,back,face,revealed=false,name,onAsset
     {role==='selected' && <Animated.View style={[styles.front,frontStyle]}>{face ? <Image source={face} style={styles.image} resizeMode="cover" fadeDuration={0} onError={onAssetError} /> : <View style={styles.placeholder} />}</Animated.View>}
   </Animated.View>;
 }
-const styles=StyleSheet.create({stack:{position:'absolute',width:238,height:358},edge:{position:'absolute',width:238,height:358,borderRadius:12,backgroundColor:'#d3cfbb',borderWidth:1,borderColor:'#858e78'},image:{width:238,height:358,borderRadius:12},back:{position:'absolute',width:238,height:358},front:{...StyleSheet.absoluteFill},placeholder:{flex:1,backgroundColor:'#eee3c9',borderRadius:12}});
+const styles=StyleSheet.create({stack:{position:'absolute',width:238,height:358},edge:{position:'absolute',width:238,height:358,borderRadius:12,backgroundColor:colors.panel,borderWidth:1,borderColor:colors.brass},image:{width:238,height:358,borderRadius:12},back:{position:'absolute',width:238,height:358},front:{...StyleSheet.absoluteFill},placeholder:{flex:1,backgroundColor:colors.canvas,borderRadius:12}});

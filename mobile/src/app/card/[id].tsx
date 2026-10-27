@@ -7,6 +7,7 @@ import { CardDetails } from '../../features/cards/CardDetails';
 import { cardForRoute } from '../../features/cards/selectors';
 import { useLocale } from '../../i18n/useLocale';
 import { t } from '../../i18n/locale';
+import { colors, type, spacing, radius } from '../../ui/theme';
 
 export default function Details() {
   const params = useLocalSearchParams(), router = useRouter(), locale = useLocale();
@@ -19,6 +20,8 @@ export default function Details() {
   </SafeAreaView>;
 }
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: '#f8f6f0' }, back: { minHeight: 48, paddingHorizontal: 16, paddingVertical: 12 },
-  link: { color: '#315b47', fontSize: 18 }, message: { padding: 16, color: '#252923', fontSize: 18 },
+  screen: { flex: 1, backgroundColor: colors.canvas },
+  back: { minHeight: 48, alignSelf: 'flex-start', marginHorizontal: spacing.lg, marginTop: spacing.sm, paddingHorizontal: spacing.lg, paddingVertical: spacing.md, backgroundColor: colors.panel, borderRadius: radius.pill },
+  link: { ...type.label, fontFamily: type.sans, color: colors.forest },
+  message: { ...type.body, fontFamily: type.sans, padding: spacing.lg, color: colors.ink },
 });

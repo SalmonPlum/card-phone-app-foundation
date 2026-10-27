@@ -10,6 +10,7 @@ import { CardFace } from './CardTile';
 import { CardDetailsText } from './CardDetails';
 import { fitForegroundRect, type Rect } from './overlayGeometry';
 import type { OverlayState } from './useCardOverlay';
+import { colors, type, spacing, radius } from '../../ui/theme';
 
 export type CardDetailOverlayProps = {
   card: Card; locale: Locale; assetRegistry: AssetRegistry; state: OverlayState;
@@ -124,7 +125,8 @@ export function CardDetailOverlay({ card, locale, assetRegistry, state, reducedM
   </View>;
 }
 const styles = StyleSheet.create({
-  backdrop: { backgroundColor: '#f8f6f0ed' },
-  close: { position: 'absolute', right: 16, minHeight: 48, minWidth: 64, justifyContent: 'center', paddingHorizontal: 12 },
-  link: { color: '#315b47', fontSize: 18 }, details: { padding: 16, paddingBottom: 40, gap: 16 },
+  backdrop: { backgroundColor: `${colors.canvas}ed` },
+  close: { position: 'absolute', right: 16, minHeight: 48, minWidth: 64, justifyContent: 'center', paddingHorizontal: spacing.lg, backgroundColor: colors.panel, borderRadius: radius.pill },
+  link: { ...type.label, fontFamily: type.sans, color: colors.forest },
+  details: { padding: spacing.lg, paddingBottom: spacing.xxl, gap: spacing.lg },
 });
