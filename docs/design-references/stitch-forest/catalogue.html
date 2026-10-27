@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#fbf9f3", "error-container": "#ffdad6", "on-background": "#1b1c19", "primary-fixed": "#c8ead7", "on-error": "#ffffff", "tertiary-container": "#2b3430", "error": "#ba1a1a", "on-tertiary": "#ffffff", "on-surface": "#1b1c19", "on-secondary": "#ffffff", "surface-bright": "#fbf9f3", "on-tertiary-container": "#929c97", "surface-container": "#f0eee8", "on-secondary-container": "#785a1a", "secondary-fixed-dim": "#e9c176", "secondary-fixed": "#ffdea5", "tertiary": "#161f1b", "tertiary-fixed": "#dbe5df", "on-secondary-fixed": "#261900", "on-error-container": "#93000a", "on-primary-fixed-variant": "#2f4d3f", "surface-dim": "#dcdad4", "surface-container-high": "#eae8e2", "outline-variant": "#c1c8c2", "on-secondary-fixed-variant": "#5d4201", "outline": "#727974", "surface-variant": "#e4e2dd", "on-primary-container": "#81a291", "surface-container-low": "#f5f3ee", "primary-fixed-dim": "#adcebc", "inverse-on-surface": "#f2f1eb", "on-primary": "#ffffff", "on-tertiary-fixed": "#151d1a", "inverse-surface": "#30312d", "tertiary-fixed-dim": "#bfc9c3", "secondary-container": "#fed488", "primary-container": "#1a382b", "on-tertiary-fixed-variant": "#3f4945", "surface-container-lowest": "#ffffff", "primary": "#032217", "surface-container-highest": "#e4e2dd", "on-primary-fixed": "#022115", "inverse-primary": "#adcebc", "surface": "#fbf9f3", "secondary": "#775a19", "on-surface-variant": "#424844", "surface-tint": "#466556" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-sm": "0.5rem", "space-lg": "1.5rem", "space-md": "1rem", "space-xl": "2.5rem", "gutter": "1rem", "space-xs": "0.25rem", "margin": "1.25rem" }, "fontFamily": { "headline-sm": [ "EB Garamond" ], "label-lg": [ "DM Sans" ], "display-lg": [ "EB Garamond" ], "headline-lg-mobile": [ "EB Garamond" ], "headline-md": [ "EB Garamond" ], "headline-lg": [ "EB Garamond" ], "label-sm": [ "DM Sans" ], "title-md": [ "DM Sans" ], "body-md": [ "DM Sans" ], "body-lg": [ "DM Sans" ] }, "fontSize": { "headline-sm": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "label-lg": [ "13px", { "lineHeight": "18px", "letterSpacing": "0.06em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "400" } ], "headline-lg-mobile": [ "26px", { "lineHeight": "32px", "fontWeight": "500" } ], "headline-md": [ "22px", { "lineHeight": "28px", "fontWeight": "500" } ], "headline-lg": [ "32px", { "lineHeight": "38px", "fontWeight": "500" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "500" } ], "title-md": [ "16px", { "lineHeight": "22px", "letterSpacing": "0.02em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "22px", "fontWeight": "400" } ], "body-lg": [ "16px", { "lineHeight": "26px", "fontWeight": "400" } ] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fbf9f3;color:#1b1c19;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+</head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe border-b border-surface-container/50"><div class="h-16 px-margin flex items-center justify-between relative"><div class="flex items-center"><button aria-label="Sound &amp; silence" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">graphic_eq</span></button></div><h1 class="font-headline-md text-headline-md text-primary tracking-wide text-center absolute left-1/2 -translate-x-1/2 pointer-events-none select-none">Catalog</h1><div class="flex items-center gap-space-xs"><button aria-label="Daily intention" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">auto_awesome</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_2px_8px_rgba(3,34,23,0.15)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface px-margin min-h-screen"><div class="flex flex-col w-full">
+<!-- Sub-header & Search Section -->
+<div class="flex flex-col gap-space-sm mb-space-md pt-2">
+<div class="flex items-baseline justify-between">
+<span class="font-headline-lg-mobile text-headline-lg-mobile text-primary font-medium tracking-tight">All Cards</span>
+<div class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container text-secondary text-label-sm font-label-sm">
+<span class="material-symbols-outlined text-[14px]">auto_awesome</span>
+<span>24 / 36 discovered</span>
+</div>
+</div>
+<!-- Search Input -->
+<div class="relative w-full">
+<div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-outline">
+<span class="material-symbols-outlined text-[19px]">search</span>
+</div>
+<input class="w-full pl-10 pr-4 py-2.5 rounded-full bg-surface-container-low text-on-surface placeholder:text-outline text-body-md font-body-md outline-none focus:bg-surface-container transition-colors shadow-sm" id="cardSearchInput" placeholder="Search archetype, element, or intention..." type="search"/>
+</div>
+<!-- Filter Chips Horizontal Scroll -->
+<div class="flex items-center gap-space-xs overflow-x-auto pb-1 pt-0.5 no-scrollbar -mx-margin px-margin">
+<button class="filter-chip active shrink-0 px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label-sm text-label-sm transition-all shadow-sm">
+        All
+      </button>
+<button class="filter-chip shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm transition-all hover:bg-surface-container-high">
+        Nature
+      </button>
+<button class="filter-chip shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm transition-all hover:bg-surface-container-high">
+        Elements
+      </button>
+<button class="filter-chip shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm transition-all hover:bg-surface-container-high">
+        Path
+      </button>
+<button class="filter-chip shrink-0 px-3.5 py-1.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-label-sm transition-all hover:bg-surface-container-high">
+        Inner Voice
+      </button>
+</div>
+</div>
+<!-- 2-Column Cards Grid -->
+<div class="grid grid-cols-2 gap-x-3.5 gap-y-5 pb-8" id="cardsGrid">
+<!-- Card 1: Seed -->
+<div class="card-item group cursor-pointer flex flex-col items-center" data-category="Nature" data-meaning="New beginnings, quiet potential, and germination in the dark." data-title="Seed">
+<div class="relative w-full aspect-[1/1.618] rounded-xl bg-surface-container-lowest p-2 shadow-[0_4px_16px_rgba(22,48,36,0.08)] transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[0_8px_24px_rgba(22,48,36,0.14)] flex flex-col justify-between items-center overflow-hidden">
+<!-- Outer Green Line + Inner Gold Hairline Frame -->
+<div class="absolute inset-1.5 rounded-lg border-[1.5px] border-primary pointer-events-none">
+<div class="absolute inset-[3px] rounded-md border-[1px] border-secondary/35 pointer-events-none"></div>
+</div>
+<!-- Card Apex Starburst -->
+<div class="pt-2 z-10 text-secondary">
+<span class="material-symbols-outlined text-[13px] leading-none select-none">star</span>
+</div>
+<!-- Medallion & Artwork -->
+<div class="relative z-10 w-24 h-24 rounded-full bg-primary-fixed/20 flex items-center justify-center p-2">
+<svg class="w-full h-full text-primary" fill="none" stroke="currentColor" viewbox="0 0 100 100">
+<circle cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.25" stroke-width="1.2"></circle>
+<circle cx="50" cy="50" r="34" stroke="currentColor" stroke-opacity="0.15" stroke-width="1"></circle>
+<!-- Sprout Motif -->
+<path d="M50 78 V46" stroke="currentColor" stroke-linecap="round" stroke-width="2.5"></path>
+<path d="M50 62 C40 62 36 50 36 40 C44 40 50 48 50 62 Z" fill="#1A382B" opacity="0.9"></path>
+<path d="M50 56 C58 56 65 46 65 38 C57 38 50 45 50 56 Z" fill="#775A19" opacity="0.85"></path>
+<circle cx="36" cy="40" fill="#775A19" r="3"></circle>
+<circle cx="65" cy="38" fill="#1A382B" r="3"></circle>
+<line stroke="currentColor" stroke-linecap="round" stroke-width="2" x1="32" x2="68" y1="78" y2="78"></line>
+</svg>
+</div>
+<!-- Bottom Balanced Rule and Tripartite Dots -->
+<div class="pb-2 w-full flex flex-col items-center gap-1 z-10">
+<div class="w-14 h-[1px] bg-secondary/40"></div>
+<div class="flex items-center gap-1 text-secondary text-[8px] tracking-widest leading-none">
+<span>•</span><span>•</span><span>•</span>
+</div>
+</div>
+</div>
+<span class="mt-2 font-headline-sm text-headline-sm text-primary tracking-wide text-center">Seed</span>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider text-center">I. NATURE</span>
+</div>
+<!-- Card 2: Spring -->
+<div class="card-item group cursor-pointer flex flex-col items-center" data-category="Elements" data-meaning="Purity of thought, flowing vitality, and an endless source of renewal." data-title="Spring">
+<div class="relative w-full aspect-[1/1.618] rounded-xl bg-surface-container-lowest p-2 shadow-[0_4px_16px_rgba(22,48,36,0.08)] transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[0_8px_24px_rgba(22,48,36,0.14)] flex flex-col justify-between items-center overflow-hidden">
+<div class="absolute inset-1.5 rounded-lg border-[1.5px] border-primary pointer-events-none">
+<div class="absolute inset-[3px] rounded-md border-[1px] border-secondary/35 pointer-events-none"></div>
+</div>
+<div class="pt-2 z-10 text-secondary">
+<span class="material-symbols-outlined text-[13px] leading-none select-none">star</span>
+</div>
+<div class="relative z-10 w-24 h-24 rounded-full bg-primary-fixed/20 flex items-center justify-center p-2">
+<svg class="w-full h-full text-primary" fill="none" stroke="currentColor" viewbox="0 0 100 100">
+<circle cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.25" stroke-width="1.2"></circle>
+<!-- Water Droplet & Ripple Motif -->
+<path d="M50 28 C50 28 39 42 39 50 C39 56.07 43.93 61 50 61 C56.07 61 61 56.07 61 50 C61 42 50 28 50 28 Z" fill="#1A382B" opacity="0.9"></path>
+<circle cx="47" cy="46" fill="#FED488" r="2"></circle>
+<path d="M35 68 C45 72 55 72 65 68" stroke="#775A19" stroke-linecap="round" stroke-width="1.8"></path>
+<path d="M28 74 C42 80 58 80 72 74" stroke="currentColor" stroke-linecap="round" stroke-opacity="0.8" stroke-width="1.5"></path>
+<path d="M22 80 C40 88 60 88 78 80" stroke="currentColor" stroke-linecap="round" stroke-opacity="0.4" stroke-width="1"></path>
+</svg>
+</div>
+<div class="pb-2 w-full flex flex-col items-center gap-1 z-10">
+<div class="w-14 h-[1px] bg-secondary/40"></div>
+<div class="flex items-center gap-1 text-secondary text-[8px] tracking-widest leading-none">
+<span>•</span><span>•</span><span>•</span>
+</div>
+</div>
+</div>
+<span class="mt-2 font-headline-sm text-headline-sm text-primary tracking-wide text-center">Spring</span>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider text-center">II. ELEMENTS</span>
+</div>
+<!-- Card 3: Path -->
+<div class="card-item group cursor-pointer flex flex-col items-center" data-category="Path" data-meaning="Patient journeying, crossing the horizon, and trust in the unknown." data-title="Path">
+<div class="relative w-full aspect-[1/1.618] rounded-xl bg-surface-container-lowest p-2 shadow-[0_4px_16px_rgba(22,48,36,0.08)] transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[0_8px_24px_rgba(22,48,36,0.14)] flex flex-col justify-between items-center overflow-hidden">
+<div class="absolute inset-1.5 rounded-lg border-[1.5px] border-primary pointer-events-none">
+<div class="absolute inset-[3px] rounded-md border-[1px] border-secondary/35 pointer-events-none"></div>
+</div>
+<div class="pt-2 z-10 text-secondary">
+<span class="material-symbols-outlined text-[13px] leading-none select-none">star</span>
+</div>
+<div class="relative z-10 w-24 h-24 rounded-full bg-primary-fixed/20 flex items-center justify-center p-2">
+<svg class="w-full h-full text-primary" fill="none" stroke="currentColor" viewbox="0 0 100 100">
+<circle cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.25" stroke-width="1.2"></circle>
+<!-- Celestial Dots -->
+<circle cx="28" cy="46" fill="#775A19" r="2"></circle>
+<circle cx="72" cy="42" fill="#775A19" r="2"></circle>
+<circle cx="68" cy="62" fill="#775A19" r="1.5"></circle>
+<circle cx="32" cy="64" fill="#775A19" r="1.5"></circle>
+<!-- Winding Path Mountain -->
+<polygon fill="#1A382B" opacity="0.9" points="50,26 26,76 74,76"></polygon>
+<path d="M50 26 L48 44 L54 58 L46 76" stroke="#FED488" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<div class="pb-2 w-full flex flex-col items-center gap-1 z-10">
+<div class="w-14 h-[1px] bg-secondary/40"></div>
+<div class="flex items-center gap-1 text-secondary text-[8px] tracking-widest leading-none">
+<span>•</span><span>•</span><span>•</span>
+</div>
+</div>
+</div>
+<span class="mt-2 font-headline-sm text-headline-sm text-primary tracking-wide text-center">Path</span>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider text-center">III. JOURNEY</span>
+</div>
+<!-- Card 4: Lantern -->
+<div class="card-item group cursor-pointer flex flex-col items-center" data-category="Elements" data-meaning="Clear guidance, an inner beacon illuminating doubts and shadows." data-title="Lantern">
+<div class="relative w-full aspect-[1/1.618] rounded-xl bg-surface-container-lowest p-2 shadow-[0_4px_16px_rgba(22,48,36,0.08)] transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[0_8px_24px_rgba(22,48,36,0.14)] flex flex-col justify-between items-center overflow-hidden">
+<div class="absolute inset-1.5 rounded-lg border-[1.5px] border-primary pointer-events-none">
+<div class="absolute inset-[3px] rounded-md border-[1px] border-secondary/35 pointer-events-none"></div>
+</div>
+<div class="pt-2 z-10 text-secondary">
+<span class="material-symbols-outlined text-[13px] leading-none select-none">star</span>
+</div>
+<div class="relative z-10 w-24 h-24 rounded-full bg-primary-fixed/20 flex items-center justify-center p-2">
+<svg class="w-full h-full text-primary" fill="none" stroke="currentColor" viewbox="0 0 100 100">
+<circle cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.25" stroke-width="1.2"></circle>
+<!-- Rays of lantern -->
+<line stroke="#775A19" stroke-linecap="round" stroke-width="1.5" x1="28" x2="36" y1="50" y2="50"></line>
+<line stroke="#775A19" stroke-linecap="round" stroke-width="1.5" x1="64" x2="72" y1="50" y2="50"></line>
+<line stroke="#775A19" stroke-linecap="round" stroke-width="1.5" x1="34" x2="40" y1="36" y2="40"></line>
+<line stroke="#775A19" stroke-linecap="round" stroke-width="1.5" x1="66" x2="60" y1="36" y2="40"></line>
+<!-- Lantern Body -->
+<path d="M43 38 C43 32 57 32 57 38" stroke="#1A382B" stroke-linecap="round" stroke-width="2.5"></path>
+<polygon fill="#1A382B" opacity="0.9" points="41,45 59,45 64,74 36,74"></polygon>
+<rect fill="#FED488" height="23" rx="1" width="5.5" x="44" y="48"></rect>
+<rect fill="#FED488" height="23" rx="1" width="5.5" x="50.5" y="48"></rect>
+</svg>
+</div>
+<div class="pb-2 w-full flex flex-col items-center gap-1 z-10">
+<div class="w-14 h-[1px] bg-secondary/40"></div>
+<div class="flex items-center gap-1 text-secondary text-[8px] tracking-widest leading-none">
+<span>•</span><span>•</span><span>•</span>
+</div>
+</div>
+</div>
+<span class="mt-2 font-headline-sm text-headline-sm text-primary tracking-wide text-center">Lantern</span>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider text-center">IV. ELEMENTS</span>
+</div>
+<!-- Card 5: Dawn -->
+<div class="card-item group cursor-pointer flex flex-col items-center" data-category="Nature" data-meaning="Arrival of hope, brightening the mist, and awakening the heart." data-title="Dawn">
+<div class="relative w-full aspect-[1/1.618] rounded-xl bg-surface-container-lowest p-2 shadow-[0_4px_16px_rgba(22,48,36,0.08)] transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[0_8px_24px_rgba(22,48,36,0.14)] flex flex-col justify-between items-center overflow-hidden">
+<div class="absolute inset-1.5 rounded-lg border-[1.5px] border-primary pointer-events-none">
+<div class="absolute inset-[3px] rounded-md border-[1px] border-secondary/35 pointer-events-none"></div>
+</div>
+<div class="pt-2 z-10 text-secondary">
+<span class="material-symbols-outlined text-[13px] leading-none select-none">star</span>
+</div>
+<div class="relative z-10 w-24 h-24 rounded-full bg-primary-fixed/20 flex items-center justify-center p-2">
+<svg class="w-full h-full text-primary" fill="none" stroke="currentColor" viewbox="0 0 100 100">
+<circle cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.25" stroke-width="1.2"></circle>
+<!-- Sun horizon -->
+<path d="M30 64 C30 52.95 38.95 44 50 44 C61.05 44 70 52.95 70 64 Z" fill="#FED488"></path>
+<line stroke="#775A19" stroke-linecap="round" stroke-width="2" x1="50" x2="50" y1="36" y2="40"></line>
+<line stroke="#775A19" stroke-linecap="round" stroke-width="2" x1="38" x2="41" y1="41" y2="44"></line>
+<line stroke="#775A19" stroke-linecap="round" stroke-width="2" x1="62" x2="59" y1="41" y2="44"></line>
+<line stroke="#1A382B" stroke-linecap="round" stroke-width="2.5" x1="24" x2="76" y1="64" y2="64"></line>
+<path d="M28 72 C40 70 60 70 72 72" opacity="0.6" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path>
+</svg>
+</div>
+<div class="pb-2 w-full flex flex-col items-center gap-1 z-10">
+<div class="w-14 h-[1px] bg-secondary/40"></div>
+<div class="flex items-center gap-1 text-secondary text-[8px] tracking-widest leading-none">
+<span>•</span><span>•</span><span>•</span>
+</div>
+</div>
+</div>
+<span class="mt-2 font-headline-sm text-headline-sm text-primary tracking-wide text-center">Dawn</span>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider text-center">V. NATURE</span>
+</div>
+<!-- Card 6: Roots -->
+<div class="card-item group cursor-pointer flex flex-col items-center" data-category="Nature" data-meaning="Grounding in the earth, ancestral bonds, and unwavering inner stillness." data-title="Roots">
+<div class="relative w-full aspect-[1/1.618] rounded-xl bg-surface-container-lowest p-2 shadow-[0_4px_16px_rgba(22,48,36,0.08)] transition-all duration-300 group-hover:scale-[1.02] group-hover:shadow-[0_8px_24px_rgba(22,48,36,0.14)] flex flex-col justify-between items-center overflow-hidden">
+<div class="absolute inset-1.5 rounded-lg border-[1.5px] border-primary pointer-events-none">
+<div class="absolute inset-[3px] rounded-md border-[1px] border-secondary/35 pointer-events-none"></div>
+</div>
+<div class="pt-2 z-10 text-secondary">
+<span class="material-symbols-outlined text-[13px] leading-none select-none">star</span>
+</div>
+<div class="relative z-10 w-24 h-24 rounded-full bg-primary-fixed/20 flex items-center justify-center p-2">
+<svg class="w-full h-full text-primary" fill="none" stroke="currentColor" viewbox="0 0 100 100">
+<circle cx="50" cy="50" r="42" stroke="currentColor" stroke-dasharray="2 2" stroke-opacity="0.25" stroke-width="1.2"></circle>
+<!-- Roots motif -->
+<path d="M50 32 V48" stroke="#1A382B" stroke-linecap="round" stroke-width="3"></path>
+<path d="M50 48 C44 54 36 58 30 72" stroke="#1A382B" stroke-linecap="round" stroke-width="2.2"></path>
+<path d="M50 48 C56 56 64 60 70 72" stroke="#1A382B" stroke-linecap="round" stroke-width="2.2"></path>
+<path d="M48 56 C42 66 45 74 44 80" stroke="#775A19" stroke-linecap="round" stroke-width="1.8"></path>
+<path d="M52 56 C58 66 55 74 56 80" stroke="#775A19" stroke-linecap="round" stroke-width="1.8"></path>
+<circle cx="50" cy="30" fill="#775A19" r="3.5"></circle>
+</svg>
+</div>
+<div class="pb-2 w-full flex flex-col items-center gap-1 z-10">
+<div class="w-14 h-[1px] bg-secondary/40"></div>
+<div class="flex items-center gap-1 text-secondary text-[8px] tracking-widest leading-none">
+<span>•</span><span>•</span><span>•</span>
+</div>
+</div>
+</div>
+<span class="mt-2 font-headline-sm text-headline-sm text-primary tracking-wide text-center">Roots</span>
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-wider text-center">VI. NATURE</span>
+</div>
+</div>
+<!-- Detail Bottom Sheet Modal -->
+<div class="fixed inset-0 z-50 pointer-events-none flex flex-col justify-end transition-opacity duration-300 opacity-0" id="cardDetailModal">
+<!-- Backdrop Scrim -->
+<div class="absolute inset-0 bg-primary/40 backdrop-blur-sm transition-opacity" id="modalBackdrop"></div>
+<!-- Sheet Container -->
+<div class="relative w-full max-h-[707px] overflow-y-auto bg-surface-bright rounded-t-[28px] p-6 shadow-2xl flex flex-col items-center pointer-events-auto transform translate-y-full transition-transform duration-300" id="sheetContent">
+<div class="w-12 h-1 rounded-full bg-surface-variant mb-4 self-center"></div>
+<div class="flex items-center justify-between w-full mb-3">
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary" id="modalCategory">ARCHETYPE</span>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-on-surface" id="closeModalBtn">
+<span class="material-symbols-outlined text-[18px]">close</span>
+</button>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary text-center mb-1 font-medium" id="modalTitle">Card</h2>
+<p class="font-body-md text-body-md text-on-surface-variant text-center max-w-xs mb-5" id="modalMeaning">Deep message of the card and its guidance.</p>
+<!-- Sacred Geometry Divider -->
+<div class="flex items-center gap-3 w-full justify-center mb-5 text-secondary/40">
+<div class="h-[1px] w-16 bg-secondary/30"></div>
+<span class="material-symbols-outlined text-[14px] text-secondary">all_inclusive</span>
+<div class="h-[1px] w-16 bg-secondary/30"></div>
+</div>
+<!-- Action Ritual Button -->
+<button class="w-full py-3 px-6 rounded-full bg-primary text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-2 shadow-md active:scale-[0.98] transition-transform" id="meditateCardBtn">
+<span class="material-symbols-outlined text-[18px]">self_improvement</span>
+<span>Meditate on this card</span>
+</button>
+</div>
+</div>
+<script>
+    (function initCatalogInteractivity() {
+      const searchInput = document.getElementById('cardSearchInput');
+      const cardsGrid = document.getElementById('cardsGrid');
+      const cards = cardsGrid.querySelectorAll('.card-item');
+      const filterChips = document.querySelectorAll('.filter-chip');
+      const modal = document.getElementById('cardDetailModal');
+      const sheet = document.getElementById('sheetContent');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalCategory = document.getElementById('modalCategory');
+      const modalMeaning = document.getElementById('modalMeaning');
+      const closeModalBtn = document.getElementById('closeModalBtn');
+      const modalBackdrop = document.getElementById('modalBackdrop');
+
+      let currentFilter = 'All';
+
+      function applyFilterAndSearch() {
+        const query = (searchInput.value || '').trim().toLowerCase();
+        cards.forEach(card => {
+          const title = (card.getAttribute('data-title') || '').toLowerCase();
+          const cat = card.getAttribute('data-category') || '';
+          const matchesCategory = currentFilter === 'All' || cat.toLowerCase() === currentFilter.toLowerCase();
+          const matchesQuery = !query || title.includes(query);
+
+          if (matchesCategory && matchesQuery) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+
+      filterChips.forEach(chip => {
+        chip.addEventListener('click', () => {
+          filterChips.forEach(c => {
+            c.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+            c.classList.add('bg-surface-container', 'text-on-surface-variant');
+          });
+          chip.classList.remove('bg-surface-container', 'text-on-surface-variant');
+          chip.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+          currentFilter = chip.textContent.trim();
+          applyFilterAndSearch();
+        });
+      });
+
+      searchInput.addEventListener('input', applyFilterAndSearch);
+
+      function openModal(card) {
+        const title = card.getAttribute('data-title');
+        const cat = card.getAttribute('data-category');
+        const meaning = card.getAttribute('data-meaning');
+        modalTitle.textContent = title;
+        modalCategory.textContent = 'ARCHETYPE • ' + cat.toUpperCase();
+        modalMeaning.textContent = meaning;
+
+        modal.classList.remove('pointer-events-none', 'opacity-0');
+        modal.classList.add('pointer-events-auto', 'opacity-100');
+        sheet.classList.remove('translate-y-full');
+        sheet.classList.add('translate-y-0');
+      }
+
+      function closeModal() {
+        sheet.classList.remove('translate-y-0');
+        sheet.classList.add('translate-y-full');
+        modal.classList.remove('opacity-100');
+        modal.classList.add('opacity-0');
+        setTimeout(() => {
+          modal.classList.remove('pointer-events-auto');
+          modal.classList.add('pointer-events-none');
+        }, 300);
+      }
+
+      cards.forEach(card => {
+        card.addEventListener('click', () => openModal(card));
+      });
+
+      closeModalBtn.addEventListener('click', closeModal);
+      modalBackdrop.addEventListener('click', closeModal);
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe pointer-events-none" data-active-classes="text-secondary font-medium [&amp;_.nav-pip]:scale-100 [&amp;_.nav-icon]:text-secondary"><div class="px-margin pb-3 pt-1 flex justify-center"><div class="w-full max-w-md pointer-events-auto bg-surface/90 backdrop-blur-2xl rounded-full px-space-md py-space-xs shadow-[0_8px_28px_rgba(22,48,36,0.08),0_1px_3px_rgba(119,90,25,0.12)] flex items-center justify-around"><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant transition-all duration-200 group" data-path="draw" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">style</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Draw</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a><a aria-current="page" class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 transition-all duration-200 group text-secondary font-medium [&amp;_.nav-pip]:scale-100 [&amp;_.nav-icon]:text-secondary" data-path="catalog" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">auto_stories</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Catalog</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant transition-all duration-200 group" data-path="journal" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">history_edu</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Journal</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant transition-all duration-200 group" data-path="settings" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">tune</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Settings</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a></div></div></nav></body></html>
