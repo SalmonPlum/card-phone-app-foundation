@@ -185,3 +185,43 @@ test('dock forwards press and long-press events and respects router prevention b
   await go('Catalogue'); expect(screen).toHavePathname('/catalogue');
   expect(screen.getByRole('tab', { name: 'Catalogue' }).props.accessibilityState.selected).toBe(true);
 });
+
+test.each(['strip', 'flip'] as const)('warm legacy link reuses the existing tabs and resumes the same %s progress without Back depth', async phase => {
+  await renderRouter(routes); await settle();
+  await tick(624); await tick(144);
+  expect(current.state!.phase).toBe('strip');
+  if (phase === 'flip') {
+    const state = current.state!;
+    await act(() => current.draw({ x: 620, y: 330, angle: 0, scale: 1 }, state.sessionId, state.epoch));
+    await tick(496); await tick(96); await tick(640);
+    expect(current.state!.phase).toBe('flip');
+  }
+  await tick(200);
+  const paused = current.state!;
+  const progress = runningClocks()[0].value;
+  await go('Catalogue');
+  const grid = screen.getByTestId('card-grid');
+  await fireEvent.scroll(grid, { nativeEvent: { contentOffset: { x: 0, y: 160 } } });
+  await tick(10000);
+  expect(current.state).toBe(paused);
+  expect(runningClocks()).toHaveLength(0);
+  await act(() => router.navigate('/draw-preview'));
+  await settle();
+  expect(screen).toHavePathname('/');
+  expect(current.state).toBe(paused);
+  expect(router.canGoBack()).toBe(false);
+  expect(runningClocks()).toHaveLength(1);
+  expect(runningClocks()[0].value).toBeCloseTo(progress);
+  await tick((phase === 'strip' ? 496 : 620) - 201);
+  expect(current.state).toBe(paused);
+  await tick(1.001);
+  expect(current.state).toMatchObject({ sessionId: paused.sessionId, epoch: paused.epoch + 1, phase: phase === 'strip' ? 'contact' : 'reveal' });
+  expect(current.state!.drawnIds).toHaveLength(phase === 'strip' ? 0 : 1);
+  const resumed = current.state;
+  await go('Catalogue');
+  expect(screen.getByTestId('card-grid')).toBe(grid);
+  await act(() => router.back()); await settle();
+  expect(screen).toHavePathname('/');
+  expect(router.canGoBack()).toBe(false);
+  expect(current.state).toBe(resumed);
+});
