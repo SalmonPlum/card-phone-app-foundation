@@ -1,6 +1,6 @@
 # Catalogue card expansion overlay
 
-Status: proposed replacement for the page-first detail animation; awaiting user review. No product code changed by this design.
+Status: approved by the user on 2026-10-27. Replace the page-first catalogue interaction with the in-screen card expansion overlay.
 
 ## Intent
 
@@ -12,7 +12,7 @@ The tapped card itself moves closer from its actual catalogue tile, then reveals
 - Alternative: transparent native modal. Can retain the catalogue behind it, but adds native window/safe-area coordination and potential surface handoff flashes.
 - Existing separate detail route: keep only for direct links; it cannot provide the requested effect through a page fade and subsequent content scale.
 
-The user proposed a modal-style experience. The in-screen overlay is the implementation recommendation, not yet a separately approved technical choice.
+The user approved the modal-style in-screen overlay design and its implementation recommendation.
 
 ## Visible behavior
 
