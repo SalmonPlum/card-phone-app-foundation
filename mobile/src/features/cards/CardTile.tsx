@@ -21,7 +21,8 @@ export function CardFace({ card, locale, assetRegistry, testID }: {
   return failedAsset === content.faceAsset || !source
     ? <View style={[styles.missing, { aspectRatio }]}><Text style={styles.caption}>{t('assetError', locale)}</Text></View>
     : <Image testID={testID} source={source} resizeMode="contain" accessible={false}
-      style={{ width: '100%', aspectRatio }} onError={() => setFailedAsset(content.faceAsset)} />;
+      // Image supplies the asset's intrinsic height; clear it so Yoga sizes the face from its tile width.
+      style={{ width: '100%', height: undefined, aspectRatio }} onError={() => setFailedAsset(content.faceAsset)} />;
 }
 
 export function CardTile({ card, locale, assetRegistry, width, scrollKey, onOpen }: {
