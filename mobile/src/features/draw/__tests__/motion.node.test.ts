@@ -15,12 +15,13 @@ test('stack depth and phase timings match the approved motion', () => {
   assert.deepEqual(['regrip','ready','strip','contact','return','lower','lift','flip','resume'].map(p => phaseDurationMs(p as Parameters<typeof phaseDurationMs>[0])), [780/1.25,180/1.25,620/1.25,120/1.25,1080/1.25,360,640,620,740]);
 });
 
-test('layer anchors apply rotated offsets before vertical compression', async () => {
-  const { above, SOURCE, RECEIVER } = await import('../motion.ts');
-  for (const count of [1,8,100]) for (const base of [SOURCE,RECEIVER]) {
+test('layer anchors preserve the physical length of rotated stack offsets', async () => {
+  const { above, SOURCE, RECEIVER, ASIDE } = await import('../motion.ts');
+  for (const count of [1,8,100]) for (const base of [SOURCE,RECEIVER,ASIDE]) {
     const n=count-1, edge=Math.min(4.2,36/Math.max(1,count-1));
     const x=-n*.8*edge/4.2, y=-n*edge, actual=above(base,n,count);
     assert.ok(Math.abs(actual.x-(base.x+(x*Math.cos(base.angle)-y*Math.sin(base.angle))*base.scale))<1e-9);
-    assert.ok(Math.abs(actual.y-(base.y+(x*Math.sin(base.angle)+y*Math.cos(base.angle))*.88*base.scale))<1e-9);
+    assert.ok(Math.abs(actual.y-(base.y+(x*Math.sin(base.angle)+y*Math.cos(base.angle))*base.scale))<1e-9);
+    assert.ok(Math.abs(Math.hypot(actual.x-base.x,actual.y-base.y)-Math.hypot(x,y)*base.scale)<1e-9);
   }
 });

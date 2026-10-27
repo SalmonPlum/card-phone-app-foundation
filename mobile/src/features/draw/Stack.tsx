@@ -32,7 +32,7 @@ export function Stack({role,frame,progress,back,face,revealed=false,name,onAsset
     if(role==='selected') { p=mix(above(RECEIVER,state.received,total),FOREGROUND,phase==='lift'?e:1); if(phase==='lift') p={...p,x:p.x-Math.sin(Math.PI*t)*18,angle:p.angle-Math.sin(Math.PI*t)*.06}; }
     const turn=role==='selected'?(phase==='flip'?ease(t):phase==='reveal'?1:0):0;
     const zIndex=role==='selected'?4:role==='flying'?3:role==='source'&&phase==='resume'?2:role==='receiver'?1:0;
-    return {opacity:count>0?1:0,zIndex,left:p.x-119,top:p.y-179,transform:[{scaleX:p.scale},{scaleY:p.scale*.88},{rotate:`${p.angle}rad`},{scaleX:role==='selected'?Math.max(.012,Math.abs(Math.cos(Math.PI*turn))):1}]};
+    return {opacity:count>0?1:0,zIndex,left:p.x-119,top:p.y-178.5,transform:[{scaleX:p.scale},{scaleY:p.scale},{rotate:`${p.angle}rad`},{scaleX:role==='selected'?Math.max(.012,Math.abs(Math.cos(Math.PI*turn))):1}]};
   });
   const backStyle=useAnimatedStyle(()=>{
     const depth=layerStep(frame.value.total)*Math.max(0,stackCount(frame.value,role)-1);
@@ -45,4 +45,5 @@ export function Stack({role,frame,progress,back,face,revealed=false,name,onAsset
     {role==='selected' && <Animated.View style={[styles.front,frontStyle]}>{face ? <Image source={face} style={styles.image} resizeMode="cover" fadeDuration={0} onError={onAssetError} /> : <View style={styles.placeholder} />}</Animated.View>}
   </Animated.View>;
 }
-const styles=StyleSheet.create({stack:{position:'absolute',width:238,height:358},edge:{position:'absolute',width:238,height:358,borderRadius:12,backgroundColor:colors.panel,borderWidth:1,borderColor:colors.brass},image:{width:238,height:358,borderRadius:12},back:{position:'absolute',width:238,height:358},front:{...StyleSheet.absoluteFill},placeholder:{flex:1,backgroundColor:colors.canvas,borderRadius:12}});
+// Bundled faces and backs are 600×900; keep their 2:3 ratio through every pose.
+const styles=StyleSheet.create({stack:{position:'absolute',width:238,height:357},edge:{position:'absolute',width:238,height:357,borderRadius:12,backgroundColor:colors.panel,borderWidth:1,borderColor:colors.brass},image:{width:238,height:357,borderRadius:12},back:{position:'absolute',width:238,height:357},front:{...StyleSheet.absoluteFill},placeholder:{flex:1,backgroundColor:colors.canvas,borderRadius:12}});

@@ -240,15 +240,16 @@ test.each([1, 8, 100])('intact return waits for a coherent UI boundary for %i ca
   expect(mapper(view,'receiver')()).toEqual(prior);
   expect(mapper(view,'intact')().opacity).toBe(0);
   await settle();
-  expect(mapper(view,'intact')()).toMatchObject({opacity:1,left:181,top:396});
+  // The native 2:3 card is 238×357, centered at the receiver (300,575).
+  expect(mapper(view,'intact')()).toMatchObject({opacity:1,left:181,top:396.5});
   await act(()=>mockAdvance(864));
   const oldIntact=mapper(view,'intact');
   await view.rerender(<ShuffleScene state={next} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
-  expect(mapper(view,'intact')()).toMatchObject({opacity:1,left:501,top:151});
+  expect(mapper(view,'intact')()).toMatchObject({opacity:1,left:501,top:151.5});
   expect(mapper(view,'source')().opacity).toBe(0);
   await settle();
   expect(oldIntact().opacity).toBe(0);
-  expect(mapper(view,'source')()).toMatchObject({opacity:1,left:501,top:151});
+  expect(mapper(view,'source')()).toMatchObject({opacity:1,left:501,top:151.5});
   const edges=stacks(view).find(s=>roleOf(s)==='source')!.children.slice(0,12) as TestInstance[];
   expect(edges.filter(e=>e.props.style[1].__read().opacity===1)).toHaveLength(Math.min(count,12));
   expect(edges).toHaveLength(12);
