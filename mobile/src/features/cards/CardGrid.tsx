@@ -10,13 +10,14 @@ export type CardGridProps = {
   cards: readonly Card[]; locale: Locale; assetRegistry: AssetRegistry;
   onOpen: (id: CardId, origin: TileOrigin) => void; scrollKey: string;
   /** Disables new opens while the catalogue is obscured or unfocused. */
-  active?: boolean; hiddenCardId?: CardId | null; scrollEnabled?: boolean;
+  active?: boolean; hiddenCardId?: CardId | null; scrollEnabled?: boolean; maxTileWidth?: number;
 };
 export type CardGridHandle = { measureCard: (id: CardId, callback: (rect: TileOrigin['rect']) => void) => void; focusCard: (id: CardId) => void };
-export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardGrid({ cards, locale, assetRegistry, onOpen, scrollKey, active = true, hiddenCardId = null, scrollEnabled = true }, ref) {
+export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardGrid({ cards, locale, assetRegistry, onOpen, scrollKey, active = true, hiddenCardId = null, scrollEnabled = true, maxTileWidth = Infinity }, ref) {
   const { width, fontScale } = useWindowDimensions();
   const columns = getGridColumns(width, fontScale);
-  const tileWidth = Math.max(1, (width - 2 * GRID_PADDING - (columns - 1) * GRID_GUTTER) / columns);
+  const availableWidth = (width - 2 * GRID_PADDING - (columns - 1) * GRID_GUTTER) / columns;
+  const tileWidth = Math.max(1, Math.min(availableWidth, columns === 1 ? maxTileWidth : Infinity));
   const tiles = useRef(new Map<CardId, CardTileHandle>());
   const offsets = useRef(new Map<string, number>());
   const list = useRef<FlatList<Card>>(null);

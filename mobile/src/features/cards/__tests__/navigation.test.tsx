@@ -4,7 +4,9 @@ import Home from '../../../app/index';
 import Catalogue from '../../../app/catalogue';
 import Details from '../../../app/card/[id]';
 import Layout from '../../../app/_layout';
-import { BackHandler } from 'react-native';
+import { AppState, BackHandler, StyleSheet, type AppStateStatus, type NativeEventSubscription } from 'react-native';
+import { fitForegroundRect } from '../overlayGeometry';
+import * as SafeArea from 'react-native-safe-area-context';
 import * as Localization from 'expo-localization';
 
 // The router harness replaces Reanimated wholesale; retain our controlled native clock.
@@ -96,4 +98,74 @@ test('modal focus is restored only after catalogue accessibility and interaction
   await finishClose();
   expect(restored).toEqual([true]);
   focus.mockReset();
+});
+
+const safeArea = jest.requireActual('react-native-safe-area-context/lib/commonjs/SafeAreaContext') as typeof SafeArea;
+const native = jest.requireActual('react-native') as { useWindowDimensions: typeof import('react-native').useWindowDimensions };
+test.each([
+  [360, 800, 1.5, 360, 800],
+  [320, 568, 1, 320, 568],
+  [280, 480, 1, 280, 480],
+  [360, 800, 1.5, 320, 480],
+])('one-column face grows within the actual %sx%s host/font%s (layout %sx%s)', async (width, height, fontScale, hostWidth, hostHeight) => {
+  const dimensions = jest.spyOn(native, 'useWindowDimensions').mockReturnValue({ width, height, fontScale, scale: 3 });
+  const insets = jest.spyOn(safeArea, 'useSafeAreaInsets').mockReturnValue({ top: 24, bottom: 16, left: 0, right: 0 });
+  try {
+    await renderRouter(routes, { initialUrl: '/catalogue' });
+    await fireEvent(screen.getByTestId('catalogue-host'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: hostWidth, height: hostHeight } } });
+    const sourceWidth = StyleSheet.flatten(screen.getByTestId('card-tile-0').props.style).width;
+    const image = screen.getByTestId('card-face-0');
+    const ratio = StyleSheet.flatten(image.props.style).aspectRatio;
+    const foreground = fitForegroundRect({ width: hostWidth, height: hostHeight }, ratio, 24, 16);
+    expect(sourceWidth).toBeLessThan(foreground.width);
+    expect(sourceWidth / ratio).toBeLessThan(foreground.height);
+    expect(sourceWidth).toBeLessThanOrEqual(foreground.width * .8 + .00001);
+    expect(foreground.x).toBeGreaterThanOrEqual(16);
+    expect(foreground.x + foreground.width).toBeLessThanOrEqual(hostWidth - 16);
+    expect(foreground.y).toBeGreaterThanOrEqual(88);
+    expect(foreground.y + foreground.height).toBeLessThan(hostHeight - 16);
+    expect(image.props.resizeMode).toBe('contain');
+    expect(screen.getByText('Seed').props.numberOfLines).toBeUndefined();
+  } finally { dimensions.mockRestore(); insets.mockRestore(); }
+});
+test('ordinary two-column faces retain accepted width even when the one-column cap would be smaller', async () => {
+  const dimensions = jest.spyOn(native, 'useWindowDimensions').mockReturnValue({ width: 360, height: 480, fontScale: 1, scale: 3 });
+  try {
+    await renderRouter(routes, { initialUrl: '/catalogue' });
+    await fireEvent(screen.getByTestId('catalogue-host'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 360, height: 480 } } });
+    expect(StyleSheet.flatten(screen.getByTestId('card-tile-0').props.style).width).toBe(158);
+  } finally { dimensions.mockRestore(); }
+});
+
+test.each(['callback', 'timeout', 'after-resume'])('pending tile %s is invalidated across background/resume and a fresh tap still opens', async delivery => {
+  const listeners = new Set<(status: AppStateStatus) => void>();
+  const subscription = jest.spyOn(AppState, 'addEventListener').mockImplementation((type, handler) => {
+    const change = handler as (status: AppStateStatus) => void;
+    if (type === 'change') listeners.add(change);
+    return { remove: () => { listeners.delete(change); } } as NativeEventSubscription;
+  });
+  type Measure = (x: number, y: number, width: number, height: number) => void;
+  const pending: Measure[] = [];
+  measure.mockImplementation((callback: Measure) => pending.push(callback));
+  const emit = (status: AppStateStatus) => { for (const listener of [...listeners]) listener(status); };
+  try {
+    await renderRouter(routes, { initialUrl: '/catalogue' });
+    const mountedGrid = screen.getByTestId('card-grid');
+    const button = screen.getByRole('button', { name: 'Seed' });
+    await fireEvent(button, 'pressIn'); await fireEvent.press(button);
+    expect(pending).toHaveLength(1);
+    await act(() => emit('background'));
+    if (delivery === 'after-resume') await act(() => emit('active'));
+    if (delivery === 'timeout') await act(() => jest.advanceTimersByTime(120));
+    else await act(() => pending[0](16, 200, 158, 237.66));
+    await act(() => { for (let index = 1; index < pending.length; index++) pending[index](0, 0, 360, 800); });
+    if (delivery !== 'after-resume') await act(() => emit('active'));
+    await act(() => { pending[0](16, 200, 158, 237.66); jest.advanceTimersByTime(150); });
+    expect(screen.queryByTestId('card-detail-overlay')).toBeNull();
+    expect(screen.getByTestId('card-grid')).toBe(mountedGrid);
+    measure.mockImplementation((callback: Measure) => callback(0, 0, 360, 800));
+    await fireEvent(button, 'pressIn'); await fireEvent.press(button);
+    expect(screen.getByTestId('overlay-face-0')).toBeTruthy();
+    expect(screen).toHavePathname('/catalogue');
+  } finally { subscription.mockRestore(); }
 });

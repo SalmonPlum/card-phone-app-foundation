@@ -28,6 +28,7 @@ export function useCardOverlay(options: OverlayOptions) {
   useLayoutEffect(() => { latest.current = options; });
   const [state, setState] = useState<OverlayState>(() => closed(0));
   const current = useRef(state), live = useRef(true), serial = useRef(0);
+  const appActive = useRef(AppState.currentState !== 'background' && AppState.currentState !== 'inactive');
   const pendingFocus = useRef<CardId | null>(null);
   const timers = useRef(new Set<ReturnType<typeof setTimeout>>());
   const commit = useCallback((next: OverlayState) => {
@@ -48,7 +49,7 @@ export function useCardOverlay(options: OverlayOptions) {
     measure(deliver);
   }, []);
   const open = useCallback((id: CardId, origin: TileOrigin) => {
-    if (!live.current || !latest.current.active || current.current.stage !== 'closed') return;
+    if (!live.current || !appActive.current || !latest.current.active || current.current.stage !== 'closed') return;
     const generation = ++serial.current;
     commit({ ...closed(generation), stage: 'preparing', id });
     bounded(latest.current.measureHost, generation, host => {
@@ -112,7 +113,10 @@ export function useCardOverlay(options: OverlayOptions) {
   }, [options.active, options.layoutKey, cancel, close]);
   useEffect(() => {
     live.current = true;
-    const subscription = AppState.addEventListener('change', status => { if (status !== 'active') cancel(); });
+    const subscription = AppState.addEventListener('change', status => {
+      appActive.current = status === 'active';
+      if (!appActive.current) cancel();
+    });
     return () => { live.current = false; clear(); subscription.remove(); };
   }, [cancel, clear]);
   return { state, hiddenCardId: state.stage === 'opening' || state.stage === 'open' || state.stage === 'closing' ? state.id : null, open, ready, complete, close, cancel };

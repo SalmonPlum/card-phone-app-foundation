@@ -1,5 +1,5 @@
-import { forwardRef, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type ComponentRef } from 'react';
-import { AccessibilityInfo, findNodeHandle, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type ComponentRef } from 'react';
+import { AccessibilityInfo, AppState, findNodeHandle, Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Card, CardId, Locale } from '../../domain/contracts';
 import { localizeCard } from '../../domain/deck';
 import type { AssetRegistry } from '../../decks/assets';
@@ -59,38 +59,48 @@ export const CardTile = forwardRef<CardTileHandle, {
   useEffect(() => () => { for (const cancel of pending.current) cancel(); }, []);
   const currentOnOpen = useRef(onOpen);
   useLayoutEffect(() => { currentOnOpen.current = onOpen; }, [onOpen]);
+  const appActive = useRef(AppState.currentState !== 'background' && AppState.currentState !== 'inactive');
   const measurement = useRef<{ rect: TileOrigin['rect']; complete: boolean; open: boolean } | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const clearTimeoutIfNeeded = () => { if (timeout.current !== null) clearTimeout(timeout.current); timeout.current = null; };
+  const clearTimeoutIfNeeded = useCallback(() => { if (timeout.current !== null) clearTimeout(timeout.current); timeout.current = null; }, []);
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', status => {
+      appActive.current = status === 'active';
+      // Native delivery can race React commits: invalidate the touch synchronously
+      // on both leave and resume, before its callback can become a new selection.
+      clearTimeoutIfNeeded(); measurement.current = null;
+    });
+    return () => subscription.remove();
+  }, [clearTimeoutIfNeeded]);
   useEffect(() => () => {
     if (timeout.current !== null) clearTimeout(timeout.current);
     measurement.current = null;
   }, []);
   useEffect(() => {
     if (!active) { clearTimeoutIfNeeded(); measurement.current = null; }
-  }, [active]);
+  }, [active, clearTimeoutIfNeeded]);
   const finish = (request: NonNullable<typeof measurement.current>) => {
-    if (measurement.current !== request) return;
+    if (!appActive.current || measurement.current !== request) return;
     clearTimeoutIfNeeded();
     measurement.current = null;
     currentOnOpen.current(card.id, { rect: request.rect, scrollKey });
   };
   const measure = () => {
-    if (!active) return;
+    if (!active || !appActive.current) return;
     if (measurement.current?.open) return;
     clearTimeoutIfNeeded();
     // Keep this touch's request until its asynchronous native measurement arrives.
     const request = { rect: null as TileOrigin['rect'], complete: false, open: false };
     measurement.current = request;
     face.current?.measureInWindow((x, y, width, height) => {
-      if (measurement.current !== request) return;
+      if (!appActive.current || measurement.current !== request) return;
       request.rect = [x, y, width, height].every(Number.isFinite) && width > 0 && height > 0 ? { x, y, width, height } : null;
       request.complete = true;
       if (request.open) finish(request);
     });
   };
   const open = () => {
-    if (!active) return;
+    if (!active || !appActive.current) return;
     const request = measurement.current;
     if (request?.open) return;
     clearTimeoutIfNeeded();
