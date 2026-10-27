@@ -2,6 +2,8 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Status:** Source implemented and independently reviewed at `67ed4fd`. 119 app tests, 71 domain tests, TypeScript, lint, deck validation and Android Metro export pass. Phone visual/accessibility/scroll acceptance remains pending.
+
 **Goal:** Grow the actual tapped catalogue face into a modal-style detail overlay, then return it continuously to its tile.
 
 **Architecture:** Keep the catalogue route/grid mounted. A reusable in-screen overlay owns a persistent face and UI-thread rectangle animation, coordinated by a guarded in-memory controller. The catalogue supplies fresh tile measurement and receives a hidden-source ID; no router transition occurs on catalogue selection. Direct card links retain a standalone details fallback.
@@ -65,3 +67,7 @@ This is one integrated task because geometry, image handoff and controller must 
 - [ ] Run `npm test -- --runInBand`, `npm run test:domain`, `npm run typecheck`, `npm run lint`, `npm run validate:decks`, `git diff --check`; expect zero failures. Export `CI=1 npx expo export --platform android --output-dir /tmp/cards-overlay-android-export`; document environmental warnings separately.
 - [ ] Self-review against spec and write report with RED/GREEN evidence, native boundaries, builder choices and remaining phone checks. Commit only scoped source/tests/docs, preserving user-owned `.gitignore`, `expo-env.d.ts`, and audit JSON.
 - [ ] Independent review of full task diff, resolve blocking findings with regressions. Native phone acceptance stays pending: continuous opening/return, no black blink/duplicate face, Close/Back, long text, cs/en, reduced motion, retained scroll. Do not claim measured FPS/device success from mocked tests.
+
+## Final integration adjustment
+
+One-column catalogue faces are capped at 80% of the smallest localized foreground target width computed from the measured host and safe areas. This resolves the conflict between full-width one-column tiles and enlargement into a safe foreground. Ordinary two-column sizing is unchanged. Pending tile touches are invalidated synchronously on AppState leave and resume, with an independent controller activity gate. Both changes passed final scoped review.
