@@ -2,7 +2,7 @@ import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
 import { AppState } from 'react-native';
-import { resetClock } from '../../features/cards/__tests__/helpers/overlayClock';
+import { advance, flushRn, resetClock, settle } from '../../features/cards/__tests__/helpers/overlayClock';
 import RootLayout from '../../app/_layout';
 import DrawPreview from '../../app/(tabs)/index';
 import Tabs from '../../app/(tabs)/_layout';
@@ -27,8 +27,9 @@ function Idle() {
   return <Catalogue />;
 }
 const nativeAppState = AppState.currentState;
-beforeEach(() => { mockId = 0; resetClock(); AppState.currentState = 'active'; });
-afterEach(() => { AppState.currentState = nativeAppState; });
+const measure = jest.requireActual('@react-native/jest-preset/jest/MockNativeMethods').default.measureInWindow as jest.Mock;
+beforeEach(() => { mockId = 0; resetClock(); AppState.currentState = 'active'; measure.mockImplementation((callback: (x: number, y: number, width: number, height: number) => void) => callback(0, 0, 360, 698)); });
+afterEach(() => { AppState.currentState = nativeAppState; measure.mockReset(); });
 
 test('Draw consumes the root session and configured artwork/results without resetting on mount', async () => {
   await renderRouter({ _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': DrawPreview, '(tabs)/catalogue': Idle, 'card/[id]': Details }, { initialUrl: '/catalogue' });
@@ -46,7 +47,15 @@ test('Draw consumes the root session and configured artwork/results without rese
   expect(current.state!.sessionId).toBe(first.sessionId);
   await fireEvent.press(screen.getByRole('button', { name: 'Confirm card' }));
   await fireEvent.press(screen.getByRole('button', { name: 'Stop' }));
+  expect(screen.getByRole('button', { name: 'Wave' })).toBeVisible();
+  expect(screen.queryByText('Movement, change, and your own rhythm.')).toBeNull();
+  await fireEvent.press(screen.getByRole('button', { name: 'Wave' }));
+  await fireEvent(screen.getByTestId('overlay-face-7'), 'loadEnd');
+  await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
+  await settle(); await advance(420); await flushRn();
   expect(screen.getByText('Movement, change, and your own rhythm.')).toBeVisible();
+  await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
+  await settle(); await advance(420); await flushRn();
   expect(current.state).toMatchObject({ sessionId: first.sessionId, phase: 'results', drawnIds: [7] });
   await fireEvent.press(screen.getByRole('button', { name: 'New session' }));
   expect(current.state).toMatchObject({ sessionId: 'draw-owner-2', phase: 'regrip', drawnIds: [] });

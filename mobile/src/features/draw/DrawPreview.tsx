@@ -8,6 +8,7 @@ import { useLocale } from '../../i18n/useLocale';
 import { ShuffleScene } from './ShuffleScene';
 import { useSession } from '../../session/SessionProvider';
 import { colors, type, spacing, radius } from '../../ui/theme';
+import { ResultsScreen } from '../results/ResultsScreen';
 export function DrawPreview() {
  const locale=useLocale(), session=useSession();
  const [active,setActive]=useState(AppState.currentState==='active'), [focused,setFocused]=useState(false),[reduced,setReduced]=useState(false);
@@ -18,9 +19,10 @@ export function DrawPreview() {
  useEffect(()=>{const subscription=AppState.addEventListener('change',s=>{activeRef.current=s==='active';setActive(activeRef.current);}); AccessibilityInfo.isReduceMotionEnabled().then(setReduced);const reduce=AccessibilityInfo.addEventListener('reduceMotionChanged',setReduced);return()=>{subscription.remove();reduce.remove();};},[]);
  useFocusEffect(useCallback(()=>{focusedRef.current=true;setFocused(true);return()=>{focusedRef.current=false;setFocused(false);};},[]));
  const s=session.state;
+ if(s?.phase==='results') return <ResultsScreen />;
  return <SafeAreaView testID="draw-screen" edges={['top','left','right']} style={styles.screen}>
   {session.error && <View><Text style={styles.error}>{t('entropyError',locale)}</Text><Pressable onPress={session.retry} accessibilityRole="button" style={styles.button}><Text style={styles.buttonText}>{t('retry',locale)}</Text></Pressable></View>}
-  {s?.phase==='results'?<ScrollView contentContainerStyle={styles.results}><Text style={styles.title}>{t('results',locale)}</Text>{s.drawnIds.length===0&&<Text style={styles.copy}>{t('emptyResults',locale)}</Text>}{s.drawnIds.map(id=>{const c=configuredDeck.cards.find(card=>card.id===id)!;return <View key={id} style={styles.result}><Text style={styles.resultName}>{c.translations[locale].name}</Text><Text style={styles.copy}>{c.translations[locale].meaning}</Text></View>;})}<Pressable onPress={session.reset} accessibilityRole="button" style={styles.button}><Text style={styles.buttonText}>{t('newSession',locale)}</Text></Pressable></ScrollView>:s&&<ScrollView style={styles.drawingScroll} contentContainerStyle={styles.drawing}><ShuffleScene state={s} deck={configuredDeck} locale={locale} onDraw={session.draw} onConfirm={session.confirm} onPhaseComplete={complete} paused={!active||!focused||session.error} reducedMotion={reduced}/><View style={styles.controls}><Text style={styles.status}>{t('remainingCount',locale,{count:s.remainingIds.length})}</Text><Pressable onPress={session.stop} disabled={s.drawQueued||!['regrip','ready','strip','contact','return','resume','lower'].includes(s.phase)} accessibilityRole="button" style={styles.secondaryButton}><Text style={styles.secondaryText}>{t('stop',locale)}</Text></Pressable></View></ScrollView>}
+  {s&&<ScrollView style={styles.drawingScroll} contentContainerStyle={styles.drawing}><ShuffleScene state={s} deck={configuredDeck} locale={locale} onDraw={session.draw} onConfirm={session.confirm} onPhaseComplete={complete} paused={!active||!focused||session.error} reducedMotion={reduced}/><View style={styles.controls}><Text style={styles.status}>{t('remainingCount',locale,{count:s.remainingIds.length})}</Text><Pressable onPress={session.stop} disabled={s.drawQueued||!['regrip','ready','strip','contact','return','resume','lower'].includes(s.phase)} accessibilityRole="button" style={styles.secondaryButton}><Text style={styles.secondaryText}>{t('stop',locale)}</Text></Pressable></View></ScrollView>}
  </SafeAreaView>;
 }
 const styles=StyleSheet.create({
@@ -28,15 +30,10 @@ const styles=StyleSheet.create({
  drawing:{flexGrow:1,gap:spacing.md},
  screen:{flex:1,backgroundColor:colors.canvas,padding:spacing.lg,gap:spacing.md},
  controls:{alignItems:'center',gap:spacing.sm},
- copy:{fontFamily:type.sans,color:colors.ink,fontSize:16,lineHeight:24},
  status:{fontFamily:type.sans,color:colors.mutedInk,fontSize:16,lineHeight:24,textAlign:'center',backgroundColor:colors.panel,borderRadius:radius.pill,paddingHorizontal:spacing.lg,paddingVertical:spacing.xs},
- title:{...type.title,fontFamily:type.serif,color:colors.deepForest},
  button:{backgroundColor:colors.deepForest,borderRadius:radius.pill,paddingHorizontal:spacing.xl,paddingVertical:spacing.md,minHeight:48,alignItems:'center'},
  buttonText:{...type.label,fontFamily:type.sans,color:colors.lightInk,textAlign:'center'},
  secondaryButton:{backgroundColor:colors.panel,borderWidth:1,borderColor:colors.sage,borderRadius:radius.pill,paddingHorizontal:spacing.xl,paddingVertical:spacing.md,minHeight:48,width:'100%',maxWidth:360,alignItems:'center'},
  secondaryText:{...type.label,fontFamily:type.sans,color:colors.forest,textAlign:'center'},
  error:{...type.body,fontFamily:type.sans,color:colors.ink},
- results:{gap:spacing.lg,padding:spacing.md,paddingBottom:spacing.xxl},
- result:{gap:spacing.sm,backgroundColor:colors.panel,borderRadius:radius.panel,padding:spacing.lg},
- resultName:{fontFamily:type.serif,fontSize:24,lineHeight:32,color:colors.deepForest},
 });

@@ -1,6 +1,6 @@
 import type { TestInstance } from 'test-renderer';
 import { useLayoutEffect } from 'react';
-import { fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { useBottomTabBarHeight } from 'expo-router/js-tabs';
 import { AppState, StyleSheet } from 'react-native';
 import * as SafeArea from 'react-native-safe-area-context';
@@ -11,8 +11,10 @@ import Draw from '../../app/(tabs)/index';
 import Catalogue from '../../app/(tabs)/catalogue';
 import Details from '../../app/card/[id]';
 import { fitForegroundRect } from '../../features/cards/overlayGeometry';
+import { useSession } from '../../session/SessionProvider';
 
 jest.mock('expo-router/build/testing-library/mocks', () => ({}));
+jest.mock('expo-crypto', () => ({ randomUUID: () => 'layout-session', getRandomValues: (values: Uint32Array) => values.fill(0) }));
 const native = jest.requireActual('react-native') as { useWindowDimensions: typeof import('react-native').useWindowDimensions };
 const methods = jest.requireActual('@react-native/jest-preset/jest/MockNativeMethods').default;
 const nativeAppState = AppState.currentState;
@@ -23,6 +25,12 @@ function HeightObserver() {
   return null;
 }
 function CatalogueWithHeight() { return <><Catalogue /><HeightObserver /></>; }
+let session: ReturnType<typeof useSession>;
+function DrawWithHeight() {
+  const current = useSession();
+  useLayoutEffect(() => { session = current; }, [current]);
+  return <><Draw /><HeightObserver /></>;
+}
 beforeEach(() => { resetClock(); AppState.currentState = 'active'; });
 afterEach(() => { AppState.currentState = nativeAppState; (methods.measureInWindow as jest.Mock).mockReset(); });
 
@@ -33,14 +41,14 @@ test.each([
   { width: 320, height: 568, fontScale: 2, bottom: 34, dockHeight: 146 },
   { width: 280, height: 480, fontScale: 1.5, bottom: 16, dockHeight: 126 },
   { width: 430, height: 932, fontScale: 1, bottom: 34, dockHeight: 102 },
-])('reserves the measured dock once at $width dp/font $fontScale and fits the overlay to the remaining host', async fixture => {
+].flatMap(fixture => ['catalogue', 'results'].map(collection => ({ ...fixture, collection }))))('reserves the measured dock once for $collection at $width dp/font $fontScale and fits the overlay to the remaining host', async fixture => {
   const dimensions = jest.spyOn(native, 'useWindowDimensions').mockReturnValue({ width: fixture.width, height: fixture.height, scale: 3, fontScale: fixture.fontScale });
   const insets = { top: 24, bottom: fixture.bottom, left: 0, right: 0 };
   const hostHeight = fixture.height - fixture.dockHeight;
   function RootWithInsets() { return <SafeArea.SafeAreaInsetsContext.Provider value={insets}><RootLayout /></SafeArea.SafeAreaInsetsContext.Provider>; }
   (methods.measureInWindow as jest.Mock).mockImplementation((callback: (x: number, y: number, width: number, height: number) => void) => callback(0, 0, fixture.width, hostHeight));
   try {
-    await renderRouter({ _layout: RootWithInsets, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': CatalogueWithHeight, 'card/[id]': Details });
+    await renderRouter({ _layout: RootWithInsets, '(tabs)/_layout': Tabs, '(tabs)/index': DrawWithHeight, '(tabs)/catalogue': CatalogueWithHeight, 'card/[id]': Details });
     const stop = screen.getByRole('button', { name: 'Stop' });
     let scroll = stop.parent;
     while (scroll && scroll.type !== 'RCTScrollView') scroll = scroll.parent;
@@ -55,14 +63,23 @@ test.each([
     }
     expect(screen.getByText('Catalogue').props.numberOfLines).toBeUndefined();
     await fireEvent(dock, 'layout', { nativeEvent: { layout: { x: 0, y: hostHeight, width: fixture.width, height: fixture.dockHeight } } });
-    await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
+    const results = fixture.collection === 'results';
+    if (results) {
+      const first = session.state!;
+      await act(() => session.draw({ x: 620, y: 330, angle: 0, scale: 1 }, first.sessionId, first.epoch));
+      for (let i = 0; i < 3; i++) { const s = session.state!; await act(() => session.complete(s.sessionId, s.epoch)); }
+      await fireEvent.press(screen.getByRole('button', { name: 'Confirm card' }));
+      await fireEvent.press(screen.getByRole('button', { name: 'Stop' }));
+      expect(screen.queryByTestId('draw-screen')).toBeNull();
+    } else await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
     expect(reportedHeight).toBe(fixture.dockHeight);
-    const host = screen.getByTestId('catalogue-host');
+    const hostID = results ? 'results-host' : 'catalogue-host';
+    const host = screen.getByTestId(hostID);
     expect((host.children[0] as TestInstance).props.edges.bottom).toBe('off');
     await fireEvent(host, 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: fixture.width, height: hostHeight } } });
     const grid = screen.getByTestId('card-grid');
-    await fireEvent.press(screen.getByRole('button', { name: 'Seed' }));
-    await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
+    await fireEvent.press(screen.getByRole('button', { name: results ? 'Spring' : 'Seed' }));
+    await fireEvent(screen.getByTestId(`overlay-face-${results ? 7 : 0}`), 'loadEnd');
     await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
     await settle(); await advance(420); await flushRn();
     const face = screen.getByTestId('overlay-face-surface');
@@ -74,7 +91,7 @@ test.each([
     expect(pose.transform[3].scaleY).toBeCloseTo(target.height / 358);
     expect(StyleSheet.flatten(screen.getByTestId('overlay-details').props.style).bottom).toBe(0);
     expect(target.y + target.height).toBeLessThanOrEqual(hostHeight);
-    expect(screen.getByTestId('catalogue-host')).toBe(host);
+    expect(screen.getByTestId(hostID)).toBe(host);
     expect(screen.getByTestId('card-grid', { includeHiddenElements: true })).toBe(grid);
   } finally { dimensions.mockRestore(); }
 });

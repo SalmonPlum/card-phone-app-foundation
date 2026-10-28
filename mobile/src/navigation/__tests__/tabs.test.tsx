@@ -55,7 +55,8 @@ test('tab round trips retain committed cards, results, screen instances and root
   const result = current.state;
   await go('Catalogue'); await go('Draw'); await go('Draw'); await go('Draw');
   expect(current.state).toBe(result);
-  expect(screen.getByText('Renewal and a return to what sustains you.')).toBeVisible();
+  expect(screen.getByRole('button', { name: 'Spring' })).toBeVisible();
+  expect(screen.queryByText('Renewal and a return to what sustains you.')).toBeNull();
   expect(router.canGoBack()).toBe(false);
   await go('Catalogue'); expect(screen.getByTestId('card-grid')).toBe(grid);
   await act(() => router.back());
