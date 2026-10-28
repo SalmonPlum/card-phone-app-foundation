@@ -14,7 +14,7 @@ export function ResultsScreen() {
   if (!state) return null;
   const cards = cardsForIds(configuredDeck, state.drawnIds);
   return <CardCollectionScreen cards={cards} locale={locale} assetRegistry={assetRegistry}
-    title={t('results', locale)} scrollKey={`results:${configuredDeck.id}:${state.sessionId}`} hostTestID="results-host"
+    title={t('results', locale)} scrollKey={`results:${configuredDeck.id}:${state.sessionId}`} hostTestID="results-host" scrollHeader
     headerContent={<>
       <Text style={styles.copy}>{t('drawnCount', locale, { count: cards.length })}</Text>
       <Pressable onPress={reset} accessibilityRole="button" style={styles.button}>

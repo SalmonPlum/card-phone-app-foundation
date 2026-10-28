@@ -23,10 +23,11 @@ export type CardCollectionScreenProps = {
   hostTestID: string;
   headerContent?: ReactNode;
   emptyContent?: ReactNode;
+  scrollHeader?: boolean;
 };
 
 /** The same measured grid and persistent detail surface for every collection. */
-export function CardCollectionScreen({ cards, locale, assetRegistry, title, scrollKey, hostTestID, headerContent, emptyContent }: CardCollectionScreenProps) {
+export function CardCollectionScreen({ cards, locale, assetRegistry, title, scrollKey, hostTestID, headerContent, emptyContent, scrollHeader = false }: CardCollectionScreenProps) {
   const { setBlocked } = useTabInteraction();
   const focused = useIsFocused(), reducedMotion = useReducedMotion();
   const insets = useSafeAreaInsets(), { width, height, fontScale } = useWindowDimensions();
@@ -64,17 +65,19 @@ export function CardCollectionScreen({ cards, locale, assetRegistry, title, scro
     return () => subscription.remove();
   }, [active, close, focused]);
   const card = overlay.state.id === null ? null : cards.find(card => card.id === overlay.state.id);
+  const heading = <View style={styles.heading}>
+    <Text accessibilityRole="header" style={styles.title}>{title}</Text>
+    {headerContent}
+  </View>;
   return <View ref={host} collapsable={false} testID={hostTestID} style={styles.screen}
     onLayout={event => { const { x, y, width, height } = event.nativeEvent.layout; setLayout({ x, y, width, height }); }}>
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen} pointerEvents={active ? 'none' : 'auto'}
       accessibilityElementsHidden={active} importantForAccessibility={active ? 'no-hide-descendants' : 'auto'}>
-      <View style={styles.heading}>
-        <Text accessibilityRole="header" style={styles.title}>{title}</Text>
-        {headerContent}
-      </View>
-      {cards.length > 0 ? <CardGrid ref={grid} cards={cards} locale={locale} assetRegistry={assetRegistry}
+      {!scrollHeader && heading}
+      {scrollHeader || cards.length > 0 ? <CardGrid ref={grid} cards={cards} locale={locale} assetRegistry={assetRegistry}
         scrollKey={scrollKey} active={focused && !active} scrollEnabled={!active}
-        maxTileWidth={maxTileWidth} hiddenCardId={overlay.hiddenCardId} onOpen={overlay.open} /> : emptyContent}
+        maxTileWidth={maxTileWidth} hiddenCardId={overlay.hiddenCardId} onOpen={overlay.open}
+        headerContent={scrollHeader ? heading : undefined} emptyContent={emptyContent} /> : emptyContent}
     </SafeAreaView>
     {card && overlay.state.host && <CardDetailOverlay card={card} locale={locale} assetRegistry={assetRegistry}
       state={overlay.state} reducedMotion={reducedMotion} topInset={insets.top} bottomInset={0}

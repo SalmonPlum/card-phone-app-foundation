@@ -1,5 +1,5 @@
 import { useLayoutEffect } from 'react';
-import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
+import { act, fireEvent, renderRouter, screen, within } from 'expo-router/testing-library';
 import { AppState, BackHandler, FlatList, StyleSheet, type AppStateStatus, type NativeEventSubscription } from 'react-native';
 import * as Localization from 'expo-localization';
 import { advance, flushRn, resetClock, settle } from '../../cards/__tests__/helpers/overlayClock';
@@ -262,4 +262,28 @@ test('reset unmounts results while a native opening completion is queued and rej
   expect(screen.queryByTestId('results-host')).toBeNull();
   expect(screen.queryByTestId('card-detail-overlay')).toBeNull();
   expect(screen.getAllByRole('tab')).toHaveLength(2);
+});
+
+
+test.each([0, 1])('failed reset in a short large-text host keeps controls and %i results in one scrollable viewport', async count => {
+  const native = jest.requireActual('react-native') as typeof import('react-native');
+  const dimensions = jest.spyOn(native, 'useWindowDimensions').mockReturnValue({ width: 280, height: 480, scale: 1, fontScale: 2 });
+  try {
+    await renderRouter(routes); await settle();
+    if (count) await drawCards(count);
+    await fireEvent.press(screen.getByRole('button', { name: 'Stop' }));
+    await fireEvent(screen.getByTestId('results-host'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 280, height: 250 } } });
+    const old = current.state;
+    mockEntropyError = true;
+    await fireEvent.press(screen.getByRole('button', { name: 'New session' }));
+    const grid = screen.getByTestId('card-grid');
+    expect(within(grid).getByRole('button', { name: 'Try again' })).toBeVisible();
+    if (count) expect(within(grid).getByRole('button', { name: 'Circle' })).toBeVisible();
+    else expect(within(grid).getByRole('button', { name: 'Draw cards' })).toBeVisible();
+    expect(current.state).toBe(old);
+    await fireEvent.scroll(grid, { nativeEvent: { contentOffset: { x: 0, y: 150 } } });
+    mockEntropyError = false;
+    await fireEvent.press(within(grid).getByRole('button', { name: 'Try again' }));
+    expect(current.state).toMatchObject({ sessionId: 'results-3', phase: 'regrip', drawnIds: [] });
+  } finally { dimensions.mockRestore(); }
 });

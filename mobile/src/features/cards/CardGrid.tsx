@@ -1,4 +1,4 @@
-import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, type ReactNode } from 'react';
 import { FlatList, useWindowDimensions } from 'react-native';
 import type { Card, CardId, Locale } from '../../domain/contracts';
 import type { AssetRegistry } from '../../decks/assets';
@@ -11,9 +11,10 @@ export type CardGridProps = {
   onOpen: (id: CardId, origin: TileOrigin) => void; scrollKey: string;
   /** Disables new opens while the catalogue is obscured or unfocused. */
   active?: boolean; hiddenCardId?: CardId | null; scrollEnabled?: boolean; maxTileWidth?: number;
+  headerContent?: ReactNode; emptyContent?: ReactNode;
 };
 export type CardGridHandle = { measureCard: (id: CardId, callback: (rect: TileOrigin['rect']) => void) => void; focusCard: (id: CardId) => void };
-export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardGrid({ cards, locale, assetRegistry, onOpen, scrollKey, active = true, hiddenCardId = null, scrollEnabled = true, maxTileWidth = Infinity }, ref) {
+export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardGrid({ cards, locale, assetRegistry, onOpen, scrollKey, active = true, hiddenCardId = null, scrollEnabled = true, maxTileWidth = Infinity, headerContent, emptyContent }, ref) {
   const { width, fontScale } = useWindowDimensions();
   const columns = getGridColumns(width, fontScale);
   const availableWidth = (width - 2 * GRID_PADDING - (columns - 1) * GRID_GUTTER) / columns;
@@ -34,6 +35,8 @@ export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardG
   };
   return <FlatList ref={list} key={`${scrollKey}:${columns}`} testID="card-grid" data={cards} numColumns={columns}
     keyExtractor={card => String(card.id)} extraData={{ locale, tileWidth, hiddenCardId, active }} scrollEnabled={scrollEnabled}
+    ListHeaderComponent={headerContent ? <>{headerContent}</> : undefined}
+    ListEmptyComponent={emptyContent ? <>{emptyContent}</> : undefined}
     contentContainerStyle={{ padding: GRID_PADDING, gap: 20 }}
     columnWrapperStyle={columns === 2 ? { gap: GRID_GUTTER } : undefined}
     initialNumToRender={8} maxToRenderPerBatch={8} windowSize={5}
