@@ -7,7 +7,15 @@ import {SettingsScreen} from '../SettingsScreen';
 import type {LanguageStorage} from '../../../platform/languageStorage';
 import {ThemeProvider} from '../../../themes/ThemeProvider';
 import {themeResource} from '../../../themes';
+import {TextSizeProvider} from '../../../settings/TextSizeProvider';
 const flush=()=>act(async()=>{await Promise.resolve();await Promise.resolve();});
+async function changeTextSize(target:number) {
+  const current=screen.getByRole('adjustable').props.accessibilityValue.now as number;
+  for(let step=0;step<Math.abs(target-current);step++) {
+    await fireEvent(screen.getByRole('adjustable'),'accessibilityAction',{nativeEvent:{actionName:target>current?'increment':'decrement'}});
+  }
+}
+
 function storage():LanguageStorage{return {read:jest.fn(async()=>null),write:jest.fn(async()=>{})};}
 test('language and reveal choices remain selectable alongside resource theme choices',async()=>{
   const saved=storage();
@@ -138,4 +146,49 @@ test('Settings keeps scroll-end clearance for a tall floating dock',async()=>{
   const content=StyleSheet.flatten(scroll!.props.contentContainerStyle);
   expect(content.paddingBottom).toBeGreaterThanOrEqual(146+24);
   expect(StyleSheet.flatten(screen.getByTestId('settings-screen').props.style).paddingBottom).toBeUndefined();
+});
+
+test('size choices update all Settings text and retain selection through theme/language changes',async()=>{
+  const sizeStorage={read:async()=>null,write:jest.fn(async()=>{})};
+  await render(<ThemeProvider><TextSizeProvider storage={sizeStorage}><LanguageProvider storage={storage()}><SettingsScreen/></LanguageProvider></TextSizeProvider></ThemeProvider>);
+  await flush();
+  expect(screen.getByRole('adjustable').props.accessibilityValue.now).toBe(1);
+  await changeTextSize(2);await flush();
+  expect(screen.getByText('English')).toHaveStyle({fontSize:13*1.15});
+  expect(screen.getByRole('header',{name:'Font size'})).toHaveStyle({fontSize:22*1.15});
+  await fireEvent.press(screen.getByRole('radio',{name:'Celestial Midnight'}));await flush();
+  expect(screen.getByRole('adjustable').props.accessibilityValue.now).toBe(2);
+  expect(screen.getByText('English')).toHaveStyle({fontSize:13.48*1.15});
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));await flush();
+  expect(screen.getByRole('header',{name:'Velikost písma'})).toBeVisible();
+  expect(screen.getByRole('adjustable').props.accessibilityValue.text).toBe('Velká');
+  expect(screen.getByRole('adjustable')).toHaveStyle({minHeight:48});
+  await changeTextSize(0);await flush();
+  expect(screen.getByText('English')).toHaveStyle({fontSize:13.48*.9});
+  expect(sizeStorage.write).toHaveBeenLastCalledWith('small');
+});
+
+test('text size save failure remains local and retry uses the current selection after language changes',async()=>{
+  const sizeStorage={read:async()=>null,write:jest.fn().mockRejectedValueOnce(new Error('unavailable')).mockResolvedValue(undefined)};
+  await render(<TextSizeProvider storage={sizeStorage}><LanguageProvider storage={storage()}><SettingsScreen/></LanguageProvider></TextSizeProvider>);
+  await flush();
+  await changeTextSize(2);await flush();
+  expect(screen.getByRole('alert')).toHaveTextContent(/Text size changed for now/);
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));await flush();
+  expect(screen.getByRole('alert')).toHaveTextContent(/Velikost písma byla změněna/);
+  expect(screen.getByRole('adjustable').props.accessibilityValue.text).toBe('Velká');
+  await fireEvent.press(screen.getByRole('button',{name:'Zkusit znovu'}));await flush();
+  expect(screen.queryByRole('alert')).toBeNull();
+  expect(sizeStorage.write).toHaveBeenLastCalledWith('large');
+});
+
+test('combined app and OS text scaling stacks controls while Standard keeps the accepted row layout',async()=>{
+  const dimensions=jest.spyOn(native,'useWindowDimensions').mockReturnValue({width:390,height:800,scale:3,fontScale:1.2});
+  try {
+    await render(<TextSizeProvider><LanguageProvider storage={storage()}><SettingsScreen/></LanguageProvider></TextSizeProvider>);await flush();
+    expect(screen.getByLabelText('Language')).toHaveStyle({flexDirection:'row'});
+    await changeTextSize(2);await flush();
+    expect(screen.getByLabelText('Language')).toHaveStyle({flexDirection:'column'});
+    expect(screen.getByRole('adjustable').props.accessibilityValue.now).toBe(2);
+  } finally {dimensions.mockRestore();}
 });

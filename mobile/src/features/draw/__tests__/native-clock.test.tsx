@@ -96,7 +96,7 @@ test('native deferred writes preserve timed shuffle cycles and accept a late dra
   await advance(72); expect(result.current.session.state!.phase).toBe('ready');
   expect(result.current.animation.progress.value).toBeCloseTo(.5);
   await advance(72);
-  for (let packet = 0; packet < 8; packet++) {
+  for (let packet = 0; packet < sampleDeck.cards.length; packet++) {
     expect(result.current.session.state!.phase).toBe('strip');
     await advance(248); expect(result.current.animation.progress.value).toBeCloseTo(.5);
     await advance(248); expect(result.current.session.state!.phase).toBe('contact');

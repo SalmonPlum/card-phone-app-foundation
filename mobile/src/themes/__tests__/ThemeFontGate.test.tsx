@@ -3,6 +3,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { useEffect } from 'react';
 import { ThemeFontGate, useThemeTypography } from '../ThemeFontGate';
+import {TextSizeProvider} from '../../settings/TextSizeProvider';
 
 const flush = () => act(async () => { for (let i = 0; i < 8; i++) await Promise.resolve(); });
 function Copy({ onMount = () => {} }: { onMount?: () => void }) {
@@ -108,4 +109,69 @@ test('startup retry repeats a stalled preference read and prevents the first rea
     await act(()=>oldRestore('solstice-ochre'));await flush();
     expect(screen.queryByText('solstice-ochre')).toBeNull();
   } finally {jest.useRealTimers();}
+});
+
+test('startup restores text size before mounting once and scales loading, errors and recovery buttons',async()=>{
+  let finish!:()=>void;
+  const load=()=>new Promise<void>(resolve=>{finish=resolve;});
+  const onMount=jest.fn();
+  await render(<TextSizeProvider storage={{read:async()=>'large',write:async()=>{}}}><ThemeFontGate loadFonts={load}><Copy onMount={onMount}/></ThemeFontGate></TextSizeProvider>);
+  await flush();
+  expect(screen.getByRole('progressbar')).toHaveStyle({fontSize:16*1.15,lineHeight:30});
+  expect(onMount).not.toHaveBeenCalled();
+  await act(()=>finish());await flush();
+  expect(screen.getByText('Ready to draw')).toHaveStyle({fontSize:32*1.15,lineHeight:56});
+  expect(onMount).toHaveBeenCalledTimes(1);
+});
+
+test('a stalled size read is bounded and fallback ignores late restore without saving a default',async()=>{
+  jest.useFakeTimers();
+  try {
+    let restore!:(size:string)=>void;
+    const storage={read:()=>new Promise<string>(resolve=>{restore=resolve;}),write:jest.fn(async()=>{})};
+    const onMount=jest.fn();
+    await render(<TextSizeProvider storage={storage}><ThemeFontGate loadFonts={async()=>{}}><Copy onMount={onMount}/></ThemeFontGate></TextSizeProvider>);await flush();
+    expect(screen.queryByText('Ready to draw')).toBeNull();
+    await act(()=>jest.advanceTimersByTime(15000));
+    expect(screen.getByRole('alert')).toBeVisible();
+    await fireEvent.press(screen.getByRole('button',{name:'Continue with system fonts'}));await flush();
+    const copy=screen.getByText('Ready to draw');
+    expect(copy).toHaveStyle({fontSize:32});
+    await act(()=>restore('large'));await flush();
+    expect(screen.getByText('Ready to draw')).toBe(copy);
+    expect(copy).toHaveStyle({fontSize:32});
+    expect(onMount).toHaveBeenCalledTimes(1);expect(storage.write).not.toHaveBeenCalled();
+  } finally {jest.useRealTimers();}
+});
+
+test('size restore retry rejects an earlier read and recovery text follows the restored size',async()=>{
+  jest.useFakeTimers();
+  try {
+    let oldRestore!:(size:string)=>void;
+    const storage={read:jest.fn().mockImplementationOnce(()=>new Promise<string>(resolve=>{oldRestore=resolve;})).mockResolvedValue('large'),write:async()=>{}};
+    const load=jest.fn().mockResolvedValueOnce(undefined).mockRejectedValueOnce(new Error('font unavailable'));
+    await render(<TextSizeProvider storage={storage}><ThemeFontGate loadFonts={load}><Copy/></ThemeFontGate></TextSizeProvider>);await flush();
+    await act(()=>jest.advanceTimersByTime(15000));
+    await fireEvent.press(screen.getByRole('button',{name:'Try again'}));await flush();
+    expect(screen.getByRole('alert')).toHaveStyle({fontSize:16*1.15,lineHeight:30});
+    expect(screen.getByText('Try again')).toHaveStyle({fontSize:13*1.15,lineHeight:26});
+    expect(screen.getByText('Continue with system fonts')).toHaveStyle({fontSize:13*1.15});
+    await fireEvent.press(screen.getByRole('button',{name:'Continue with system fonts'}));await flush();
+    await act(()=>oldRestore('small'));await flush();
+    expect(screen.getByText('Ready to draw')).toHaveStyle({fontSize:32*1.15});
+  } finally {jest.useRealTimers();}
+});
+
+test('startup recovery keeps both actions in a scrollable viewport for enlarged text',async()=>{
+  const load=async()=>{throw new Error('font unavailable');};
+  await render(<TextSizeProvider storage={{read:async()=>'large',write:async()=>{}}}><ThemeFontGate loadFonts={load}><Copy/></ThemeFontGate></TextSizeProvider>);
+  await flush();
+  const recovery=screen.getByRole('button',{name:'Continue with system fonts'});
+  let scroll=recovery.parent;
+  while(scroll && scroll.type!=='RCTScrollView') scroll=scroll.parent;
+  expect(scroll).not.toBeNull();
+  expect(scroll!.props.contentContainerStyle).toMatchObject({flexGrow:1});
+  expect(recovery).toHaveStyle({minHeight:48});
+  expect(screen.getByRole('button',{name:'Try again'})).toHaveStyle({minHeight:48});
+  expect(screen.getByRole('alert')).toHaveStyle({fontSize:16*1.15});
 });

@@ -133,6 +133,37 @@ line spacing. Native readers still measure wrapped/scaled headers normally;
 system font scaling remains enabled. System-font recovery uses platform fonts,
 whose actual shapes/metrics differ from the bundled faces.
 
+## Independent app text size
+
+Settings has a three-stop slider for Small (90%), Standard (100%, the accepted
+baseline) and Large (115%) independently of theme. Small/large A-shaped icons
+replace visible option words; localized size labels remain available to screen
+readers through one adjustable control. `TextSizeProvider` persists only the chosen ID in
+`app-text-size.txt`, separate from theme, language and reveal mode. Changing a
+theme retains the size preference; these factors are provisional for phone review.
+The thumb follows the finger continuously during dragging; the size applies and
+saves at the nearest stop on release, avoiding global text reflow mid-gesture.
+
+`useThemeTypography()` resolves the authored font aliases/metrics, then applies
+the app factor once through `scaleThemeTypography()`: font size and letter
+spacing multiply by the factor; line height rounds upward to preserve font
+bounds. Standard leaves resource metrics unchanged. Native Text applies OS
+accessibility scaling separately. Do not multiply resource font sizes by OS
+font scale in application code or disable/cap native scaling.
+
+All app text uses these roles, including startup/recovery copy and artwork-error
+placeholders. Startup copy uses scaled system families until fonts are ready.
+The decorative gear glyph is an icon, not scalable text content. Fixed card
+artwork and other icon geometry retain their proportions. Settings layout uses
+app × OS scale to decide when language/reveal controls stack; measured headers and dock height
+continue to determine reader and scroll clearance.
+
+The existing 15-second startup deadline now bounds font loading, theme restoration
+and size restoration before sessions mount. Retry restarts stalled reads;
+continuing with system fonts keeps current preferences for that run and rejects
+late restore results without overwriting saved values. A failed size write keeps
+the live selection and offers its own localized retry.
+
 ## Shuffle surface resources
 
 An optional surface entry adds fabric while preserving the theme's `colors.mat`:

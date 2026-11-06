@@ -7,6 +7,7 @@ import { LanguageProvider } from '../i18n/LanguageProvider';
 import { RevealModeProvider } from '../settings/RevealModeProvider';
 import { SessionProvider } from '../session/SessionProvider';
 import { ThemeFontGate } from '../themes/ThemeFontGate';
+import { TextSizeProvider } from '../settings/TextSizeProvider';
 
 export default function RootLayout(): React.JSX.Element {
   return (
@@ -14,11 +15,13 @@ export default function RootLayout(): React.JSX.Element {
       <ThemeProvider>
         <LanguageProvider>
           <RevealModeProvider>
-            <ThemeFontGate>
-              <SessionProvider>
-                <ThemedNavigation />
-              </SessionProvider>
-            </ThemeFontGate>
+            <TextSizeProvider>
+              <ThemeFontGate>
+                <SessionProvider>
+                  <ThemedNavigation />
+                </SessionProvider>
+              </ThemeFontGate>
+            </TextSizeProvider>
           </RevealModeProvider>
         </LanguageProvider>
       </ThemeProvider>

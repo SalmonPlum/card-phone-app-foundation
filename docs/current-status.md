@@ -1,5 +1,224 @@
 # Current status and next work
 
+## Accepted feature checkpoint (2026-11-06)
+
+The user accepted the final search animation timing and explicitly requested a
+local Git checkpoint. Scope: independent app-wide text size and persistence,
+rounded card artwork, the 20-card bilingual testing deck, Catalogue name search
+and its accepted 300ms fade / 450ms movement. This checkpoint supersedes older
+working-tree-only notes for these changes. No push requested.
+
+Text-size Settings currently depends on the slider component, so the checkpoint
+includes its current implementation and tests to remain runnable. **Slider drag
+interaction remains unresolved and explicitly deferred**; this commit does not
+claim native gesture acceptance or resume slider work. Keep user-owned
+`mobile/.gitignore`, `mobile/expo-env.d.ts` and `mobile/npm-audit-after.json`
+outside the checkpoint.
+
+Checkpoint verification: 41 Jest suites / 342 tests, 121 domain tests,
+TypeScript, full lint, deck/theme/font validation and a fresh Android Metro export
+passed. The final source timing is included in this export; native transition
+feel has the user's acceptance. Slider dragging and the remaining device/release
+checks above are not established by these automated checks.
+
+Next saved feature: optional theme-aware card backs, with fixed-artwork decks
+remaining supported; theme-aware faces come later. Security follow-up and
+remaining Android release/device/accessibility/performance checks stay open.
+
+## Search transition refinement — implemented (2026-11-06)
+
+The user accepted Catalogue search on the phone (“Works great”), then chose
+individual card fades and smooth grid rearrangement and approved implementation.
+After two timing refinements, the user accepted the final animation on the phone
+(“Perfect”). Retain the 300ms fades / 450ms movement as the accepted baseline.
+Excluded/returning cards now fade over 300ms; retained cards/rows glide over
+450ms. Measured previous screen positions support retained cards moving across
+FlatList row parents; the list remains virtualized. Input updates immediately;
+result snapshots have a bounded 32ms native measurement window and latest edits
+invalidate old work. Missing/offscreen origins use a fade. Leaving visuals are
+inert and hidden from accessibility.
+
+Unknown/reduced motion applies results immediately. Theme/text-size/layout and
+focus changes cancel pending transitions; active native timing settles at its
+target on cancellation. Native motion state is published synchronously before
+result commits. During possible movement, selections/return measurements use
+safe fade geometry; a conservative 650ms window covers late native starts. Filter
+token changes also clear an old tile touch so a fresh tap is never blocked by it.
+No drawing/detail animation timing or slider changes were made.
+
+See [approved design](superpowers/specs/2026-11-06-catalogue-search-transitions-design.md),
+[implementation record](superpowers/plans/2026-11-06-catalogue-search-transitions.md)
+and [validation/phone checks](2026-11-06-catalogue-search-transitions-validation.md).
+Final checks passed: 41 Jest suites / 342 tests, TypeScript/full lint and Android
+Metro export. Independent review's active-cancellation finding was reproduced
+RED and resolved GREEN; its native publication-order concern was also addressed
+with synchronous UI publication and a regression. No unresolved material review
+findings remain. The user accepted the final native transition feel; exhaustive
+keyboard/accessibility/performance checks remain distinct. Slower timing
+verification is recorded in the linked validation report.
+Work remains uncommitted; no push requested. Slider repair stays deferred.
+
+## Catalogue name search — implemented (2026-11-06)
+
+The user approved the design and authorized implementation. Catalogue now has a
+fixed, themed search field with live card-name matching in the selected app
+language, ignoring case, accents and repeated whitespace. Clear and localized
+no-match states are included. Original card order and identity are preserved;
+query changes reset scrolling without remounting the field/list. Query survives
+mounted tabs, details and theme/text-size changes; changing language recomputes
+matches. Search has no disk history.
+
+Details retain full-card ownership and return to the filtered Catalogue. A first
+tap with the keyboard visible dismisses it, waits for settled layout and remeasures
+the tile before opening. Pending selections are cancelled across filter/focus/
+background changes; filter-generation guards reject late tile measurements even
+if a query changes back to its original text. Existing animation timing remains.
+
+See [design](superpowers/specs/2026-11-06-catalogue-name-search-design.md),
+[implementation record](superpowers/plans/2026-11-06-catalogue-name-search.md) and
+[verification/phone checks](2026-11-06-catalogue-name-search-validation.md).
+Full integrated checks passed: 39 Jest suites / 323 tests, 121 domain tests,
+TypeScript/full lint, deck/theme/font validation and Android Metro export.
+Independent review found one stale-tap race; two regressions observed RED then
+GREEN after a filter-generation guard. Post-fix affected checks passed 5 suites /
+59 tests, TypeScript/scoped lint and a fresh Android export. Combined coverage is
+39 suites / 325 tests; no unresolved review findings remain. Native keyboard feel,
+visual/accessibility layout and phone performance still require review.
+
+The 20-card testing deck and rounded corners retain the user's positive phone
+feedback. Slider repair remains explicitly deferred. Keep all work uncommitted;
+no commit or push was requested for search.
+
+## Testing deck expanded to 20 cards (2026-11-06)
+
+The user authorized expanding the testing deck if manageable. Completed Quiet
+Garden (`sample`) version 1.1.0 with 20 cards: 12 new distinct illustrations and
+complete Czech/English names, meanings and two-paragraph descriptions. The original
+eight cards/IDs/order/content and all 13 prior PNG hashes are unchanged. New sparse
+IDs 104–234 include diacritics and multiword names for future search/layout work.
+Artwork extends the existing local generator; all 25 deck PNGs are statically
+bundled offline. No app behavior, dependencies, animation or slider changes.
+
+See [expansion verification and added-card list](2026-11-06-testing-deck-expansion-validation.md)
+and [implementation record](superpowers/plans/2026-11-06-testing-deck-expansion.md).
+Verification covers 37 Jest suites / 306 tests across the full run and affected
+reruns after correcting old eight-card fixture assumptions; 118 domain tests,
+TypeScript/full lint, deck/theme/font validation and Android Metro export passed.
+All 12 new images reproduce from the generator, and their contact sheet was
+inspected. Independent focused review approved with no findings. The user then
+gave positive phone feedback; preserve this visual/content baseline. Exhaustive
+larger-deck performance checks remain distinct. Work remains uncommitted. Slider
+repair is still deferred; Catalogue search is now authorized as recorded above,
+and theme-aware artwork remains future work.
+
+## Rounded card corners (2026-11-06)
+
+At the user's request, shared card artwork now uses the same 12dp corner radius
+as drawing. `CardFace` clips its artwork in an inner rounded View; the separate
+outer tile host retains its shadow. This covers Catalogue and results tiles,
+their detail overlays and direct card details through the existing shared
+component. Native artwork ratios, contain sizing, load/error callbacks and
+animation/session logic are retained; the drawing implementation is unchanged.
+
+Verification: five affected suites / 47 tests passed, including installed native
+iOS/Android Image sizing boundaries, grid measurement, detail overlays and
+results. TypeScript, scoped lint and diff checks passed. This is a small visual
+styling change; no style-mirroring tests or full-suite rerun were added. The user
+reviewed it on the phone and said “Yeah looks great”; retain this as the accepted
+corner treatment. This does not establish exhaustive device/accessibility checks.
+Keep the work uncommitted as before. The slider
+remains explicitly deferred; the at-least-20-card testing deck is still saved.
+
+## Slider fix deferred by the user (2026-11-06)
+
+The user tested the latest dragging correction on the phone and said “Not good,”
+then explicitly asked to stop spending time on it and fix it later. **Slider
+interaction is not accepted and remains unresolved. Stop slider implementation
+and investigation for now.** Retain the current working tree without treating
+the automated tests or scoped reviews as native gesture acceptance. No revert,
+commit or push was requested.
+
+Saved follow-up: repair slider dragging/scroll interaction on a phone, using the
+latest negative feedback as the starting point. The exact remaining native cause
+is unverified; do not assume the previous discrete-thumb diagnosis fully explains
+it. Revisit the interaction approach when this work is resumed. The independent
+font-size preference and existing size values remain implemented; the slider
+control still needs repair. Larger testing deck (at least 20 cards) and rounded
+card corners remain separate saved requests.
+
+## Slider dragging correction (2026-11-06)
+
+The user liked the appearance, but reported that taps worked better than dragging
+and movement was not continuous. Investigation reproduced the discrete thumb
+positions and global font changes on every crossed stop. The thumb/fill now use
+a local continuous drag preview; the screen size and saved preference update
+only when the user releases at the nearest of the existing three stops. Stable
+page displacement and grab offset replace move-target-relative coordinates.
+Termination, width changes and external preference changes cancel the preview
+without committing stale positions. Tap and accessible increment/decrement still
+commit directly; icons and saved 90%/100%/115% values are unchanged.
+
+Four regression cases observed RED, then GREEN. The ten slider tests plus the
+unchanged affected Settings/navigation results cover 44 tests across three suites.
+TypeScript, scoped lint and diff checks passed; scoped review approved with no findings. Native
+drag/scroll feel must be confirmed on the phone. Work remains uncommitted; larger
+testing deck and rounded-corner follow-ups remain saved separately.
+
+## Text-size slider refinement (2026-11-06)
+
+The user requested replacing the three text-size options with a slider and small/
+large icons at the ends. Implemented a three-stop slider with decorative A-shaped
+size icons and no visible option words. The existing 90%/100%/115% values, global
+scaling, independent storage and save retry remain unchanged. Tapping/dragging
+snaps to a stop; duplicate same-stop changes are suppressed. A localized adjustable
+control provides spoken current size and increment/decrement actions with a 48dp
+touch target. No new dependency or native-client rebuild is required.
+
+Six slider tests plus affected Settings/navigation suites pass: 3 suites / 40
+tests. TypeScript, scoped lint and diff checks passed. Independent review found
+no issues; phone review should check dragging, parent scrolling and the icon-only
+appearance. See the [slider plan](superpowers/plans/2026-11-06-text-size-slider.md)
+and [updated validation](2026-11-06-independent-text-size-validation.md). Keep the
+working tree for phone review; no commit/push requested. The larger testing deck
+and rounded card corners remain separately saved follow-ups.
+
+## Independent app text size (2026-11-06)
+
+The user authorized implementation to compare sizes on the phone. Implemented
+Small (90%) / Standard (100%) / Large (115%) for all app text, independently saved
+from themes/language/reveal. Shared typography scales once while native OS text
+scaling remains enabled; Standard preserves the accepted resource metrics.
+Localized Settings controls change immediately, with independent save-error
+retry. Startup restores size before sessions mount under the existing bounded
+font/theme recovery flow, rejecting late reads after retry/fallback.
+
+See [design](superpowers/specs/2026-11-06-independent-text-size-design.md),
+[plan](superpowers/plans/2026-11-06-independent-text-size.md) and
+[verification/phone checklist](2026-11-06-independent-text-size-validation.md).
+Full initial final checks passed: 36 Jest suites / 293 tests, 118 domain tests,
+TypeScript/full lint, deck/theme/font validation, Android Metro export and
+diff checks. Independent final review found an unscrollable startup recovery
+container under large text; a regression observed RED→GREEN after adding a
+scroll viewport. Post-fix startup/navigation/layout checks passed 40 tests,
+TypeScript/scoped lint and a final Android export passed. Combined verification
+covers 36 suites / 294 tests; no unresolved review findings remain. Reading/session identity,
+artwork, persistent surfaces and animation timing are preserved by the change;
+native appearance/restart/accessibility/performance still require phone checks.
+Keep this implementation in the working tree for the requested phone comparison;
+the percentages remain provisional. No new commit or push requested.
+
+## Rounded card corners request — implemented above
+
+The user subsequently authorized this work, asking for the same treatment as
+drawing. The shared artwork clipping and verification are recorded in the latest
+checkpoint above; the user subsequently gave positive phone visual acceptance.
+
+## Larger testing deck request — implemented above
+
+The user subsequently authorized this expansion. The configured deck now contains
+20 cards with complete bilingual content and distinct offline artwork, as recorded
+in the latest checkpoint above. Search and theme-aware rendering are separate.
+
 ## Accepted UI checkpoint and next feature (2026-11-06)
 
 The user accepted the Settings polish and the corrected theme font sizing on the
@@ -11,8 +230,14 @@ because the implementation is unchanged.
 
 The user agrees with Small / Standard / Large choices, saved independently of
 theme and retained across theme changes, while respecting OS accessibility text
-size. The next design will define exact scale factors and text scope before
-implementation.
+size. They explicitly clarified that every app text should change, including
+navigation and controls. The [independent text-size design](superpowers/specs/2026-11-06-independent-text-size-design.md)
+records 90% / 100% / 115% scaling and startup/persistence/measurement constraints.
+The user subsequently authorized implementation to compare it on the phone;
+the latest implementation and verification are recorded above.
+
+Accepted UI checkpoint committed locally as `8665d14` on
+`feat/android-foundation`; not pushed by the agent.
 
 ## Theme type sizing and clipped card names (2026-11-06)
 
@@ -47,13 +272,12 @@ large-text, wrapped-name, accessibility or lifecycle check. This is a correction
 to the previous theme-specific metrics, not implementation of the independent
 font-size preference below.
 
-## Requested next iteration: independent font size
+## Independent font size request — now implemented above
 
-The user requested a font-size control independent of the selected theme. Save
-this for the next iteration: theme choice should not determine the user's size
-preference. Decide the available size choices, persistence and interaction with
-OS text scaling when planning that feature. It is not part of the current
-clipping/consistency fix. Preserve accessible scaling and measured readers.
+The user requested a font-size control independent of the selected theme, then
+chose all-text scaling and authorized implementation. This request is fulfilled
+in the latest checkpoint above and awaits phone comparison; it was separate
+from the preceding clipping/consistency correction.
 
 ## Settings visual polish (2026-11-06)
 
@@ -234,6 +458,8 @@ Additional requested visual changes (2026-11-04), saved for the same refinement 
 - Make the green shuffle background feel like fabric rather than a flat, boring surface. Plan a subtle cloth texture with readable contrast and verify its appearance and performance on a phone; bundle any texture asset offline.
 - Draw more directly from the supplied Stitch project for fonts, type hierarchy, spacing and overall visual treatment. Revisit the [Stitch adaptation reference](superpowers/specs/2026-10-27-stitch-forest-restyle-design.md) and its local [Draw](design-references/stitch-forest/draw.html), [Catalogue](design-references/stitch-forest/catalogue.html) and [Details](design-references/stitch-forest/details.html) snapshots. They use EB Garamond for headings and DM Sans for body/UI text. Reassess the earlier first-pass system-font compromise during typography planning; exact font adoption remains to be decided, with offline bundling and Czech glyph support required.
 
-## Future implementation: card-name search
+## Card-name search request — implemented above
 
-Requested 2026-11-04: add a search bar to the all-cards Catalogue so users can find a card by its name. Saved for future implementation; this does not change the current visual/palette priorities. Define matching behavior and Czech/English handling during feature planning, and preserve access to the existing card details from matching results.
+Requested 2026-11-04 and subsequently authorized. The selected-language search,
+matching behavior, detail preservation and verification are recorded in the
+latest checkpoint above. Phone keyboard/visual checks remain pending.

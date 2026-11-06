@@ -1,3 +1,4 @@
+import './helpers/overlayClock';
 import { createRef } from 'react';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
@@ -72,4 +73,42 @@ test('fresh native source measurements settle once on timeout or unmount and ign
   await act(() => { delivery(16, 200, 158, 237); jest.runOnlyPendingTimers(); });
   expect(second.mock.calls).toEqual([[null]]);
   measure.mockReset(); jest.useRealTimers();
+});
+
+test('filter changes reset offset without replacing the grid or retained images; same filter keeps scroll',async()=>{
+  const scrollTo=jest.spyOn((jest.requireActual('react-native') as typeof import('react-native')).FlatList.prototype,'scrollToOffset');
+  try {
+    const props={cards,locale:'en' as const,assetRegistry,onOpen:jest.fn(),scrollKey:'catalogue'};
+    const view=await render(<CardGrid {...props} resetKey=""/>);
+    const grid=screen.getByTestId('card-grid'),image=screen.getByTestId('card-face-0');
+    await fireEvent.scroll(grid,{nativeEvent:{contentOffset:{y:500}}});
+    scrollTo.mockClear();
+    await view.rerender(<CardGrid {...props} cards={cards.slice(0,2)} resetKey="s"/>);
+    expect(scrollTo).toHaveBeenLastCalledWith({offset:0,animated:false});
+    expect(screen.getByTestId('card-grid')).toBe(grid);
+    expect(screen.getByTestId('card-face-0')).toBe(image);
+    scrollTo.mockClear();
+    await view.rerender(<CardGrid {...props} cards={cards.slice(0,2)} resetKey="s" active={false}/>);
+    expect(scrollTo).not.toHaveBeenCalled();
+    expect(grid.props.keyboardShouldPersistTaps).toBe('handled');
+  } finally {scrollTo.mockRestore();}
+});
+
+test('search movement uses safe fade geometry for taps and return measurement without remounting retained tiles', async () => {
+  const measure = jest.requireActual('@react-native/jest-preset/jest/MockNativeMethods').default.measureInWindow as jest.Mock;
+  measure.mockImplementation(done => done(16, 120, 158, 237));
+  const ref = createRef<CardGridHandle>(), open = jest.fn();
+  const props = { cards, locale: 'en' as const, assetRegistry, onOpen: open, scrollKey: 'motion', animateSearchChanges: true };
+  try {
+    const view = await render(<CardGrid ref={ref} {...props} resetKey=""/>);
+    const tile = screen.getByRole('button', { name: 'Seed' });
+    await view.rerender(<CardGrid ref={ref} {...props} cards={[cards[0]]} resetKey="seed"/>);
+    expect(screen.getByRole('button', { name: 'Seed' })).toBe(tile);
+    await fireEvent(tile, 'pressIn');
+    await fireEvent.press(tile);
+    expect(open.mock.calls[0][1].rect).toBeNull();
+    const measured = jest.fn();
+    await act(() => ref.current!.measureCard(0, measured));
+    expect(measured.mock.calls).toEqual([[null]]);
+  } finally { measure.mockReset(); }
 });

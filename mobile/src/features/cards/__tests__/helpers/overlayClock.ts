@@ -46,6 +46,7 @@ jest.mock('react-native-reanimated', () => {
   };
 });
 jest.mock('react-native-worklets', () => ({
+  runOnUISync: (fn: (...args: unknown[]) => void, ...args: unknown[]) => mockRunUi(() => fn(...args)),
   scheduleOnUI: (fn: (...args: unknown[]) => void, ...args: unknown[]) => mockUi.push(() => fn(...args)),
   scheduleOnRN: (fn: (...args: unknown[]) => void, ...args: unknown[]) => mockRn.push(() => fn(...args)),
 }));

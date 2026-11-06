@@ -37,8 +37,11 @@ const nativeAppSubscription = (AppState.addEventListener as jest.Mock).getMockIm
 const originalCards = configuredDeck.cards;
 beforeEach(() => {
   mockId = 0; mockEntropyError = false;
-  // Downward Fisher–Yates adjacent swaps produce 99, 0, 7, 12, 23, 35, 48, 64.
-  mockWords = [6, 5, 4, 3, 2, 1, 0];
+  // Keep appended cards in place; adjacent swaps of the original eight put Circle first.
+  mockWords = Array.from({length:originalCards.length-1},(_,step)=>{
+    const index=originalCards.length-1-step;
+    return index>7?index:index-1;
+  });
   resetClock(); AppState.currentState = 'active';
   (AppState.addEventListener as jest.Mock).mockImplementation(nativeAppSubscription);
   measure.mockImplementation((callback: (x: number, y: number, width: number, height: number) => void) => callback(0, 0, 360, 698));
@@ -117,16 +120,16 @@ test('empty results offer an explicit Draw cards action and never restart on a t
   expect(current.state).toBe(old);
   await fireEvent.press(screen.getByRole('button', { name: 'Draw cards' }));
   expect(current.state).toMatchObject({ sessionId: 'results-2', phase: 'regrip', drawnIds: [] });
-  expect(current.state!.remainingIds).toHaveLength(8);
+  expect(current.state!.remainingIds).toHaveLength(20);
   expect(screen.queryByTestId('results-host')).toBeNull();
 });
 
 test('final confirmation shows every drawn card and preserves exhausted results until explicit reset', async () => {
   await renderRouter(routes); await settle();
   const identity = current.state!.sessionId;
-  await drawCards(8);
-  expect(current.state).toMatchObject({ sessionId: identity, phase: 'results', remainingIds: [], drawnIds: [99, 0, 7, 12, 23, 35, 48, 64] });
-  expect(screen.getByText('Cards drawn: 8')).toBeVisible();
+  await drawCards(20);
+  expect(current.state).toMatchObject({ sessionId: identity, phase: 'results', remainingIds: [], drawnIds: [99, 0, 7, 12, 23, 35, 48, 64, 104, 118, 127, 139, 152, 166, 173, 185, 198, 207, 219, 234] });
+  expect(screen.getByText('Cards drawn: 20')).toBeVisible();
   expect(screen.getByRole('button', { name: 'Tree' })).toBeVisible();
   await settle(); await advance(10000); await flushRn();
   expect(current.state!.sessionId).toBe(identity);
@@ -171,7 +174,7 @@ test('failed New session retains old results and offers Retry, then rejects old 
   await fireEvent.press(screen.getByRole('button', { name: 'Try again' }));
   const fresh = current.state!;
   expect(fresh).toMatchObject({ sessionId: 'results-3', phase: 'regrip', drawnIds: [] });
-  expect(fresh.remainingIds).toHaveLength(8);
+  expect(fresh.remainingIds).toHaveLength(20);
   await act(() => { current.complete(old.sessionId, old.epoch); current.draw({ x: 620, y: 330, angle: 0, scale: 1 }, old.sessionId, old.epoch); });
   expect(current.state).toBe(fresh);
   expect(screen.queryByTestId('results-host')).toBeNull();
@@ -297,7 +300,7 @@ test.each([0, 1])('failed reset in a short large-text host keeps controls and %i
 
 test('final-card confirmation keeps the draw stage through its exit before mounting results',async()=>{
   await renderRouter(routes); await settle();
-  await drawCards(8,false); await settle();
+  await drawCards(20,false); await settle();
   const confirmed=current.state!;
   expect(confirmed).toMatchObject({phase:'resume',remainingIds:[],selectedId:null});
   const stage=screen.getByTestId('draw-stage');
@@ -317,7 +320,8 @@ test('final-card confirmation keeps the draw stage through its exit before mount
 
 test('queued exhausted-exit completion cannot replace a freshly reset session with results',async()=>{
   await renderRouter(routes); await settle();
-  await drawCards(8,false); await settle();
+  await drawCards(20,false); await settle();
+  expect(current.state).toMatchObject({phase:'resume',remainingIds:[]});
   await advance(900); // Native completion is queued, not delivered to RN yet.
   await act(()=>current.reset());
   const fresh=current.state;

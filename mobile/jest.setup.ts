@@ -14,5 +14,9 @@ jest.mock('./src/platform/themeStorage',()=>({
   themeStorage:{read:jest.fn(async()=>null),write:jest.fn(async()=>{})},
 }));
 
+jest.mock('./src/platform/textSizeStorage',()=>({
+  textSizeStorage:{read:jest.fn(async()=>null),write:jest.fn(async()=>{})},
+}));
+
 // Only the native font loader is mocked; resource resolution and startup gating stay real.
 jest.mock('./src/platform/themeFonts',()=>({loadThemeFonts:jest.fn(async()=>{})}));

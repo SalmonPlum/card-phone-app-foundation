@@ -17,6 +17,6 @@ test('launch opens Draw with exactly two functional tabs and no Home landing', a
   expect(screen.getByRole('tab', { name: 'Draw' })).toBeVisible();
   expect(screen.getByRole('tab', { name: 'Catalogue' })).toBeVisible();
   expect(screen.getAllByRole('tab')).toHaveLength(2);
-  expect(screen.getByText('Cards remaining: 8')).toBeVisible();
+  expect(screen.getByText('Cards remaining: 20')).toBeVisible();
   expect(screen.queryByTestId('home-screen')).toBeNull();
 });

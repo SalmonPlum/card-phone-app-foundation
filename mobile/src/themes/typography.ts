@@ -7,6 +7,16 @@ export type FontFace = Readonly<{
 export type ResolvedTextStyle = Omit<ThemeTextStyle, 'fontWeight'> & { fontWeight: ThemeTextStyle['fontWeight'] | 'normal' };
 export type ThemeTypography = Readonly<Record<typeof typographyRoles[number], ResolvedTextStyle>>;
 
+/** App preference only. Native Text applies OS accessibility scaling separately. */
+export function scaleThemeTypography(typography: ThemeTypography, scale: number): ThemeTypography {
+  if (scale === 1) return typography;
+  return Object.fromEntries(typographyRoles.map(role => {
+    const style = typography[role];
+    return [role, { ...style, fontSize: style.fontSize * scale,
+      lineHeight: Math.ceil(style.lineHeight * scale), letterSpacing: style.letterSpacing * scale }];
+  })) as ThemeTypography;
+}
+
 export function validateFontReferences(resource: ThemeResource, catalog: readonly FontFace[]): void {
   const aliases = new Set<string>(), faces = new Set<string>();
   for (const font of catalog) {

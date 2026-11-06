@@ -66,6 +66,83 @@ def garden(kind):
         for angle in range(0,360,45):
             x,y=300+158*cos(angle*pi/180),395+158*sin(angle*pi/180)
             d.ellipse((x-5,y-5,x+5,y+5),fill=GOLD)
+    elif kind == 'moon':
+        d.ellipse((202,278,398,474),fill=INK)
+        d.ellipse((252,250,426,424),fill='#e3e7d6')
+        for x,y,r in [(207,495,13),(387,487,18),(190,313,10)]:
+            d.polygon(star(x,y,r,4,4),fill=GOLD)
+    elif kind == 'sun':
+        for a in range(0,360,30):
+            angle=a*pi/180
+            d.line((300+116*cos(angle),390+116*sin(angle),300+151*cos(angle),390+151*sin(angle)),fill=GOLD,width=8)
+        d.ellipse((207,297,393,483),fill=INK)
+        d.ellipse((224,314,376,466),outline=GOLD,width=3)
+    elif kind == 'mountain':
+        d.polygon([(137,552),(254,320),(338,450),(390,360),(469,552)],fill=INK)
+        d.polygon([(254,320),(219,390),(253,373),(282,390)],fill=GOLD)
+        d.line([(284,500),(326,450),(351,483),(390,360)],fill=GOLD,width=4)
+    elif kind == 'river':
+        points=[(300+66*sin(i*pi/45),262+i*3) for i in range(100)]
+        d.line(points,fill=INK,width=38,joint='curve')
+        d.line(points,fill=GOLD,width=4,joint='curve')
+        for x,y in [(182,333),(411,433),(189,535)]:
+            d.ellipse((x-14,y-9,x+14,y+9),outline=INK,width=3)
+    elif kind == 'flower':
+        d.line((300,390,300,568),fill=INK,width=9)
+        d.ellipse((224,455,300,495),fill=INK)
+        d.ellipse((304,480,382,520),fill=INK)
+        for a in range(0,360,60):
+            x,y=300+61*cos(a*pi/180),354+61*sin(a*pi/180)
+            d.ellipse((x-38,y-38,x+38,y+38),fill=INK)
+        d.ellipse((267,321,333,387),fill=GOLD)
+    elif kind == 'feather':
+        d.polygon([(237,522),(214,432),(235,350),(290,293),(370,260),(375,350),(345,445),(280,520)],fill=INK)
+        d.line((222,570,357,286),fill=GOLD,width=7)
+        for x,y in [(266,478),(286,434),(307,390),(328,346)]:
+            d.line((x-32,y-43,x,y,x+40,y-9),fill=GOLD,width=3)
+    elif kind == 'key':
+        d.line((300,372,416,524),fill=INK,width=23)
+        d.line((386,478,360,501),fill=INK,width=20)
+        d.line((410,510,384,533),fill=INK,width=20)
+        d.ellipse((202,272,336,406),fill=INK)
+        d.ellipse((228,298,310,380),fill='#e3e7d6')
+        d.ellipse((245,315,293,363),outline=GOLD,width=3)
+    elif kind == 'gate':
+        d.arc((192,248,408,450),180,360,fill=INK,width=12)
+        d.line((198,348,198,555),fill=INK,width=12)
+        d.line((402,348,402,555),fill=INK,width=12)
+        d.polygon([(198,357),(261,390),(261,548),(198,526)],outline=INK,width=8)
+        d.polygon([(402,357),(339,390),(339,548),(402,526)],outline=INK,width=8)
+        d.ellipse((244,459,254,469),fill=GOLD)
+        d.ellipse((346,459,356,469),fill=GOLD)
+        d.line((275,563,325,563),fill=GOLD,width=4)
+    elif kind == 'bench':
+        for y in [337,375]: d.rounded_rectangle((182,y,418,y+22),radius=5,fill=INK)
+        d.line((204,324,204,448),fill=INK,width=10)
+        d.line((396,324,396,448),fill=INK,width=10)
+        d.rounded_rectangle((169,427,431,451),radius=6,fill=INK)
+        d.line((206,450,193,542),fill=INK,width=12)
+        d.line((394,450,407,542),fill=INK,width=12)
+        d.line((212,491,388,491),fill=GOLD,width=5)
+    elif kind == 'pond':
+        d.ellipse((145,337,455,525),outline=INK,width=12)
+        d.ellipse((177,363,423,499),outline=GOLD,width=3)
+        d.arc((205,396,383,468),12,167,fill=INK,width=4)
+        d.pieslice((268,373,334,425),20,340,fill=INK)
+        d.ellipse((302,330,318,349),fill=GOLD)
+    elif kind == 'roots':
+        d.line((178,350,422,350),fill=GOLD,width=4)
+        d.line((300,268,300,416),fill=INK,width=13)
+        for points in [[(300,404),(250,450),(227,528),(190,555)],[(300,404),(350,450),(373,528),(410,555)],[(300,414),(282,486),(300,563)],[(251,450),(200,476),(174,512)],[(349,450),(400,476),(426,512)]]:
+            d.line(points,fill=INK,width=8,joint='curve')
+        for x,y in [(227,528),(373,528),(282,486)]:
+            d.ellipse((x-6,y-6,x+6,y+6),fill=GOLD)
+    elif kind == 'dew':
+        d.polygon([(206,462),(228,342),(320,286),(403,335),(373,456),(278,508)],fill=INK)
+        d.line((229,484,372,321),fill=GOLD,width=4)
+        for x,y,r in [(303,352,20),(270,420,13),(343,413,15)]:
+            d.polygon([(x,y-r*2),(x-r,y),(x-r,y+r),(x,y+r*1.4),(x+r,y+r),(x+r,y)],fill=GOLD)
+            d.ellipse((x-5,y-2,x+1,y+5),fill=PAPER)
     elif kind == 'back':
         d.rounded_rectangle((31,31,568,868),radius=22,fill=INK,outline=GOLD,width=3)
         for y in range(75,860,55):
@@ -103,7 +180,10 @@ def motion(kind):
     return image
 
 if __name__ == '__main__':
-    for deck,kinds,render in [('sample',['back','seed','spring','path','lantern','bridge','tree','star','circle'],garden),('alternate',['back','spark','wave','mountain'],motion)]:
+    count = 0
+    for deck,kinds,render in [('sample',['back','seed','spring','path','lantern','bridge','tree','star','circle','moon','sun','mountain','river','flower','feather','key','gate','bench','pond','roots','dew'],garden),('alternate',['back','spark','wave','mountain'],motion)]:
         folder=ROOT/deck; folder.mkdir(parents=True,exist_ok=True)
-        for kind in kinds: render(kind).save(folder/f'{kind}.png',optimize=True)
-    print('Authored 13 original 600×900 PNG assets.')
+        for kind in kinds:
+            render(kind).save(folder/f'{kind}.png',optimize=True)
+            count += 1
+    print(f'Authored {count} original 600×900 PNG assets.')

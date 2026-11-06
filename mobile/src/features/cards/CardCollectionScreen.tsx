@@ -11,6 +11,9 @@ import { CardGrid, type CardGridHandle } from './CardGrid';
 import { CardDetailOverlay } from './CardDetailOverlay';
 import { useCardOverlay } from './useCardOverlay';
 import { useReducedMotion } from './useReducedMotion';
+import { useKeyboardCardOpen } from './useKeyboardCardOpen';
+import { useThemeSettings } from '../../themes/ThemeProvider';
+import { useTextSizeSettings } from '../../settings/TextSizeProvider';
 import { spacing } from '../../ui/theme';
 import { useThemeStyles, type ThemeColors } from '../../ui/useThemeStyles';
 
@@ -26,12 +29,15 @@ export type CardCollectionScreenProps = {
   headerContent?: ReactNode;
   emptyContent?: ReactNode;
   scrollHeader?: boolean;
+  visibleCards?: readonly Card[];
+  filterKey?: string;
 };
 
 /** The same measured grid and persistent detail surface for every collection. */
-export function CardCollectionScreen({ detailTemplate,cards, locale, assetRegistry, scrollKey, hostTestID, headerContent, emptyContent, scrollHeader = false }: CardCollectionScreenProps) {
+export function CardCollectionScreen({ detailTemplate,cards, locale, assetRegistry, scrollKey, hostTestID, headerContent, emptyContent, scrollHeader = false, visibleCards = cards, filterKey }: CardCollectionScreenProps) {
   const styles = useThemeStyles(makeStyles);
   const dockHeight = useDockHeight();
+  const { theme } = useThemeSettings(), { scale } = useTextSizeSettings();
   const { setBlocked } = useTabInteraction();
   const focused = useIsFocused(), reducedMotion = useReducedMotion();
   const insets = useSafeAreaInsets(), { width, height, fontScale } = useWindowDimensions();
@@ -56,6 +62,20 @@ export function CardCollectionScreen({ detailTemplate,cards, locale, assetRegist
     focusCard: id => grid.current?.focusCard(id),
   });
   const active = overlay.state.stage !== 'closed', close = overlay.close;
+  const overlayStage = overlay.state.stage, cancelOverlay = overlay.cancel;
+  const previousFilter = useRef(filterKey);
+  useLayoutEffect(() => {
+    const changed = previousFilter.current !== filterKey;
+    previousFilter.current = filterKey;
+    if (!changed) return;
+    if (overlayStage === 'preparing') cancelOverlay();
+    else if (overlayStage === 'opening') close(true);
+  }, [filterKey, overlayStage, cancelOverlay, close]);
+  const openCard = useKeyboardCardOpen({
+    enabled: filterKey !== undefined, active: focused && !active, contentKey: filterKey ?? '',
+    layoutKey: `${width}:${height}:${dockHeight}:${layoutKey}`, open: overlay.open,
+    measureCard: (id, callback) => { if (grid.current) grid.current.measureCard(id, callback); else callback(null); },
+  });
   useLayoutEffect(() => {
     // Both tabs stay mounted. Only the focused collection owns the dock lock;
     // a late inactive results mount must not publish an unlock over Catalogue.
@@ -75,9 +95,10 @@ export function CardCollectionScreen({ detailTemplate,cards, locale, assetRegist
     <SafeAreaView edges={['top', 'left', 'right']} style={styles.screen} pointerEvents={active ? 'none' : 'auto'}
       accessibilityElementsHidden={active} importantForAccessibility={active ? 'no-hide-descendants' : 'auto'}>
       {!scrollHeader && heading}
-      {scrollHeader || cards.length > 0 ? <CardGrid ref={grid} cards={cards} locale={locale} assetRegistry={assetRegistry}
+      {scrollHeader || cards.length > 0 ? <CardGrid ref={grid} cards={visibleCards} locale={locale} assetRegistry={assetRegistry}
         scrollKey={scrollKey} active={focused && !active} scrollEnabled={!active}
-        bottomClearance={dockHeight} maxTileWidth={maxTileWidth} hiddenCardId={overlay.hiddenCardId} onOpen={overlay.open}
+        resetKey={filterKey} animateSearchChanges={filterKey !== undefined && reducedMotion === false && focused}
+        motionLayoutKey={`${theme.id}:${scale}:${dockHeight}:${layoutKey}`} bottomClearance={dockHeight} maxTileWidth={maxTileWidth} hiddenCardId={overlay.hiddenCardId} onOpen={openCard}
         headerContent={scrollHeader ? heading : undefined} emptyContent={emptyContent} /> : emptyContent}
     </SafeAreaView>
     {card && overlay.state.host && <CardDetailOverlay detailTemplate={detailTemplate} card={card} locale={locale} assetRegistry={assetRegistry}

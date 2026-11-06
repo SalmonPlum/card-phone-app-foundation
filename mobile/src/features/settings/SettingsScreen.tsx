@@ -4,14 +4,18 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import {useLanguageSettings} from '../../i18n/LanguageProvider';
 import {useRevealModeSettings} from '../../settings/RevealModeProvider';
 import {useThemeSettings} from '../../themes/ThemeProvider';
+import {useTextSizeSettings} from '../../settings/TextSizeProvider';
 import {t} from '../../i18n/locale';
 import { spacing, radius } from '../../ui/theme';
 import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui/useThemeStyles';
+import {TextSizeSlider} from './TextSizeSlider';
 
 export function SettingsScreen(){
   const styles = useThemeStyles(makeStyles);
   const {width,fontScale}=useWindowDimensions();
-  const stacked=width<360 || fontScale>=1.3;
+  const textSize=useTextSizeSettings();
+  const effectiveScale=fontScale*textSize.scale;
+  const stacked=width<360 || effectiveScale>=1.3;
   const dockHeight = useDockHeight();
   const {locale,setLanguage,saveError,retrySave}=useLanguageSettings();
   const reveal=useRevealModeSettings();
@@ -28,6 +32,14 @@ export function SettingsScreen(){
         {saveError&&<View style={styles.error}>
           <Text accessibilityRole="alert" style={styles.copy}>{t('languageSaveError',locale)}</Text>
           <Pressable accessibilityRole="button" onPress={retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
+        </View>}
+      </View>
+      <View style={styles.section}>
+        <Text accessibilityRole="header" style={styles.heading}>{t('textSize',locale)}</Text>
+        <TextSizeSlider value={textSize.size} locale={locale} onChange={textSize.setTextSize}/>
+        {textSize.saveError&&<View style={styles.error}>
+          <Text accessibilityRole="alert" style={styles.copy}>{t('textSizeSaveError',locale)}</Text>
+          <Pressable accessibilityRole="button" onPress={textSize.retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
         </View>}
       </View>
       <View style={styles.section}>

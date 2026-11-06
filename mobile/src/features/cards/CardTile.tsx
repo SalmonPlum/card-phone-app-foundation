@@ -11,6 +11,7 @@ import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui
 export type TileOrigin = {
   rect: { x: number; y: number; width: number; height: number } | null;
   scrollKey: string;
+  interactionToken?: symbol;
 };
 
 export function CardFace({ card, locale, assetRegistry, testID, onLoadEnd }: {
@@ -25,16 +26,17 @@ export function CardFace({ card, locale, assetRegistry, testID, onLoadEnd }: {
   const aspectRatio = width > 0 && height > 0 ? width / height : 238 / 358;
   return failedAsset === content.faceAsset || !source
     ? <View style={[styles.missing, { aspectRatio }]}><Text style={styles.caption}>{t('assetError', locale)}</Text></View>
-    : <Image testID={testID} source={source} resizeMode="contain" accessible={false} fadeDuration={0} onLoadEnd={onLoadEnd}
+    : <View style={styles.artworkClip}><Image testID={testID} source={source} resizeMode="contain" accessible={false} fadeDuration={0} onLoadEnd={onLoadEnd}
       // Image supplies the asset's intrinsic height; clear it so Yoga sizes the face from its tile width.
-      style={{ width: '100%', height: undefined, aspectRatio }} onError={() => { setFailedAsset(content.faceAsset); onLoadEnd?.(); }} />;
+      style={{ width: '100%', height: undefined, aspectRatio }} onError={() => { setFailedAsset(content.faceAsset); onLoadEnd?.(); }} /></View>;
 }
 
 export type CardTileHandle = { measure: (callback: (rect: Rect | null) => void) => void; focus: () => void };
 export const CardTile = forwardRef<CardTileHandle, {
   card: Card; locale: Locale; assetRegistry: AssetRegistry; width: number; scrollKey: string;
   onOpen: (id: CardId, origin: TileOrigin) => void; active?: boolean; hidden?: boolean;
-}>(function CardTile({ card, locale, assetRegistry, width, scrollKey, onOpen, active = true, hidden = false }, ref) {
+  interactionToken?: symbol;
+}>(function CardTile({ card, locale, assetRegistry, width, scrollKey, onOpen, active = true, hidden = false, interactionToken }, ref) {
   const styles = useThemeStyles(makeStyles);
   const face = useRef<ComponentRef<typeof View>>(null), content = localizeCard(card, locale);
   const button = useRef<ComponentRef<typeof View>>(null);
@@ -64,7 +66,7 @@ export const CardTile = forwardRef<CardTileHandle, {
   const currentOnOpen = useRef(onOpen);
   useLayoutEffect(() => { currentOnOpen.current = onOpen; }, [onOpen]);
   const appActive = useRef(AppState.currentState !== 'background' && AppState.currentState !== 'inactive');
-  const measurement = useRef<{ rect: TileOrigin['rect']; complete: boolean; open: boolean } | null>(null);
+  const measurement = useRef<{ rect: TileOrigin['rect']; complete: boolean; open: boolean; interactionToken?: symbol } | null>(null);
   const timeout = useRef<ReturnType<typeof setTimeout> | null>(null);
   const clearTimeoutIfNeeded = useCallback(() => { if (timeout.current !== null) clearTimeout(timeout.current); timeout.current = null; }, []);
   useEffect(() => {
@@ -83,18 +85,22 @@ export const CardTile = forwardRef<CardTileHandle, {
   useEffect(() => {
     if (!active) { clearTimeoutIfNeeded(); measurement.current = null; }
   }, [active, clearTimeoutIfNeeded]);
+  useLayoutEffect(() => {
+    clearTimeoutIfNeeded(); measurement.current = null;
+  }, [interactionToken, clearTimeoutIfNeeded]);
   const finish = (request: NonNullable<typeof measurement.current>) => {
     if (!appActive.current || measurement.current !== request) return;
     clearTimeoutIfNeeded();
     measurement.current = null;
-    currentOnOpen.current(card.id, { rect: request.rect, scrollKey });
+    currentOnOpen.current(card.id, { rect: request.rect, scrollKey,
+      ...(request.interactionToken === undefined ? {} : { interactionToken: request.interactionToken }) });
   };
   const measure = () => {
     if (!active || !appActive.current) return;
     if (measurement.current?.open) return;
     clearTimeoutIfNeeded();
     // Keep this touch's request until its asynchronous native measurement arrives.
-    const request = { rect: null as TileOrigin['rect'], complete: false, open: false };
+    const request = { rect: null as TileOrigin['rect'], complete: false, open: false, interactionToken };
     measurement.current = request;
     face.current?.measureInWindow((x, y, width, height) => {
       if (!appActive.current || measurement.current !== request) return;
@@ -109,12 +115,13 @@ export const CardTile = forwardRef<CardTileHandle, {
     if (request?.open) return;
     clearTimeoutIfNeeded();
     // Accessibility activation has no touch-down measurement; use the safe fade.
-    if (!request) { onOpen(card.id, { rect: null, scrollKey }); return; }
+    if (!request) { onOpen(card.id, { rect: null, scrollKey,
+      ...(interactionToken === undefined ? {} : { interactionToken }) }); return; }
     request.open = true;
     if (request.complete) finish(request);
     else timeout.current = setTimeout(() => finish(request), 120);
   };
-  return <Pressable ref={button} testID={`card-tile-${card.id}`} accessibilityRole="button" accessibilityLabel={content.name}
+  return <Pressable ref={button} testID={`card-tile-${card.id}`} accessibilityRole="button" accessibilityLabel={content.name} disabled={!active}
     onPressIn={measure} onPress={open} onPressOut={() => {
       // Pressability calls onPress in this release turn; discard canceled touches afterward.
       if (!measurement.current?.open) timeout.current = setTimeout(() => { measurement.current = null; }, 0);
@@ -128,6 +135,7 @@ export const CardTile = forwardRef<CardTileHandle, {
 });
 const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
   face: { ...shadow.card, shadowColor: colors.shadow, borderRadius: radius.card },
+  artworkClip: { width: '100%', borderRadius: radius.card, overflow: 'hidden' },
   caption: { ...typography.sectionHeading, color: colors.primary, paddingTop: spacing.sm, textAlign: 'center' },
   missing: { width: '100%', justifyContent: 'center', backgroundColor: colors.surface, padding: spacing.md, borderRadius: radius.card },
 });

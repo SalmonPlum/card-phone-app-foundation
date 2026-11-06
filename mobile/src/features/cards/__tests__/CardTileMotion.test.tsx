@@ -1,3 +1,4 @@
+import './helpers/overlayClock';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { CardTile } from '../CardTile';
 import { CardGrid } from '../CardGrid';
@@ -84,4 +85,21 @@ test('pending measurement cannot navigate after its catalogue loses focus', asyn
   await view.rerender(<CardGrid {...props} active={false} />);
   await act(() => measured(16, 120, 158, 238));
   expect(open).not.toHaveBeenCalled();
+});
+
+test('a new filter invalidates an old measured touch so a fresh tap can open immediately', async () => {
+  const open = jest.fn();
+  const props = { card: sampleDeck.cards[0], locale: 'en' as const, assetRegistry, width: 158, scrollKey: 'catalogue', onOpen: open };
+  const oldToken = Symbol('old-filter'), newToken = Symbol('new-filter');
+  const view = await render(<CardTile {...props} interactionToken={oldToken}/>);
+  const button = screen.getByRole('button', { name: 'Seed' });
+  await fireEvent(button, 'pressIn'); await fireEvent.press(button);
+  const oldMeasurement = measured;
+  await view.rerender(<CardTile {...props} interactionToken={newToken}/>);
+  await fireEvent(button, 'pressIn'); await fireEvent.press(button);
+  await act(() => measured(16, 120, 158, 238));
+  expect(open).toHaveBeenCalledTimes(1);
+  expect(open.mock.calls[0][1].interactionToken).toBe(newToken);
+  await act(() => oldMeasurement(186, 410, 158, 238));
+  expect(open).toHaveBeenCalledTimes(1);
 });

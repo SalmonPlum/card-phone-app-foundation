@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { validateThemeResource } from '../validateThemeResource.ts';
-import { resolveThemeTypography, validateFontReferences, type FontFace } from '../typography.ts';
+import { resolveThemeTypography, scaleThemeTypography, validateFontReferences, type FontFace } from '../typography.ts';
 import { inspectFont } from '../../../scripts/font-file.ts';
 
 const resource = validateThemeResource(JSON.parse(readFileSync(new URL('../resource.json', import.meta.url), 'utf8')));
@@ -64,4 +64,34 @@ test('fallback uses platform families while retaining resource metrics and weigh
   assert.equal(styles.cardTitle.fontSize, 29.13);
   assert.equal(styles.sectionHeading.fontWeight, '500');
   assert.equal(styles.body.fontFamily, 'sans-serif');
+});
+
+test('app text sizing scales every role once without mutating fonts, source metrics or OS scaling', () => {
+  const original = resolveThemeTypography(resource.themes[0], catalog, true, fallback);
+  const snapshot = structuredClone(original);
+  for (const scale of [.9, 1, 1.15]) {
+    const adjusted = scaleThemeTypography(original, scale);
+    for (const role of Object.keys(original) as (keyof typeof original)[]) {
+      assert.equal(adjusted[role].fontSize, original[role].fontSize * scale);
+      assert.equal(adjusted[role].letterSpacing, original[role].letterSpacing * scale);
+      assert.equal(adjusted[role].lineHeight, scale === 1 ? original[role].lineHeight : Math.ceil(original[role].lineHeight * scale));
+      assert.equal(adjusted[role].fontFamily, original[role].fontFamily);
+      assert.equal(adjusted[role].fontWeight, original[role].fontWeight);
+    }
+  }
+  assert.deepEqual(original, snapshot);
+});
+
+test('all app text sizes retain safe native line bounds for every bundled role and theme', () => {
+  const root = new URL('../../../', import.meta.url);
+  for (const theme of resource.themes) for (const scale of [.9, 1, 1.15]) {
+    const adjusted = scaleThemeTypography(resolveThemeTypography(theme, catalog, true, fallback), scale);
+    for (const role of Object.keys(adjusted) as (keyof typeof adjusted)[]) {
+      const source = theme.typography[role];
+      const font = catalog.find(font => font.family === source.fontFamily && font.weight === source.fontWeight)!;
+      const { metrics } = inspectFont(readFileSync(new URL(font.path, root)));
+      const bound = Math.max(metrics.ascent + metrics.descent, metrics.winAscent + metrics.winDescent);
+      assert.ok(adjusted[role].lineHeight >= Math.ceil(adjusted[role].fontSize * bound / metrics.unitsPerEm));
+    }
+  }
 });

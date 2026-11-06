@@ -144,7 +144,7 @@ test('entropy failure on Draw still permits browsing offline catalogue and retur
   await go('Draw'); expect(screen.getByRole('button', { name: 'Try again' })).toBeVisible();
   mockEntropyError = false;
   await fireEvent.press(screen.getByRole('button', { name: 'Try again' }));
-  expect(current.state!.remainingIds).toHaveLength(8);
+  expect(current.state!.remainingIds).toHaveLength(20);
 });
 
 test('English defaults on a Czech phone until Settings explicitly selects Czech', async () => {
@@ -160,7 +160,7 @@ test('English defaults on a Czech phone until Settings explicitly selects Czech'
     await fireEvent.press(screen.getByRole('tab', { name: 'Katalog' }));
     expect(screen.queryByRole('header', { name: 'Všechny karty' })).toBeNull();
     await fireEvent.press(screen.getByRole('tab', { name: 'Tahání' }));
-    expect(screen.getByText('Zbývající karty: 8')).toBeVisible();
+    expect(screen.getByText('Zbývající karty: 20')).toBeVisible();
   } finally { locales.mockRestore(); getLocales.mockRestore(); }
 });
 
@@ -276,7 +276,7 @@ test('Settings changes interface and deck language without resetting the draw se
   await fireEvent.press(screen.getByRole('tab',{name:'Katalog'}));
   expect(screen.getByRole('button',{name:'Semínko'})).toBeVisible();
   await fireEvent.press(screen.getByRole('tab',{name:'Tahání'}));
-  expect(screen.getByText('Zbývající karty: 8')).toBeVisible();
+  expect(screen.getByText('Zbývající karty: 20')).toBeVisible();
   expect(current.state).toBe(original);
   await fireEvent.press(screen.getByRole('tab',{name:'Nastavení'}));
   await act(()=>router.back());await settle();
@@ -348,6 +348,47 @@ test('resource theme changes retain a revealed session and image hosts across ta
   await act(()=>router.push('/card/0'));await settle();
   expect(screen.getByTestId('direct-detail-host')).toHaveStyle({backgroundColor:'#fff8f0'});
   expect(screen.getByRole('header',{name:'Seed'})).toHaveStyle({fontFamily:'Theme_Literata_600',fontSize:29.67,lineHeight:48});
+});
+
+test('text size scales navigation, readers and errors while preserving sessions, images and reading position',async()=>{
+  await renderRouter(routes);await settle();
+  const first=current.state!;
+  await act(()=>current.draw({x:620,y:330,angle:0,scale:1},first.sessionId,first.epoch));
+  for(let i=0;i<3;i++){const s=current.state!;await act(()=>current.complete(s.sessionId,s.epoch));}
+  const revealed=current.state!,stage=screen.getByTestId('draw-stage');
+  const scroll=screen.getByTestId('draw-reveal-scroll');
+  await fireEvent.scroll(scroll,{nativeEvent:{contentOffset:{y:120}}});await settle();
+  const readingPose=screen.getByTestId('draw-reading-hitbox').props.style[1].__read();
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  await fireEvent(screen.getByRole('adjustable'),'accessibilityAction',{nativeEvent:{actionName:'increment'}});await settle();
+  expect(screen.getByText('Draw')).toHaveStyle({fontSize:13*1.15});
+  expect(screen.getByRole('adjustable').props.accessibilityValue.text).toBe('Large');
+  expect(current.state).toBe(revealed);
+  await go('Draw');
+  expect(screen.getByTestId('draw-stage')).toBe(stage);
+  expect(screen.getByTestId('draw-reveal-scroll')).toBe(scroll);
+  expect(screen.getByTestId('draw-reading-hitbox').props.style[1].__read()).toEqual(readingPose);
+  expect(screen.getByRole('header',{name:'Spring'})).toHaveStyle({fontSize:32*1.15,lineHeight:56});
+  expect(screen.getByText('Swipe up for details')).toHaveStyle({fontSize:14*1.15});
+  await go('Catalogue');
+  const image=screen.getByTestId('card-face-0');
+  await fireEvent(image,'error');
+  expect(screen.getByText('Card artwork could not be loaded.')).toHaveStyle({fontSize:22*1.15});
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  await fireEvent.press(screen.getByRole('radio',{name:'Celestial Midnight'}));await settle();
+  expect(screen.getByRole('adjustable').props.accessibilityValue.text).toBe('Large');
+  await go('Catalogue');
+  expect(screen.getByText('Card artwork could not be loaded.')).toHaveStyle({fontSize:20.03*1.15});
+  await go('Draw');
+  expect(current.state).toBe(revealed);
+  await fireEvent.press(screen.getByRole('button',{name:'Confirm card'}));
+  {const s=current.state!;await act(()=>current.complete(s.sessionId,s.epoch));}
+  await fireEvent.press(screen.getByRole('button',{name:'Stop'}));
+  expect(screen.getByText('Cards drawn: 1')).toHaveStyle({fontSize:14.93*1.15});
+  await act(()=>router.push('/card/0'));await settle();
+  expect(screen.getByRole('header',{name:'Seed'})).toHaveStyle({fontSize:29.13*1.15,lineHeight:56});
+  expect(screen.getByText('A small beginning that needs care.')).toHaveStyle({fontSize:14.93*1.15});
+  expect(current.state!.sessionId).toBe(revealed.sessionId);
 });
 
 test.each(['strip','flip'] as const)('theme selection during paused %s retains the native clock and resumes once',async phase=>{

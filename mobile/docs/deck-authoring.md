@@ -3,7 +3,11 @@
 Each branded app selects one local package with `appConfig.deckId` in
 `src/config/appConfig.ts`. `src/decks/index.ts` validates bundled manifests and
 exports `configuredDeck`; session and animation code do not need deck-specific
-branches. The current sample is **Tichá zahrada / Quiet Garden** (eight cards).
+branches. The current sample is **Tichá zahrada / Quiet Garden** (20 cards, version
+1.1.0). The original eight retain their IDs, order, content and artwork; 12 new
+cards follow them with sparse IDs 104–234. Names include Czech diacritics and
+multiword labels for future search/layout testing. Every card has distinct offline
+artwork and complete Czech/English meaning and description sections.
 **Tvary pohybu / Shapes in Motion** is a visibly different three-card replacement.
 Set `deckId` to `alternate` to select it.
 
@@ -110,7 +114,7 @@ also compares every key and literal path, checks local PNG headers/dimensions,
 checks per-deck aspect ratios, and rejects unregistered PNG files. Missing files,
 missing locale text, or dangling keys stop validation with a field/asset error.
 
-All 13 supplied images are authored locally by `scripts/generate-deck-art.py`;
+All 25 supplied images are authored locally by `scripts/generate-deck-art.py`;
 they contain no third-party card art. Regeneration is optional and requires
 Python 3 plus Pillow (`python3 scripts/generate-deck-art.py`). Neither Python nor
 Pillow is needed to build or run the bundled app.
