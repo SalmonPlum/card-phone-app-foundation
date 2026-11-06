@@ -1,10 +1,12 @@
+import {templateFixture} from '../../../domain/__tests__/templateFixture';
 import { advance, flushRn, resetClock, settle } from './helpers/overlayClock';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { act, fireEvent, render, screen } from '@testing-library/react-native';
 import { CardDetailOverlay, type CardDetailOverlayProps } from '../CardDetailOverlay';
 import { sampleDeck } from '../../../decks/sample';
 import { assetRegistry } from '../../../decks/assets';
 
 const props: CardDetailOverlayProps = {
+  detailTemplate:sampleDeck.detailTemplate,
   card: sampleDeck.cards[0], locale: 'en', assetRegistry, reducedMotion: false,
   state: { stage: 'preparing', id: 0, generation: 1, host: { x: 10, y: 24, width: 360, height: 800 }, source: { x: 16, y: 176, width: 158, height: 237.66 }, closeTarget: null, closeReady: false },
   topInset: 24, bottomInset: 16, onReady: jest.fn(), onComplete: jest.fn(), onClose: jest.fn(),
@@ -13,6 +15,7 @@ function facePose() { return screen.getByTestId('overlay-face-surface').props.st
 async function ready() {
   await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 300, height: 450 } } });
+  await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle();
 }
 beforeEach(() => { resetClock(); jest.clearAllMocks(); });
@@ -109,4 +112,77 @@ test('reduced motion keeps missing-source opening immediate at the foreground po
   expect(facePose().opacity).toBe(1);
   expect(facePose().transform).toEqual(foreground);
   expect(props.onComplete).toHaveBeenCalledWith(1);
+});
+
+test('name stays outside the scroll view while the persistent face shrinks to free reading space and grows back',async()=>{
+  const view=await render(<CardDetailOverlay {...props}/>);await ready();
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'opening'}}/>);
+  await settle();await advance(420);await flushRn();
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'open'}}/>);
+  await settle();await advance(160);
+  const title=screen.getByRole('header',{name:'Seed'});
+  for(let parent=title.parent;parent;parent=parent.parent) expect(parent.type).not.toBe('RCTScrollView');
+  const image=screen.getByTestId('overlay-face-0'),expanded=facePose();
+  const band=()=>screen.getByTestId('detail-artwork-mask').props.style[2].__read().height;
+  const initialBand=band();
+  const viewport=screen.getByTestId('overlay-details').props.style;
+  await fireEvent.scroll(screen.getByTestId('overlay-details'),{nativeEvent:{contentOffset:{x:0,y:100}}});await settle();
+  const compact=facePose();
+  expect(compact.transform[3].scaleY).toBeLessThan(expanded.transform[3].scaleY);
+  expect(band()).toBeCloseTo(initialBand-100);
+  expect(screen.getByTestId('overlay-details').props.style).toEqual(viewport);
+  expect(screen.getByRole('header',{name:'Seed'})).toBe(title);
+  expect(screen.getByTestId('overlay-face-0')).toBe(image);
+  await fireEvent.scroll(screen.getByTestId('overlay-details'),{nativeEvent:{contentOffset:{x:0,y:0}}});await settle();
+  expect(facePose()).toEqual(expanded);
+});
+
+
+test('native header measurement gates entry and reserves wrapped title space',async()=>{
+  await render(<CardDetailOverlay {...props}/>);
+  await fireEvent(screen.getByTestId('overlay-face-0'),'loadEnd');
+  await fireEvent(screen.getByTestId('overlay-face-surface'),'layout',{nativeEvent:{layout:{width:238,height:357}}});
+  await settle();expect(props.onReady).not.toHaveBeenCalled();
+  await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}),'layout',{nativeEvent:{layout:{height:136}}});
+  await settle();expect(props.onReady).toHaveBeenCalledWith(1);
+});
+
+test('closing freezes the last collapsed UI pose before late scroll delivery and return measurement',async()=>{
+  const view=await render(<CardDetailOverlay {...props}/>);await ready();
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'opening'}}/>);
+  await settle();await advance(420);await flushRn();
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'open'}}/>);await settle();
+  const onScroll=screen.getByTestId('overlay-details').props.onScroll;
+  const oldMapper=screen.getByTestId('overlay-face-surface').props.style[1].__read;
+  await fireEvent.scroll(screen.getByTestId('overlay-details'),{nativeEvent:{contentOffset:{y:100}}});
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'closing',generation:2,closeReady:false}}/>);
+  await act(()=>onScroll({nativeEvent:{contentOffset:{y:160}}}));
+  const finalScrolled=facePose();
+  await settle();expect(facePose()).toEqual(finalScrolled);
+  await act(()=>onScroll({nativeEvent:{contentOffset:{y:240}}}));
+  expect(facePose()).toEqual(finalScrolled);
+  expect(oldMapper()).toEqual(finalScrolled);
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'closing',generation:2,closeReady:true,closeTarget:props.state.source}}/>);
+  await settle();expect(facePose()).toEqual(finalScrolled);
+  await advance(420);await flushRn();
+  expect(props.onComplete).toHaveBeenLastCalledWith(2);
+});
+
+test('reduced motion starts compact and does not resize artwork while text scrolls',async()=>{
+  const view=await render(<CardDetailOverlay {...props} reducedMotion/>);await ready();
+  await view.rerender(<CardDetailOverlay {...props} reducedMotion state={{...props.state,stage:'opening'}}/>);await settle();
+  await view.rerender(<CardDetailOverlay {...props} reducedMotion state={{...props.state,stage:'open'}}/>);await settle();
+  const compact=facePose();
+  expect(compact.transform[3].scaleY*(238/(2/3))).toBeLessThanOrEqual(112);
+  await fireEvent.scroll(screen.getByTestId('overlay-details'),{nativeEvent:{contentOffset:{y:300}}});await settle();
+  expect(facePose()).toEqual(compact);
+  expect(screen.getByRole('header',{name:'Seed'})).toBeVisible();
+});
+
+test('collection overlay renders its supplied template with all three sections',async()=>{
+ const deck=templateFixture(),card={...deck.cards[0],faceAsset:'sample.seed'};
+ await render(<CardDetailOverlay {...props} detailTemplate={deck.detailTemplate} card={card} state={{...props.state,stage:'open'}}/>);
+ await settle();await advance(160);
+ expect(screen.getAllByRole('header').map(node=>node.props.children)).toEqual(['Custom card','Reflect','Try this','Context']);
+ expect(screen.getByText('English context.')).toBeVisible();
 });

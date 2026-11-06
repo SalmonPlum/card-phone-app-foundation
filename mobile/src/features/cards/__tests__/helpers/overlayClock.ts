@@ -1,7 +1,7 @@
 // Only the native UI/RN schedulers and animation clock are replaced.
 import { act } from '@testing-library/react-native';
 type Timing = { target: number; duration: number; easing: (n: number) => number; callback: (done: boolean) => void; start: number; elapsed: number };
-type Value = { value: unknown; current: unknown; timing?: Timing };
+type Value = { value: unknown; current: unknown; set: (next:unknown)=>void; timing?: Timing };
 const mockValues: Value[] = [], mockUi: (() => void)[] = [], mockRn: (() => void)[] = [];
 let mockOnUi = false;
 function mockRunUi(job: () => void) { mockOnUi = true; try { job(); } finally { mockOnUi = false; } }
@@ -10,7 +10,8 @@ jest.mock('react-native-reanimated', () => {
   const React = require('react');
   return {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    __esModule: true, default: { View: require('react-native').View },
+    __esModule: true, default: { View: require('react-native').View, ScrollView: require('react-native').ScrollView },
+    useAnimatedScrollHandler: (handlers: {onScroll:(event:unknown)=>void}) => (event:{nativeEvent?:unknown}) => mockRunUi(()=>handlers.onScroll(event.nativeEvent ?? event)),
     useAnimatedStyle: (read: () => unknown) => ({ __read: read }),
     Easing: { linear: (n: number) => n, cubic: (n: number) => n ** 3, out: (fn: (n: number) => number) => (n: number) => 1 - fn(1 - n) },
     ReduceMotion: { Never: 'never' },
@@ -19,6 +20,7 @@ jest.mock('react-native-reanimated', () => {
       if (!ref.current) {
         const v: Value = {
           current: initial,
+          set: (next:unknown) => {v.value=next;},
           get value() { return v.current; },
           set value(next: unknown) {
             const apply = () => {

@@ -10,6 +10,7 @@ export default function TabLayout() {
       screenOptions={{ headerShown: false, animation: 'none', freezeOnBlur: false }}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="catalogue" />
+      <Tabs.Screen name="settings" />
     </Tabs>
   </TabInteractionProvider>;
 }

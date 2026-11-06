@@ -1,11 +1,13 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import * as Crypto from 'expo-crypto';
-import type { DeckManifest, Pose, SessionEvent, SessionState } from '../domain/contracts';
+import type { DeckManifest, RevealMode, Pose, SessionEvent, SessionState } from '../domain/contracts';
 import { createSession, transition } from '../domain/session';
 import { choosePacketSize } from '../domain/shuffle';
 import { secureRandomSource } from '../platform/secureRandom';
 
-export function useSessionController(deck: DeckManifest) {
+export function useSessionController(deck: DeckManifest,revealMode:RevealMode='automatic',preferencesReady=true) {
+ const preference=useRef({revealMode,preferencesReady});
+ useLayoutEffect(()=>{preference.current={revealMode,preferencesReady};},[revealMode,preferencesReady]);
  const current=useRef<SessionState|null>(null), [state,setState]=useState<SessionState|null>(null), [error,setError]=useState(false);
  const blocked=useRef(false), pending=useRef<{sessionId:string;epoch:number}|null>(null);
  const publish=useCallback((next:SessionState)=>{current.current=next;setState(next);},[]);
@@ -18,6 +20,7 @@ export function useSessionController(deck: DeckManifest) {
    } catch {pending.current={sessionId,epoch};blocked.current=true;setError(true);}
  },[send]);
  const retry=useCallback(()=>{const token=pending.current;blocked.current=false;setError(false);pending.current=null;if(token)complete(token.sessionId,token.epoch);else reset();},[complete,reset]);
- const draw=useCallback((pose:Pose,sessionId:string,epoch:number)=>{const s=current.current;if(s?.sessionId===sessionId&&s.epoch===epoch)send({type:'DRAW',pose});},[send]);
- return {state,error,reset,retry,draw,complete,confirm:()=>send({type:'CONFIRM'}),stop:()=>send({type:'STOP'})};
+ const draw=useCallback((pose:Pose,sessionId:string,epoch:number)=>{const s=current.current;if(preference.current.preferencesReady&&s?.sessionId===sessionId&&s.epoch===epoch)send({type:'DRAW',pose,revealMode:preference.current.revealMode});},[send]);
+ const reveal=useCallback((sessionId:string,epoch:number)=>send({type:'REVEAL',sessionId,epoch}),[send]);
+ return {state,error,reveal,preferencesReady,reset,retry,draw,complete,confirm:()=>send({type:'CONFIRM'}),stop:()=>send({type:'STOP'})};
 }

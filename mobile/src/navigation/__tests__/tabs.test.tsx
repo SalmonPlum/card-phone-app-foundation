@@ -1,3 +1,4 @@
+import Settings from '../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router, Tabs as RouterTabs } from 'expo-router';
@@ -26,7 +27,7 @@ function ObservedDraw() {
   useLayoutEffect(() => { current = session; }, [session]);
   return <Draw />;
 }
-const routes = { _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, 'card/[id]': Details, 'draw-preview': LegacyDraw };
+const routes = { _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details, 'draw-preview': LegacyDraw };
 const nativeAppState = AppState.currentState;
 const nativeAppSubscription = (AppState.addEventListener as jest.Mock).getMockImplementation();
 const nativeLocales = Localization.getLocales();
@@ -37,6 +38,16 @@ async function tick(ms: number) { await advance(ms); await settle(); }
 
 // These use the real root provider, router, screens, reducer and phase clock.
 // Only secure native entropy and the deferred UI/RN schedulers are controlled.
+test('only the rounded bottom menu paints a solid surface',async()=>{
+  await renderRouter(routes);await settle();
+  expect(screen.getByTestId('bottom-dock')).toHaveStyle({backgroundColor:'transparent'});
+  expect(screen.getByTestId('bottom-dock-menu')).toHaveStyle({backgroundColor:'#ffffff',borderRadius:36});
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  await fireEvent.press(screen.getByRole('radio',{name:'Solstice Ochre'}));await settle();
+  expect(screen.getByTestId('bottom-dock')).toHaveStyle({backgroundColor:'transparent'});
+  expect(screen.getByTestId('bottom-dock-menu')).toHaveStyle({backgroundColor:'#ffffff',borderRadius:36});
+});
+
 test('tab round trips retain committed cards, results, screen instances and root route count', async () => {
   await renderRouter(routes); await settle();
   const first = current.state!;
@@ -51,6 +62,7 @@ test('tab round trips retain committed cards, results, screen instances and root
   expect(current.state).toBe(reveal);
   expect(screen.getByText('Spring')).toBeVisible();
   await fireEvent.press(screen.getByRole('button', { name: 'Confirm card' }));
+  { const s = current.state!; await act(() => current.complete(s.sessionId, s.epoch)); }
   await fireEvent.press(screen.getByRole('button', { name: 'Stop' }));
   const result = current.state;
   await go('Catalogue'); await go('Draw'); await go('Draw'); await go('Draw');
@@ -78,7 +90,7 @@ test.each(['strip', 'flip'] as const)('switching during %s preserves UI progress
     if (phase === 'flip') {
       const s = current.state!;
       await act(() => current.draw({ x: 620, y: 330, angle: 0, scale: 1 }, s.sessionId, s.epoch));
-      await tick(496); await tick(96); await tick(640);
+      await tick(496); await tick(96); await tick(900);
       expect(current.state!.phase).toBe('flip');
     }
     await tick(200);
@@ -135,15 +147,18 @@ test('entropy failure on Draw still permits browsing offline catalogue and retur
   expect(current.state!.remainingIds).toHaveLength(8);
 });
 
-test('Czech tab labels and Draw content follow the app locale', async () => {
+test('English defaults on a Czech phone until Settings explicitly selects Czech', async () => {
   const locale = Localization.getLocales()[0];
   const locales = jest.spyOn(Localization, 'useLocales').mockReturnValue([{ ...locale, languageTag: 'cs-CZ', languageCode: 'cs' }]);
   const getLocales = jest.spyOn(Localization, 'getLocales').mockReturnValue([{ ...locale, languageTag: 'cs-CZ', languageCode: 'cs' }]);
   try {
     await renderRouter(routes);
+    expect(screen.getByRole('tab', { name: 'Draw' })).toBeVisible();
+    await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));
+    await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
     expect(screen.getByRole('tab', { name: 'Tahání' })).toBeVisible();
     await fireEvent.press(screen.getByRole('tab', { name: 'Katalog' }));
-    expect(screen.getByRole('header', { name: 'Všechny karty' })).toBeVisible();
+    expect(screen.queryByRole('header', { name: 'Všechny karty' })).toBeNull();
     await fireEvent.press(screen.getByRole('tab', { name: 'Tahání' }));
     expect(screen.getByText('Zbývající karty: 8')).toBeVisible();
   } finally { locales.mockRestore(); getLocales.mockRestore(); }
@@ -194,7 +209,7 @@ test.each(['strip', 'flip'] as const)('warm legacy link reuses the existing tabs
   if (phase === 'flip') {
     const state = current.state!;
     await act(() => current.draw({ x: 620, y: 330, angle: 0, scale: 1 }, state.sessionId, state.epoch));
-    await tick(496); await tick(96); await tick(640);
+    await tick(496); await tick(96); await tick(900);
     expect(current.state!.phase).toBe('flip');
   }
   await tick(200);
@@ -225,4 +240,162 @@ test.each(['strip', 'flip'] as const)('warm legacy link reuses the existing tabs
   expect(screen).toHavePathname('/');
   expect(router.canGoBack()).toBe(false);
   expect(current.state).toBe(resumed);
+});
+
+test('switching tabs midway through confirmation exit pauses it and resumes the same handoff once',async()=>{
+  await renderRouter(routes); await settle();
+  const first=current.state!;
+  await act(()=>current.draw({x:620,y:330,angle:0,scale:1},first.sessionId,first.epoch));
+  for(let i=0;i<3;i++){const s=current.state!;await act(()=>current.complete(s.sessionId,s.epoch));}
+  await fireEvent.press(screen.getByRole('button',{name:'Confirm card'})); await settle();
+  await tick(225);
+  const exiting=current.state!;
+  expect(exiting.phase).toBe('resume');
+  expect(runningClocks()[0].value).toBeCloseTo(.25);
+  await go('Catalogue');
+  expect(runningClocks()).toHaveLength(0);
+  await tick(10000);
+  expect(current.state).toBe(exiting);
+  await go('Draw');
+  expect(runningClocks()[0].value).toBeCloseTo(.25);
+  await tick(674);
+  expect(current.state).toBe(exiting);
+  await tick(1);
+  expect(current.state).toMatchObject({sessionId:exiting.sessionId,phase:'return',epoch:exiting.epoch+1,drawnIds:exiting.drawnIds});
+});
+
+test('Settings changes interface and deck language without resetting the draw session',async()=>{
+  await renderRouter(routes);await settle();
+  const original=current.state;
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));
+  expect(screen.getByRole('header',{name:'Language'})).toBeVisible();
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
+  expect(screen.queryByRole('header',{name:'Nastavení'})).toBeNull();
+  expect(screen.getByRole('radio',{name:'Čeština'}).props.accessibilityState).toEqual({checked:true});
+  expect(current.state).toBe(original);
+  await fireEvent.press(screen.getByRole('tab',{name:'Katalog'}));
+  expect(screen.getByRole('button',{name:'Semínko'})).toBeVisible();
+  await fireEvent.press(screen.getByRole('tab',{name:'Tahání'}));
+  expect(screen.getByText('Zbývající karty: 8')).toBeVisible();
+  expect(current.state).toBe(original);
+  await fireEvent.press(screen.getByRole('tab',{name:'Nastavení'}));
+  await act(()=>router.back());await settle();
+  expect(screen).toHavePathname('/');
+  await act(()=>router.push('/card/0'));await settle();
+  expect(screen.getByRole('header',{name:'Semínko'})).toBeVisible();
+  expect(screen.getByText('Malý začátek, který potřebuje péči.')).toBeVisible();
+  await fireEvent.press(screen.getByRole('button',{name:'Zpět'}));await settle();
+  expect(current.state).toBe(original);
+});
+
+
+test('changing language from Settings pauses and resumes the same draw progress',async()=>{
+  await renderRouter(routes);await settle();await tick(312);
+  const first=current.state;
+  expect(runningClocks()[0].value).toBeCloseTo(.5);
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));await settle();
+  expect(runningClocks()).toHaveLength(0);
+  await tick(10000);expect(current.state).toBe(first);
+  await fireEvent.press(screen.getByRole('tab',{name:'Tahání'}));await settle();
+  expect(runningClocks()[0].value).toBeCloseTo(.5);
+  await tick(311);expect(current.state).toBe(first);
+  await tick(1);
+  expect(current.state).toMatchObject({sessionId:first!.sessionId,phase:'ready',epoch:first!.epoch+1,drawnIds:[]});
+});
+
+test('resource theme changes retain a revealed session and image hosts across tabs, results and direct details',async()=>{
+  await renderRouter(routes);await settle();
+  const first=current.state!;
+  await act(()=>current.draw({x:620,y:330,angle:0,scale:1},first.sessionId,first.epoch));
+  for(let i=0;i<3;i++){const s=current.state!;await act(()=>current.complete(s.sessionId,s.epoch));}
+  const revealed=current.state!;
+  expect(revealed.phase).toBe('reveal');
+  const stage=screen.getByTestId('draw-stage');
+  const cover=screen.getByTestId('draw-foreground-dim',{includeHiddenElements:true});
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  await fireEvent.press(screen.getByRole('radio',{name:'Celestial Midnight'}));await settle();
+  expect(screen.getByTestId('settings-screen')).toHaveStyle({backgroundColor:'#0d1322'});
+  expect(screen.getByTestId('bottom-dock')).toHaveStyle({backgroundColor:'transparent'});
+  expect(screen.getByTestId('bottom-dock-menu')).toHaveStyle({backgroundColor:'#191f2f',borderRadius:36});
+  expect(current.state).toBe(revealed);
+  await go('Draw');
+  expect(screen.getByTestId('draw-stage')).toBe(stage);
+  expect(screen.getByTestId('draw-foreground-dim',{includeHiddenElements:true})).toBe(cover);
+  expect(cover).toHaveStyle({backgroundColor:'#0d1322'});
+  expect(screen.getByTestId('draw-reveal-header')).toHaveStyle({backgroundColor:'#0d1322'});
+  expect(screen.getByRole('header',{name:'Spring'})).toHaveStyle({fontFamily:'Theme_NotoSerif_400',fontSize:32});
+  expect(current.state).toBe(revealed);
+  await go('Catalogue');
+  const grid=screen.getByTestId('card-grid');
+  const seed=screen.getByTestId('card-face-0');
+  const source=seed.props.source;
+  expect(screen.getByTestId('catalogue-host')).toHaveStyle({backgroundColor:'#0d1322'});
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  await fireEvent.press(screen.getByRole('radio',{name:'Solstice Ochre'}));await settle();
+  await go('Catalogue');
+  expect(screen.getByTestId('card-grid')).toBe(grid);
+  expect(screen.getByTestId('card-face-0')).toBe(seed);
+  expect(seed.props.source).toBe(source);
+  expect(screen.getByText('Seed')).toHaveStyle({fontFamily:'Theme_Literata_500',fontSize:20});
+  expect(screen.getByTestId('catalogue-host')).toHaveStyle({backgroundColor:'#fff8f0'});
+  await go('Draw');
+  await fireEvent.press(screen.getByRole('button',{name:'Confirm card'}));
+  {const s=current.state!;await act(()=>current.complete(s.sessionId,s.epoch));}
+  await fireEvent.press(screen.getByRole('button',{name:'Stop'}));
+  expect(screen.getByTestId('results-host')).toHaveStyle({backgroundColor:'#fff8f0'});
+  expect(current.state!.sessionId).toBe(revealed.sessionId);
+  await act(()=>router.push('/card/0'));await settle();
+  expect(screen.getByTestId('direct-detail-host')).toHaveStyle({backgroundColor:'#fff8f0'});
+  expect(screen.getByRole('header',{name:'Seed'})).toHaveStyle({fontFamily:'Theme_Literata_600',fontSize:38});
+});
+
+test.each(['strip','flip'] as const)('theme selection during paused %s retains the native clock and resumes once',async phase=>{
+  await renderRouter(routes);await settle();
+  await tick(624);await tick(144);
+  expect(current.state!.phase).toBe('strip');
+  if(phase==='flip'){
+    const s=current.state!;
+    await act(()=>current.draw({x:620,y:330,angle:0,scale:1},s.sessionId,s.epoch));
+    await tick(496);await tick(96);await tick(900);
+    expect(current.state!.phase).toBe('flip');
+  }
+  await tick(200);
+  const paused=current.state!, progress=runningClocks()[0].value;
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  expect(runningClocks()).toHaveLength(0);
+  await fireEvent.press(screen.getByRole('radio',{name:'Celestial Midnight'}));await settle();
+  expect(current.state).toBe(paused);
+  expect(runningClocks()).toHaveLength(0);
+  await go('Draw');
+  expect(runningClocks()[0].value).toBeCloseTo(progress);
+  await tick((phase==='strip'?496:620)-201);
+  expect(current.state).toBe(paused);
+  await tick(1.001);
+  expect(current.state!.epoch).toBe(paused.epoch+1);
+  expect(current.state!.phase).toBe(phase==='strip'?'contact':'reveal');
+});
+
+test('tab screens omit duplicate visible page titles while retaining navigation, sections and the draw action',async()=>{
+  await renderRouter(routes);await settle();
+  expect(screen.getAllByText('Draw')).toHaveLength(1);
+  expect(screen.queryByText('Draw a card')).toBeNull();
+  expect(screen.getByRole('button',{name:'Draw a card'})).toBeVisible();
+  await go('Catalogue');
+  expect(screen.queryByText('All cards')).toBeNull();
+  expect(screen.getByRole('button',{name:'Seed'})).toBeVisible();
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
+  expect(screen.getAllByText('Settings')).toHaveLength(1);
+  expect(screen.queryByRole('header',{name:'Settings'})).toBeNull();
+  expect(screen.getByRole('header',{name:'Language'})).toBeVisible();
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));await settle();
+  expect(screen.getAllByText('Nastavení')).toHaveLength(1);
+  expect(screen.queryByRole('header',{name:'Nastavení'})).toBeNull();
+  expect(screen.getByRole('header',{name:'Jazyk'})).toBeVisible();
+  await fireEvent.press(screen.getByRole('tab',{name:'Katalog'}));await settle();
+  expect(screen.queryByText('Všechny karty')).toBeNull();
+  expect(screen.getByRole('button',{name:'Semínko'})).toBeVisible();
+  await fireEvent.press(screen.getByRole('tab',{name:'Tahání'}));await settle();
+  expect(screen.queryByText('Vytáhnout kartu')).toBeNull();
+  expect(screen.getByRole('button',{name:'Vytáhnout kartu'})).toBeVisible();
 });

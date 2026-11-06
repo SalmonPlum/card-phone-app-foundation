@@ -2,12 +2,14 @@ import { useCallback, useEffect, useMemo, useRef } from 'react';
 import { cancelAnimation, Easing, ReduceMotion, useSharedValue, withTiming, type SharedValue } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import type { Pose, SessionState } from '../../domain/contracts';
+import {drawReadingKey,type DrawReadingState} from './revealReading';
 import { renderFrame } from './renderFrame';
 import { phaseDurationMs, regripPose, returnPose, SOURCE } from './motion';
 
-export function useShuffleAnimation(state: SessionState, paused: boolean, reducedMotion: boolean, onComplete: (sessionId: string, epoch: number) => void) {
+export function useShuffleAnimation(state: SessionState, paused: boolean, reducedMotion: boolean, onComplete: (sessionId: string, epoch: number) => void, reading?:SharedValue<DrawReadingState>) {
   const progress = useSharedValue(0);
   const { sessionId, epoch, phase } = state;
+  const readingKey=drawReadingKey(state);
   const { total, remaining, source, received, flying, selected } = renderFrame(state);
   const hasOrigin = state.phaseOrigin !== null;
   const { x = 0, y = 0, angle = 0, scale = 1 } = state.phaseOrigin ?? {};
@@ -49,6 +51,7 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
       }
       // Mappers may be replaced before or after this job. Both versions read
       // this same UI snapshot, paired with the reset clock, never RN closures.
+      if(reading&&reading.value.key!==readingKey) reading.set({key:readingKey,offset:0});
       frame.value = nextFrame;
       if (paused || !phaseDuration) return;
       progress.value = withTiming(1, {duration: duration * (1-progress.value), reduceMotion: ReduceMotion.Never, easing: reducedMotion ? (t: number) => { 'worklet'; return t < 1 ? 0 : 1; } : Easing.linear}, finished => {
@@ -62,7 +65,7 @@ export function useShuffleAnimation(state: SessionState, paused: boolean, reduce
         if (generation.value === token) cancelAnimation(progress);
       });
     };
-  }, [progress, generation, frame, nextFrame, sessionId, epoch, phase, paused, reducedMotion, onComplete]);
+  }, [progress, generation, frame, nextFrame, sessionId, epoch, phase, paused, reducedMotion, onComplete, reading, readingKey]);
   const samplePose = useCallback((callback: (pose: Pose, sessionId: string, epoch: number) => void) => {
     const token = sequence.current;
     const deliver = (pose: Pose, id: string, currentEpoch: number) => {

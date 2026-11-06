@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 1,
+  "defaultThemeId": "mystic-arbor",
+  "themes": [
+    {
+      "id": "mystic-arbor",
+      "version": "1.0.0",
+      "name": {
+        "cs": "Mystický háj",
+        "en": "Mystic Arbor"
+      },
+      "appearance": "light",
+      "colors": {
+        "canvas": "#fbf9f3",
+        "surface": "#f0eee8",
+        "text": "#1b1c19",
+        "mutedText": "#424844",
+        "primary": "#032217",
+        "onPrimary": "#ffffff",
+        "accent": "#775a19",
+        "border": "#c1c8c2",
+        "selectedSurface": "#c8ead7",
+        "mat": "#1a382b",
+        "onMat": "#ffffff",
+        "onSelected": "#022115",
+        "shadow": "#032217"
+      },
+      "cardColors": {
+        "background": "#1a382b",
+        "accent": "#c5a059"
+      },
+      "typography": {
+        "title": {
+          "fontFamily": "EB Garamond",
+          "fontWeight": "500",
+          "fontSize": 26.0,
+          "lineHeight": 32.0,
+          "letterSpacing": 0.0
+        },
+        "cardTitle": {
+          "fontFamily": "EB Garamond",
+          "fontWeight": "500",
+          "fontSize": 32.0,
+          "lineHeight": 38.0,
+          "letterSpacing": 0.0
+        },
+        "sectionHeading": {
+          "fontFamily": "EB Garamond",
+          "fontWeight": "500",
+          "fontSize": 22.0,
+          "lineHeight": 28.0,
+          "letterSpacing": 0.0
+        },
+        "body": {
+          "fontFamily": "DM Sans",
+          "fontWeight": "400",
+          "fontSize": 16.0,
+          "lineHeight": 26.0,
+          "letterSpacing": 0.0
+        },
+        "label": {
+          "fontFamily": "DM Sans",
+          "fontWeight": "600",
+          "fontSize": 13.0,
+          "lineHeight": 18.0,
+          "letterSpacing": 0.78
+        },
+        "caption": {
+          "fontFamily": "DM Sans",
+          "fontWeight": "400",
+          "fontSize": 14.0,
+          "lineHeight": 22.0,
+          "letterSpacing": 0.0
+        }
+      },
+      "shuffleSurface": {
+        "texture": "checked-cloth",
+        "opacity": 0.26
+      }
+    },
+    {
+      "id": "celestial-midnight",
+      "version": "1.0.0",
+      "name": {
+        "cs": "Nebeská půlnoc",
+        "en": "Celestial Midnight"
+      },
+      "appearance": "dark",
+      "colors": {
+        "canvas": "#0d1322",
+        "surface": "#191f2f",
+        "text": "#dde2f8",
+        "mutedText": "#d8c3ad",
+        "primary": "#ffc174",
+        "onPrimary": "#472a00",
+        "accent": "#d0bcff",
+        "border": "#534434",
+        "selectedSurface": "#ffddb8",
+        "mat": "#191f2f",
+        "onMat": "#dde2f8",
+        "onSelected": "#2a1700",
+        "shadow": "#000000"
+      },
+      "cardColors": {
+        "background": "#191f2f",
+        "accent": "#f59e0b"
+      },
+      "typography": {
+        "title": {
+          "fontFamily": "Noto Serif",
+          "fontWeight": "400",
+          "fontSize": 26.0,
+          "lineHeight": 34.0,
+          "letterSpacing": -0.26
+        },
+        "cardTitle": {
+          "fontFamily": "Noto Serif",
+          "fontWeight": "400",
+          "fontSize": 32.0,
+          "lineHeight": 40.0,
+          "letterSpacing": -0.32
+        },
+        "sectionHeading": {
+          "fontFamily": "Noto Serif",
+          "fontWeight": "500",
+          "fontSize": 22.0,
+          "lineHeight": 30.0,
+          "letterSpacing": 0.0
+        },
+        "body": {
+          "fontFamily": "Manrope",
+          "fontWeight": "400",
+          "fontSize": 18.0,
+          "lineHeight": 28.0,
+          "letterSpacing": 0.0
+        },
+        "label": {
+          "fontFamily": "Space Grotesk",
+          "fontWeight": "600",
+          "fontSize": 14.0,
+          "lineHeight": 18.0,
+          "letterSpacing": 0.7
+        },
+        "caption": {
+          "fontFamily": "Manrope",
+          "fontWeight": "400",
+          "fontSize": 15.0,
+          "lineHeight": 24.0,
+          "letterSpacing": 0.075
+        }
+      },
+      "shuffleSurface": {
+        "texture": "checked-cloth",
+        "opacity": 0.22
+      }
+    },
+    {
+      "id": "solstice-ochre",
+      "version": "1.0.0",
+      "name": {
+        "cs": "Slunovratný okr",
+        "en": "Solstice Ochre"
+      },
+      "appearance": "light",
+      "colors": {
+        "canvas": "#fff8f0",
+        "surface": "#f5ede0",
+        "text": "#1e1b14",
+        "mutedText": "#55423d",
+        "primary": "#7f3015",
+        "onPrimary": "#ffffff",
+        "accent": "#904d00",
+        "border": "#dcc1b9",
+        "selectedSurface": "#ffdbd0",
+        "mat": "#9e472a",
+        "onMat": "#ffffff",
+        "onSelected": "#3a0b00",
+        "shadow": "#2a1810"
+      },
+      "cardColors": {
+        "background": "#9e472a",
+        "accent": "#d97706"
+      },
+      "typography": {
+        "title": {
+          "fontFamily": "Literata",
+          "fontWeight": "600",
+          "fontSize": 28.0,
+          "lineHeight": 36.0,
+          "letterSpacing": -0.28
+        },
+        "cardTitle": {
+          "fontFamily": "Literata",
+          "fontWeight": "600",
+          "fontSize": 38.0,
+          "lineHeight": 46.0,
+          "letterSpacing": -0.38
+        },
+        "sectionHeading": {
+          "fontFamily": "Literata",
+          "fontWeight": "500",
+          "fontSize": 20.0,
+          "lineHeight": 28.0,
+          "letterSpacing": 0.0
+        },
+        "body": {
+          "fontFamily": "Plus Jakarta Sans",
+          "fontWeight": "400",
+          "fontSize": 18.0,
+          "lineHeight": 28.0,
+          "letterSpacing": -0.09
+        },
+        "label": {
+          "fontFamily": "Plus Jakarta Sans",
+          "fontWeight": "600",
+          "fontSize": 14.0,
+          "lineHeight": 20.0,
+          "letterSpacing": 0.14
+        },
+        "caption": {
+          "fontFamily": "Plus Jakarta Sans",
+          "fontWeight": "400",
+          "fontSize": 15.0,
+          "lineHeight": 24.0,
+          "letterSpacing": 0.0
+        }
+      },
+      "shuffleSurface": {
+        "texture": "checked-cloth",
+        "opacity": 0.24
+      }
+    }
+  ]
+}

@@ -9,7 +9,7 @@ const cards = sampleDeck.cards;
 test('shows Czech captions without meanings, preserves numeric identity, and keeps a single tile at normal width', async () => {
   const view = await render(<CardGrid cards={[cards[0]]} locale="cs" assetRegistry={assetRegistry} onOpen={jest.fn()} scrollKey="single" />);
   expect(screen.getByText('Semínko')).toBeVisible();
-  expect(screen.queryByText(cards[0].translations.cs.meaning)).toBeNull();
+  expect(screen.queryByText(cards[0].translations.cs.sections.meaning)).toBeNull();
   const singleWidth = StyleSheet.flatten(screen.getByTestId('card-tile-0').props.style).width;
   await view.rerender(<CardGrid cards={cards} locale="cs" assetRegistry={assetRegistry} onOpen={jest.fn()} scrollKey="many" />);
   expect(StyleSheet.flatten(screen.getByTestId('card-tile-0').props.style).width).toBe(singleWidth);

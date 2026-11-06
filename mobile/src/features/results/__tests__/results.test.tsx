@@ -1,3 +1,4 @@
+import Settings from '../../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen, within } from 'expo-router/testing-library';
 import { AppState, BackHandler, FlatList, StyleSheet, type AppStateStatus, type NativeEventSubscription } from 'react-native';
@@ -28,7 +29,7 @@ function ObservedDraw() {
   useLayoutEffect(() => { current = session; }, [session]);
   return <Draw />;
 }
-const routes = { _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, 'card/[id]': Details };
+const routes = { _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details };
 const methods = jest.requireActual('@react-native/jest-preset/jest/MockNativeMethods').default;
 const measure = methods.measureInWindow as jest.Mock;
 const nativeAppState = AppState.currentState;
@@ -44,7 +45,7 @@ beforeEach(() => {
 });
 afterEach(() => { AppState.currentState = nativeAppState; measure.mockReset(); configuredDeck.cards = originalCards; });
 
-async function drawCards(count: number) {
+async function drawCards(count: number, finishLastExit = true) {
   // Drive the controller's native phase-completion boundary. Batching also lets
   // the hundred-card fixture reach results without rendering 100 shuffle scenes.
   const { sessionId } = current.state!;
@@ -54,7 +55,7 @@ async function drawCards(count: number) {
       current.draw({ x: 620, y: 330, angle: .12, scale: 1 }, sessionId, epoch++);
       for (let phase = 0; phase < 3; phase++) current.complete(sessionId, epoch++);
       current.confirm(); epoch++;
-      if (i < count - 1) current.complete(sessionId, epoch++);
+      if (i < count - 1 || finishLastExit) current.complete(sessionId, epoch++);
     }
   });
 }
@@ -68,6 +69,7 @@ async function open(id: number, name: string) {
   await fireEvent(tile, 'pressIn'); await fireEvent.press(tile);
   await fireEvent(screen.getByTestId(`overlay-face-${id}`), 'loadEnd');
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
+  await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); await flushRn();
 }
 async function finishClose() { await settle(); await advance(420); await flushRn(); }
@@ -75,17 +77,17 @@ async function finishClose() { await settle(); await advance(420); await flushRn
 test('Stop shows committed sparse IDs in order, with full details only after opening and a continuous return', async () => {
   await stopAfter(3);
   expect(current.state).toMatchObject({ phase: 'results', drawnIds: [99, 0, 7] });
-  expect(screen.getByRole('header', { name: 'Drawn cards' })).toBeVisible();
+  expect(screen.queryByRole('header', { name: 'Drawn cards' })).toBeNull();
   expect(screen.getByText('Cards drawn: 3')).toBeVisible();
   expect(screen.getAllByRole('button').map(button => button.props.accessibilityLabel).filter(Boolean)).toEqual(['Circle', 'Seed', 'Spring']);
-  expect(screen.queryByText(originalCards[0].translations.en.meaning)).toBeNull();
+  expect(screen.queryByText(originalCards[0].translations.en.sections.meaning)).toBeNull();
   const grid = screen.getByTestId('card-grid'), host = screen.getByTestId('results-host');
   await fireEvent.scroll(grid, { nativeEvent: { contentOffset: { x: 0, y: 160 } } });
   await open(0, 'Seed');
   const image = screen.getByTestId('overlay-face-0');
-  expect(screen.getByText(originalCards[0].translations.en.meaning)).toBeVisible();
-  expect(screen.getByText(originalCards[0].translations.en.description)).toBeVisible();
-  expect(screen.queryByRole('header', { name: 'Drawn cards' })).toBeNull();
+  expect(screen.getByText(originalCards[0].translations.en.sections.meaning)).toBeVisible();
+  expect(screen.getByText(originalCards[0].translations.en.sections.description)).toBeVisible();
+  expect(screen.queryByText('Cards drawn: 3')).toBeNull();
   expect(screen.queryByRole('button', { name: 'New session' })).toBeNull();
   expect(screen.queryAllByRole('tab')).toHaveLength(0);
   await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
@@ -174,7 +176,7 @@ test('failed New session retains old results and offers Retry, then rejects old 
   expect(current.state).toBe(fresh);
   expect(screen.queryByTestId('results-host')).toBeNull();
   expect(screen.queryByTestId('overlay-face-0')).toBeNull();
-  expect(screen.getAllByRole('tab')).toHaveLength(2);
+  expect(screen.getAllByRole('tab')).toHaveLength(3);
 });
 
 test('an inactive results collection mounting cannot unlock a focused catalogue modal', async () => {
@@ -196,13 +198,16 @@ test('Czech results localize their count, actions, tiles and full details', asyn
   const locales = jest.spyOn(Localization, 'useLocales').mockReturnValue([{ ...locale, languageTag: 'cs-CZ', languageCode: 'cs' }]);
   try {
     await renderRouter(routes); await settle(); await drawCards(1);
+    await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));
+    await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
+    await fireEvent.press(screen.getByRole('tab',{name:'Tahání'}));
     await fireEvent.press(screen.getByRole('button', { name: 'Ukončit' }));
-    expect(screen.getByRole('header', { name: 'Vytažené karty' })).toBeVisible();
+    expect(screen.queryByRole('header', { name: 'Vytažené karty' })).toBeNull();
     expect(screen.getByText('Vytažené karty: 1')).toBeVisible();
     expect(screen.getByRole('button', { name: 'Nové vykládání' })).toBeVisible();
-    expect(screen.queryByText(originalCards[7].translations.cs.meaning)).toBeNull();
+    expect(screen.queryByText(originalCards[7].translations.cs.sections.meaning)).toBeNull();
     await open(99, 'Kruh');
-    expect(screen.getByText(originalCards[7].translations.cs.description)).toBeVisible();
+    expect(screen.getByText(originalCards[7].translations.cs.sections.description)).toBeVisible();
     expect(screen.getByRole('button', { name: 'Zavřít' })).toBeVisible();
   } finally { locales.mockRestore(); }
 });
@@ -238,11 +243,11 @@ test.each(['background', 'layout'] as const)('results survive %s while details r
     }
     await finishClose();
     expect(screen.queryByTestId('card-detail-overlay')).toBeNull();
-    expect(screen.getAllByRole('tab')).toHaveLength(2);
+    expect(screen.getAllByRole('tab')).toHaveLength(3);
     expect(screen.getByTestId('card-grid')).toBe(grid);
     expect(current.state).toBe(state);
     await open(7, 'Spring');
-    expect(screen.getByText(originalCards[1].translations.en.description)).toBeVisible();
+    expect(screen.getByText(originalCards[1].translations.en.sections.description)).toBeVisible();
   } finally { subscription.mockRestore(); }
 });
 
@@ -251,6 +256,7 @@ test('reset unmounts results while a native opening completion is queued and rej
   await fireEvent.press(screen.getByRole('button', { name: 'Seed' }));
   await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
+  await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); // Completion remains queued on RN.
   const old = current.state!;
   await act(() => current.reset());
@@ -261,7 +267,7 @@ test('reset unmounts results while a native opening completion is queued and rej
   expect(current.state!.sessionId).not.toBe(old.sessionId);
   expect(screen.queryByTestId('results-host')).toBeNull();
   expect(screen.queryByTestId('card-detail-overlay')).toBeNull();
-  expect(screen.getAllByRole('tab')).toHaveLength(2);
+  expect(screen.getAllByRole('tab')).toHaveLength(3);
 });
 
 
@@ -286,4 +292,37 @@ test.each([0, 1])('failed reset in a short large-text host keeps controls and %i
     await fireEvent.press(within(grid).getByRole('button', { name: 'Try again' }));
     expect(current.state).toMatchObject({ sessionId: 'results-3', phase: 'regrip', drawnIds: [] });
   } finally { dimensions.mockRestore(); }
+});
+
+
+test('final-card confirmation keeps the draw stage through its exit before mounting results',async()=>{
+  await renderRouter(routes); await settle();
+  await drawCards(8,false); await settle();
+  const confirmed=current.state!;
+  expect(confirmed).toMatchObject({phase:'resume',remainingIds:[],selectedId:null});
+  const stage=screen.getByTestId('draw-stage');
+  expect(screen.queryByTestId('results-host')).toBeNull();
+  await fireEvent.press(screen.getByRole('button',{name:'Confirm card'}));
+  expect(current.state).toBe(confirmed);
+  expect(screen.queryByRole('button',{name:'Stop'})).toBeNull();
+  await advance(899); await settle();
+  expect(current.state).toBe(confirmed);
+  expect(screen.getByTestId('draw-stage')).toBe(stage);
+  expect(screen.getByTestId('draw-foreground-dim',{includeHiddenElements:true}).props.style[1].__read().opacity).toBe(1);
+  await advance(1); await settle();
+  expect(current.state).toMatchObject({phase:'results',sessionId:confirmed.sessionId,drawnIds:confirmed.drawnIds});
+  expect(screen.getByTestId('results-host')).toBeVisible();
+  expect(screen.queryByTestId('draw-stage')).toBeNull();
+});
+
+test('queued exhausted-exit completion cannot replace a freshly reset session with results',async()=>{
+  await renderRouter(routes); await settle();
+  await drawCards(8,false); await settle();
+  await advance(900); // Native completion is queued, not delivered to RN yet.
+  await act(()=>current.reset());
+  const fresh=current.state;
+  await flushRn(); await settle();
+  expect(current.state).toBe(fresh);
+  expect(current.state).toMatchObject({phase:'regrip',drawnIds:[]});
+  expect(screen.queryByTestId('results-host')).toBeNull();
 });

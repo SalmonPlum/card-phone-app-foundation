@@ -54,10 +54,10 @@ export function transition(state: SessionState, event: SessionEvent): SessionSta
     if (state.drawQueued) return state;
     if (state.phase === 'regrip' || state.phase === 'return') {
       if (!finitePose(event.pose)) return state;
-      return lower({ ...state, drawQueued: true }, { ...event.pose });
+      return lower({ ...state, drawQueued: true, revealMode: event.revealMode ?? 'automatic' }, { ...event.pose });
     }
     if (state.phase === 'ready' || state.phase === 'strip' || state.phase === 'contact' || state.phase === 'lower') {
-      return { ...state, drawQueued: true };
+      return { ...state, drawQueued: true, revealMode: event.revealMode ?? 'automatic' };
     }
     return state;
   }
@@ -67,9 +67,11 @@ export function transition(state: SessionState, event: SessionEvent): SessionSta
   }
   if (event.type === 'CONFIRM') {
     if (state.phase !== 'reveal') return state;
-    return enter(state, state.remainingIds.length ? 'resume' : 'results', { selectedId: null });
+    return enter(state, 'resume', { selectedId: null });
   }
   if (event.sessionId !== state.sessionId || event.epoch !== state.epoch) return state;
+
+  if (event.type === 'REVEAL') return state.phase === 'awaitingReveal' ? enter(state, 'flip') : state;
 
   switch (state.phase) {
     case 'regrip':
@@ -86,9 +88,10 @@ export function transition(state: SessionState, event: SessionEvent): SessionSta
       return state.sourceIds.length ? strip(state, event.packetSize) : returnIntact(state);
     case 'lower':
       return state.drawQueued ? commitDraw(state) : returnIntact(state);
-    case 'lift': return enter(state, 'flip');
+    case 'lift': return enter(state, state.revealMode === 'manual' ? 'awaitingReveal' : 'flip');
     case 'flip': return enter(state, 'reveal');
-    case 'resume': return returnIntact(state);
+    case 'resume': return state.remainingIds.length ? returnIntact(state) : enter(state, 'results');
+    case 'awaitingReveal':
     case 'reveal':
     case 'results': return state;
   }
@@ -112,7 +115,7 @@ export function assertSessionInvariant(state: SessionState, allIds: readonly Car
   require(intact ? layers.length === 0 : sameOrder(state.remainingIds, layers), 'layers must match canonical remaining order');
   require(state.phase === 'strip' ? state.flyingIds.length > 0 : state.flyingIds.length === 0, 'only strip may contain a flying packet');
   if (state.phase === 'ready') require(state.receivedIds.length === 0, 'ready must have an intact source');
-  const revealing = ['lift', 'flip', 'reveal'].includes(state.phase);
+  const revealing = ['lift', 'awaitingReveal', 'flip', 'reveal'].includes(state.phase);
   require(revealing ? state.selectedId !== null && state.selectedId === state.drawnIds.at(-1) : state.selectedId === null,
     'selection must be the most recently committed draw during reveal');
   require(!state.drawQueued || ['ready', 'strip', 'contact', 'lower'].includes(state.phase), 'draw may queue only at shuffle boundaries');

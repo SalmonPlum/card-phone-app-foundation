@@ -52,3 +52,13 @@ npm run test:security
 ```
 
 Audit may exit nonzero for the unresolved forge finding; retain the report. No `--force`, Expo 54 downgrade, fabricated lockfile, audit suppression or custom signature fix is used. Post-install checks, clean installation and the Android bundle/native smoke status are recorded in the iteration report; do not treat the baseline or compatibility experiment as a post-remediation audit.
+
+
+## Theme-font integration note (2026-11-04)
+
+Stage 3 directly declares `expo-font@58.0.10`, hoisted from its existing nested
+Expo installation. Version, resolved tarball and integrity match the previous
+lock entry; no other locked packages or security overrides changed. Font files
+are locally bundled, checksum-recorded static assets with SIL licenses. No
+runtime font downloads or dependency remediation were introduced. Existing
+security findings and their pending follow-up remain; this is not a fresh audit.

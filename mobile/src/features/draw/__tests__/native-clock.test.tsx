@@ -11,7 +11,7 @@ import { useShuffleAnimation } from '../useShuffleAnimation';
 // RN writes and UI jobs share a deferred FIFO; reads see the last UI value.
 // Only native runtime scheduling is doubled. The hooks and reducer are real.
 type Timing = { target: number; duration: number; easing: (n: number) => number; callback: (done: boolean) => void; start: number; elapsed: number };
-type Value = { value: number; current: number; timing?: Timing };
+type Value = { value: number; current: number;set:(next:unknown)=>void; timing?: Timing };
 const mockValues: Value[] = [];
 const mockUiQueue: (() => void)[] = [];
 const mockRnQueue: (() => void)[] = [];
@@ -36,7 +36,8 @@ jest.mock('react-native-reanimated', () => {
   const React = require('react');
   return {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
-    __esModule: true, default: { View: require('react-native').View },
+    __esModule: true, default: { View: require('react-native').View, ScrollView: require('react-native').ScrollView },
+    useAnimatedScrollHandler:(handlers:{onScroll:(event:unknown)=>void})=>(event:{nativeEvent?:unknown})=>mockRunUi(()=>handlers.onScroll(event.nativeEvent ?? event)),
     // Retain callable mapper snapshots to test either side of an async commit.
     useAnimatedStyle: (updater: () => unknown) => ({ __read: updater }),
     Easing: { linear: (n: number) => n }, ReduceMotion: { Never: 'never' },
@@ -45,6 +46,7 @@ jest.mock('react-native-reanimated', () => {
       if (!ref.current) {
         const v: Value = {
           current: initial,
+          set:(next:unknown)=>{v.value=next as number;},
           get value() { return v.current; },
           set value(next: number) {
             const apply = () => {
@@ -113,7 +115,8 @@ test('native deferred writes preserve timed shuffle cycles and accept a late dra
   expect(result.current.session.state!.drawnIds).toHaveLength(0);
   await advance(96); expect(result.current.session.state!.phase).toBe('lift');
   expect(result.current.session.state!.selectedId).toBe(landedTop);
-  await advance(640); expect(result.current.session.state!.phase).toBe('flip');
+  await advance(899); expect(result.current.session.state!.phase).toBe('lift');
+  await advance(1); expect(result.current.session.state!.phase).toBe('flip');
   await advance(620); expect(result.current.session.state!.phase).toBe('reveal');
   expect(result.current.session.state!.drawnIds).toHaveLength(1);
   await advance(10000); expect(result.current.session.state!.phase).toBe('reveal');
@@ -135,8 +138,8 @@ test('native pause samples on UI after the final frame and resumes the remaining
 
 
 const handlers = { onDraw: jest.fn(), onConfirm: jest.fn(), onPhaseComplete: jest.fn() };
-async function scene(state: SessionState) {
-  const view = await render(<ShuffleScene state={state} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+async function scene(state: SessionState, reducedMotion=false) {
+  const view = await render(<ShuffleScene state={state} deck={sampleDeck} locale="en" paused={false} reducedMotion={reducedMotion} {...handlers} />);
   await fireEvent(view.container.queryAll(n => typeof n.props.onLayout === 'function')[0], 'layout', { nativeEvent: { layout: { width: 900, height: 960 } } });
   await settle();
   return view;
@@ -224,6 +227,8 @@ test('selected face stays mounted until UI leaves reveal and still supports asse
   expect(image()[1]).toBe(face);
   expect(mapper(view, 'selected')().opacity).toBe(1);
   await settle();
+  expect(mapper(view, 'selected')().opacity).toBe(1);
+  await advance(900);
   expect(mapper(view, 'selected')().opacity).toBe(0);
 });
 
@@ -330,4 +335,326 @@ test('reduced-motion late queued draw lands at the original deadline and commits
   await advance(1000);
   expect(result.current.session.state!.phase).toBe('reveal');
   expect(result.current.session.state!.drawnIds).toHaveLength(1);
+});
+
+// The selected surface is measured in the full draw host, independently of the mat.
+test('drawn card grows to the usable foreground before flip and keeps its native image through confirmation', async () => {
+  const selected: SessionState = { ...contact, phase: 'lift', epoch: 3, selectedId: 0, remainingIds: full.remainingIds.slice(1), receivedIds: [1], drawnIds: [0] };
+  const view = await scene(selected);
+  const initial = backImages(view).find(s => s.role === 'selected')!.images;
+  const start = mapper(view, 'selected')();
+  expect(start.left).toBeCloseTo(179.76421584071988);
+  expect(start.top).toBeCloseTo(392.4069769715194);
+  await advance(450);
+  const midway = mapper(view, 'selected')();
+  await advance(450);
+  const enlarged = mapper(view, 'selected')();
+  const scale = (pose: Record<string, unknown>) => (pose.transform as {scaleX?:number}[])[0].scaleX!;
+  expect(scale(enlarged) * 238).toBeGreaterThan(450);
+  expect(scale(midway)).toBeGreaterThan(scale(start));
+  expect(scale(midway)).toBeLessThan(scale(enlarged));
+  expect(enlarged.top as number).toBeLessThan(396.5);
+  const flip = { ...selected, phase: 'flip' as const, epoch: 4 };
+  await view.rerender(<ShuffleScene state={flip} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+  await settle();
+  expect(mapper(view, 'selected')()).toEqual(enlarged);
+  await advance(620);
+  await view.rerender(<ShuffleScene state={{ ...flip, phase: 'reveal', epoch: 5 }} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+  await settle();
+  expect(mapper(view, 'selected')()).toEqual(enlarged);
+  await advance(10000);
+  expect(mapper(view, 'selected')()).toEqual(enlarged);
+  const images = backImages(view).find(s => s.role === 'selected')!.images;
+  expect(images[0]).toBe(initial[0]);
+  expect(images[1]).toBe(initial[1]);
+  await view.rerender(<ShuffleScene state={{ ...flip, phase: 'resume', epoch: 6, selectedId: null }} deck={sampleDeck} locale="en" paused={false} {...handlers} />);
+  expect(mapper(view, 'selected')().opacity).toBe(1);
+  await settle();
+  expect(mapper(view, 'selected')().opacity).toBe(1);
+  await advance(900);
+  expect(mapper(view, 'selected')().opacity).toBe(0);
+  expect(backImages(view).find(s => s.role === 'selected')!.images[1]).toBe(initial[1]);
+});
+
+test('selected surface joins the scrolled mat and refits a held reveal above a wrapped caption without remounting', async () => {
+  const selected: SessionState = { ...contact, phase: 'lift', epoch: 3, selectedId: 0, remainingIds: full.remainingIds.slice(1), receivedIds: [1], drawnIds: [0] };
+  const view = await scene({...selected,phase:'contact',selectedId:null});
+  const face = backImages(view).find(s => s.role === 'selected')!.images[1];
+  await fireEvent(view.getByTestId('draw-stage'), 'layout', {nativeEvent:{layout:{width:320,height:480}}});
+  await fireEvent(view.getByTestId('shuffle-mat'), 'layout', {nativeEvent:{layout:{x:16,y:16,width:288,height:300}}});
+  const scroll=view.container.queryAll(n=>n.type==='RCTScrollView')[0];
+  await fireEvent.scroll(scroll, {nativeEvent:{contentOffset:{x:0,y:40}}});
+  await fireEvent(view.getByTestId('draw-reveal-hints',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:140}}});
+  await view.rerender(<ShuffleScene state={selected} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  const start=mapper(view,'selected')();
+  const sceneScale=300/960;
+  expect((start.left as number)+119).toBeCloseTo(16+(288-900*sceneScale)/2+298.76421584071988*sceneScale);
+  expect((start.top as number)+178.5).toBeCloseTo(16+570.9069769715194*sceneScale-40);
+  await advance(900);
+  await view.rerender(<ShuffleScene state={{...selected,phase:'reveal',epoch:4}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  const checkFit=(width:number,height:number)=>{
+    const pose=mapper(view,'selected')();
+    const scale=(pose.transform as {scaleX:number}[])[0].scaleX;
+    const x=(pose.left as number)+119,y=(pose.top as number)+178.5;
+    expect(x-119*scale).toBeGreaterThanOrEqual(0);
+    expect(x+119*scale).toBeLessThanOrEqual(width);
+    expect(y-178.5*scale).toBeGreaterThanOrEqual(72);
+    expect(y+178.5*scale).toBeLessThanOrEqual(height-16);
+    expect(238*scale).toBeLessThanOrEqual(width*.9);
+  };
+  checkFit(320,480);
+  await fireEvent(view.getByTestId('draw-stage'), 'layout', {nativeEvent:{layout:{width:280,height:360}}});
+  checkFit(280,360);
+  expect(backImages(view).find(s=>s.role==='selected')!.images[1]).toBe(face);
+  expect(view.getByTestId('draw-foreground-confirm')).toBeEnabled();
+});
+
+test('oversized reveal caption leaves visible artwork and remains scrollable on a short host', async () => {
+  const selected: SessionState = {...contact,phase:'reveal',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(selected);
+  await fireEvent(view.getByTestId('draw-stage'),'layout',{nativeEvent:{layout:{width:280,height:300}}});
+  await fireEvent(view.getByTestId('draw-reveal-hints'),'layout',{nativeEvent:{layout:{height:700}}});
+  const pose=mapper(view,'selected')();
+  expect((pose.transform as {scaleX:number}[])[0].scaleX*357).toBeGreaterThan(100);
+  const captionScroll=view.getByTestId('draw-reveal-scroll');
+  expect(captionScroll.props.scrollEnabled).not.toBe(false);
+  expect(StyleSheet.flatten(captionScroll.props.style).bottom).toBe(0);
+});
+
+test('opaque drawing cover follows enlargement, pauses with its clock and fades after the coherent confirmation boundary', async () => {
+  const selected: SessionState={...contact,phase:'lift',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(ready);
+  const dim=()=>view.getByTestId('draw-foreground-dim',{includeHiddenElements:true});
+  const opacity=()=>dim().props.style[1].__read().opacity;
+  expect(opacity()).toBe(0);
+  await view.rerender(<ShuffleScene state={selected} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  expect(opacity()).toBe(0); // RN cannot dim the prior shuffle frame early.
+  await settle();
+  await advance(450);
+  expect(opacity()).toBeCloseTo(.5);
+  await view.rerender(<ShuffleScene state={selected} deck={sampleDeck} locale="en" paused {...handlers}/>);
+  await settle();
+  await advance(1000);
+  expect(opacity()).toBeCloseTo(.5);
+  await view.rerender(<ShuffleScene state={selected} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  await advance(450);
+  expect(opacity()).toBeCloseTo(1);
+  for(const [phase,epoch] of [['flip',4],['reveal',5]] as const){
+    await view.rerender(<ShuffleScene state={{...selected,phase,epoch}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+    await settle();
+    expect(opacity()).toBeCloseTo(1);
+  }
+  await view.rerender(<ShuffleScene state={{...selected,phase:'resume',epoch:6,selectedId:null}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  expect(opacity()).toBeCloseTo(1); // Old image and backdrop leave together on UI.
+  await settle();
+  await advance(130);
+  expect(opacity()).toBeGreaterThan(0);
+  expect(opacity()).toBeLessThan(1);
+  await advance(770);
+  expect(opacity()).toBe(0);
+});
+
+test('confirmation retains the face and caption while they fade upward and the cover clears slowly', async()=>{
+  const revealed:SessionState={...contact,phase:'reveal',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(revealed);
+  const original=mapper(view,'selected')();
+  const face=backImages(view).find(s=>s.role==='selected')!.images[1];
+  const front=()=>face.parent!.props.style[1].__read().opacity;
+  const reverse=backImages(view).find(s=>s.role==='selected')!.images[0];
+  const backOpacity=()=>reverse.parent!.props.style[1].__read().opacity;
+  const selectedStack=stacks(view).find(s=>roleOf(s)==='selected')!;
+  const edges=selectedStack.queryAll(n=>Array.isArray(n.props.style)&&StyleSheet.flatten(n.props.style[0])?.backgroundColor==='#f0eee8');
+  expect(edges).toHaveLength(12);
+  for(const edge of edges)expect(edge.props.style[1].__read().opacity).toBe(0);
+  expect(backOpacity()).toBe(0);
+  const caption=()=>view.getByTestId('draw-reveal-caption',{includeHiddenElements:true}).props.style[1].__read();
+  const cover=()=>view.getByTestId('draw-foreground-dim',{includeHiddenElements:true}).props.style[1].__read().opacity;
+  const resumed={...revealed,phase:'resume' as const,epoch:4,selectedId:null};
+  await view.rerender(<ShuffleScene state={resumed} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  expect(mapper(view,'selected')()).toEqual(original);
+  await settle();
+  expect(mapper(view,'selected')()).toEqual(original);
+  expect(front()).toBe(1);
+  expect(backOpacity()).toBe(0);
+  expect(caption().opacity).toBe(1);
+  await advance(450);
+  const halfway=mapper(view,'selected')();
+  expect(halfway.opacity).toBeCloseTo(.5);
+  expect(halfway.top).toBeCloseTo((original.top as number)-8);
+  expect(front()).toBe(1);
+  expect(backOpacity()).toBe(0);
+  expect(caption().opacity).toBeCloseTo(.5);
+  expect(caption().transform).toEqual([{translateY:-8}]);
+  expect(cover()).toBeCloseTo(.5);
+  await view.rerender(<ShuffleScene state={resumed} deck={sampleDeck} locale="en" paused {...handlers}/>);
+  await settle();
+  await advance(1000);
+  expect(mapper(view,'selected')()).toEqual(halfway);
+  await view.rerender(<ShuffleScene state={resumed} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  await settle();
+  await advance(225);
+  expect(mapper(view,'selected')().opacity).toBeGreaterThan(0);
+  expect(caption().opacity).toBeGreaterThan(0);
+  expect(cover()).toBeGreaterThan(0);
+  await advance(225);
+  expect(mapper(view,'selected')().opacity).toBe(0);
+  expect(caption().opacity).toBe(0);
+  expect(cover()).toBe(0);
+  expect(backImages(view).find(s=>s.role==='selected')!.images[1]).toBe(face);
+});
+
+test('reduced-motion exhausted confirmation holds one stepped exit then opens results without another draw',async()=>{
+  const deck={...sampleDeck,cards:[sampleDeck.cards[0]]};
+  const {result}=await renderHook(()=>{
+    const session=usePreviewSession(deck);
+    const animation=useShuffleAnimation(session.state ?? base,!session.state,true,session.complete);
+    return {session,animation};
+  });
+  await act(()=>result.current.session.reset()); await settle();
+  const first=result.current.session.state!;
+  await act(()=>result.current.session.draw({x:620,y:330,angle:0,scale:1},first.sessionId,first.epoch)); await settle();
+  for(const phase of ['lift','flip','reveal']){await advance(400);expect(result.current.session.state!.phase).toBe(phase);}
+  await act(()=>result.current.session.confirm()); await settle();
+  const exit=result.current.session.state;
+  expect(exit!.phase).toBe('resume');
+  await act(()=>result.current.session.confirm());
+  expect(result.current.session.state).toBe(exit);
+  await advance(399);
+  expect(result.current.animation.progress.value).toBe(0);
+  expect(result.current.session.state).toBe(exit);
+  await advance(1);
+  expect(result.current.session.state).toMatchObject({phase:'results',drawnIds:[0],remainingIds:[]});
+});
+
+
+test('reveal scroll collapses the same face, keeps its tap target aligned and restores large at the top',async()=>{
+  const revealed:SessionState={...contact,phase:'reveal',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(revealed);
+  const image=backImages(view).find(s=>s.role==='selected')!.images[1];
+  const original=mapper(view,'selected')();
+  const scale=(pose:Record<string,unknown>)=>(pose.transform as {scaleX:number}[])[0].scaleX;
+  const viewport=StyleSheet.flatten(view.getByTestId('draw-reveal-scroll').props.style);
+  const spacer=view.getByTestId('draw-reading-artwork-band').props.style[1].height;
+  expect(viewport.top+spacer+view.getByTestId('draw-reading-info').props.style.minHeight).toBeGreaterThanOrEqual(960);
+  expect(scale(original)*238).toBeGreaterThan(450);
+  await fireEvent.scroll(view.getByTestId('draw-reveal-scroll'),{nativeEvent:{contentOffset:{x:0,y:100}}});await settle();
+  const small=mapper(view,'selected')();
+  expect(scale(small)*357).toBeCloseTo(scale(original)*357-100);
+  expect((small.top as number)+178.5-178.5*scale(small)).toBeCloseTo((original.top as number)+178.5-178.5*scale(original));
+  const hit=view.getByTestId('draw-reading-hitbox').props.style[1].__read();
+  expect(hit.width).toBeCloseTo(238*scale(small));
+  expect(hit.height).toBeCloseTo(357*scale(small));
+  expect(hit.top+viewport.top).toBeCloseTo((small.top as number)+178.5-178.5*scale(small));
+  expect(view.getByTestId('draw-reading-artwork-band').props.style[2].__read().transform).toEqual([{translateY:100}]);
+  expect(backImages(view).find(s=>s.role==='selected')!.images[1]).toBe(image);
+  await fireEvent.scroll(view.getByTestId('draw-reveal-scroll'),{nativeEvent:{contentOffset:{x:0,y:0}}});await settle();
+  expect(mapper(view,'selected')()).toEqual(original);
+});
+
+test('confirmation fades from the collapsed reading pose and ignores later scroll events',async()=>{
+  const revealed:SessionState={...contact,phase:'reveal',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(revealed);
+  await fireEvent.scroll(view.getByTestId('draw-reveal-scroll'),{nativeEvent:{contentOffset:{y:180}}});await settle();
+  const collapsed=mapper(view,'selected')();
+  const scroll=view.getByTestId('draw-reveal-scroll').props.onScroll;
+  await view.rerender(<ShuffleScene state={{...revealed,phase:'resume',epoch:4,selectedId:null}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  expect(mapper(view,'selected')()).toEqual(collapsed);
+  await settle();expect(mapper(view,'selected')()).toEqual(collapsed);
+  await act(()=>scroll({nativeEvent:{contentOffset:{y:300}}}));
+  expect(mapper(view,'selected')()).toEqual(collapsed);
+  await advance(450);
+  expect(mapper(view,'selected')().opacity).toBeCloseTo(.5);
+  expect(mapper(view,'selected')().top).toBeCloseTo((collapsed.top as number)-8);
+});
+
+test.each([['new-session',0],['one',7]] as const)('new reveal %s/%i resets reading and rejects the old native scroll callback',async(sessionId,selectedId)=>{
+  const revealed:SessionState={...contact,phase:'reveal',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(revealed);
+  const original=mapper(view,'selected')();
+  const oldScroll=view.getByTestId('draw-reveal-scroll').props.onScroll;
+  await fireEvent.scroll(view.getByTestId('draw-reveal-scroll'),{nativeEvent:{contentOffset:{y:180}}});await settle();
+  const collapsed=mapper(view,'selected')();
+  await view.rerender(<ShuffleScene state={{...revealed,sessionId,epoch:6,selectedId,drawnIds:[selectedId]}} deck={sampleDeck} locale="en" paused={false} {...handlers}/>);
+  expect(mapper(view,'selected')()).toEqual(collapsed);
+  await settle();expect(mapper(view,'selected')()).toEqual(original);
+  await act(()=>oldScroll({nativeEvent:{contentOffset:{y:300}}}));
+  expect(mapper(view,'selected')()).toEqual(original);
+});
+
+test('reduced motion keeps the initial face large and changes reading size without continuous animation',async()=>{
+  const revealed:SessionState={...contact,phase:'reveal',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(revealed,true);
+  const original=mapper(view,'selected')();
+  await fireEvent.scroll(view.getByTestId('draw-reveal-scroll'),{nativeEvent:{contentOffset:{y:1}}});await settle();
+  const small=mapper(view,'selected')();
+  expect((small.transform as {scaleX:number}[])[0].scaleX*357).toBeCloseTo(112);
+  await fireEvent.scroll(view.getByTestId('draw-reveal-scroll'),{nativeEvent:{contentOffset:{y:0}}});await settle();
+  expect(mapper(view,'selected')()).toEqual(original);
+});
+
+test('reading position and native image survive pause and locale changes for the same card',async()=>{
+  const revealed:SessionState={...contact,phase:'reveal',epoch:3,selectedId:0,drawnIds:[0]};
+  const view=await scene(revealed);
+  await fireEvent.scroll(view.getByTestId('draw-reveal-scroll'),{nativeEvent:{contentOffset:{y:180}}});await settle();
+  const collapsed=mapper(view,'selected')();
+  const image=backImages(view).find(s=>s.role==='selected')!.images[1];
+  const scroll=view.getByTestId('draw-reveal-scroll');
+  await view.rerender(<ShuffleScene state={revealed} deck={sampleDeck} locale="cs" paused {...handlers}/>);await settle();
+  expect(mapper(view,'selected')()).toEqual(collapsed);
+  expect(view.getByTestId('draw-reveal-scroll')).toBe(scroll);
+  expect(view.getByTestId('draw-reveal-scroll').props.scrollEnabled).toBe(false);
+  expect(view.getByText(sampleDeck.cards[0].translations.cs.sections.meaning)).toBeDefined();
+  // A delivered native event describes content that really moved (e.g. momentum
+  // during a tab transition). Keep the face/hitbox aligned even while disabled.
+  await fireEvent.scroll(scroll,{nativeEvent:{contentOffset:{y:200}}});await settle();
+  const settledPose=mapper(view,'selected')();
+  expect(settledPose).not.toEqual(collapsed);
+  expect(view.getByTestId('draw-reading-artwork-band').props.style[2].__read().transform).toEqual([{translateY:200}]);
+  await view.rerender(<ShuffleScene state={revealed} deck={sampleDeck} locale="cs" paused={false} {...handlers}/>);await settle();
+  expect(mapper(view,'selected')()).toEqual(settledPose);
+  expect(backImages(view).find(s=>s.role==='selected')!.images[1]).toBe(image);
+});
+
+test.each([false,true])('manual waiting holds back/cover without a clock or image replacement, reduced motion %s',async(reducedMotion)=>{
+ const lift:SessionState={...contact,phase:'lift',epoch:3,selectedId:0,drawnIds:[0],revealMode:'manual'};
+ const view=await scene(lift,reducedMotion);await advance(900);
+ const pose=mapper(view,'selected')(),image=backImages(view).find(s=>s.role==='selected')!.images[1];
+ const waiting:SessionState={...lift,phase:'awaitingReveal',epoch:4};
+ await view.rerender(<ShuffleScene state={waiting} deck={sampleDeck} locale="en" paused={false} reducedMotion={reducedMotion} {...handlers}/>);await settle();
+ expect(mapper(view,'selected')()).toEqual(pose);
+ expect(view.getByTestId('draw-foreground-dim',{includeHiddenElements:true}).props.style[1].__read().opacity).toBe(1);
+ expect(view.getByTestId('draw-reveal-caption').props.style[1].__read().opacity).toBe(1);
+ const front=backImages(view).find(s=>s.role==='selected')!.images[1].parent!;
+ const back=backImages(view).find(s=>s.role==='selected')!.images[0].parent!;
+ expect(back.props.style[1].__read().opacity).toBe(1);
+ expect(front.props.style[1].__read().opacity).toBe(0);
+ handlers.onPhaseComplete.mockClear();
+ await advance(60000);expect(handlers.onPhaseComplete).not.toHaveBeenCalled();
+ expect(mapper(view,'selected')()).toEqual(pose);
+ await view.rerender(<ShuffleScene state={waiting} deck={sampleDeck} locale="cs" paused reducedMotion={reducedMotion} {...handlers}/>);await settle();
+ expect(view.getByTestId('draw-flip-card').props.accessibilityState.disabled).toBe(true);
+ await view.rerender(<ShuffleScene state={{...waiting,phase:'flip',epoch:5}} deck={sampleDeck} locale="en" paused={false} reducedMotion={reducedMotion} {...handlers}/>);await settle();
+ expect(front.props.style[1].__read().opacity).toBe(0);
+ await advance(reducedMotion?400:310);expect(front.props.style[1].__read().opacity).toBe(1);
+ expect(back.props.style[1].__read().opacity).toBe(0);
+ expect(backImages(view).find(s=>s.role==='selected')!.images[1]).toBe(image);
+});
+
+test('fabric remains a static noninteractive background through shuffle, reveal and confirmation without replacing card images',async()=>{
+ const view=await scene(ready);await settle();
+ const fabric=view.getByTestId('shuffle-fabric',{includeHiddenElements:true});
+ const source=fabric.props.source, images=backImages(view);
+ expect(fabric.props.resizeMode).toBe('repeat');
+ expect(view.getByTestId('shuffle-surface',{includeHiddenElements:true}).props.pointerEvents).toBe('none');
+ for(const state of [strip,contact,{...full,phase:'return' as const,epoch:3},
+  {...full,phase:'reveal' as const,epoch:4,selectedId:0,drawnIds:[0]},
+  {...full,phase:'resume' as const,epoch:5,selectedId:0,drawnIds:[0]}]){
+  await view.rerender(<ShuffleScene state={state} deck={sampleDeck} locale="en" paused={false} onDraw={()=>{}} onConfirm={()=>{}} onPhaseComplete={()=>{}}/>);await settle();
+  expect(view.getByTestId('shuffle-fabric',{includeHiddenElements:true})).toBe(fabric);
+  expect(fabric.props.source).toBe(source);
+  for(const saved of images)expect(backImages(view).find(stack=>stack.role===saved.role)!.images[0]).toBe(saved.images[0]);
+ }
 });

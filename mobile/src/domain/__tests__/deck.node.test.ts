@@ -22,7 +22,7 @@ test('rejects duplicate IDs, empty decks and decks outside the supported 1–100
   for (const count of [0, 101]) assert.throws(() => validateDeck(deckFixture(count), fixtureAssetKeys), /cards/);
 });
 test('rejects malformed manifests and missing required deck metadata', () => {
-  for (const value of [null, [], {}, { ...deckFixture(), schemaVersion: 2 }, { ...deckFixture(), id: ' ' }, { ...deckFixture(), version: '' }, { ...deckFixture(), name: { en: 'Name' } }]) {
+  for (const value of [null, [], {}, { ...deckFixture(), schemaVersion: 3 }, { ...deckFixture(), id: ' ' }, { ...deckFixture(), version: '' }, { ...deckFixture(), name: { en: 'Name' } }]) {
     assert.throws(() => validateDeck(value, fixtureAssetKeys));
   }
 });
@@ -30,8 +30,9 @@ for (const locale of ['cs', 'en'] as const) {
   for (const field of ['name', 'meaning', 'description'] as const) {
     test(`rejects missing or blank ${locale} ${field}`, () => {
       for (const value of [undefined, '', ' \n ']) {
-        const input = deckFixture(); Object.assign(input.cards[0].translations[locale], { [field]: value });
-        assert.throws(() => validateDeck(input, fixtureAssetKeys), new RegExp(`translations.${locale}.${field}`));
+        const input = deckFixture(); if(field==='name') Object.assign(input.cards[0].translations[locale],{name:value});
+        else Object.assign(input.cards[0].translations[locale].sections,{[field]:value});
+        assert.throws(() => validateDeck(input, fixtureAssetKeys), new RegExp(`translations.${locale}.${field==='name'?'':'sections.'}${field}`));
       }
     });
   }
@@ -52,7 +53,7 @@ test('localized presentation preserves identity and uses overrides with shared f
   const deck = deckFixture(); deck.cards[0].id = 99;
   deck.cards[0].translations.cs.faceAsset = 'cs-face'; deck.localizedBackAssets = { cs: 'cs-back' };
   validateDeck(deck, fixtureAssetKeys);
-  assert.deepEqual(localizeCard(deck.cards[0], 'cs'), { id: 99, name: 'Karta 0', meaning: 'Význam', description: 'Český popis.', faceAsset: 'cs-face' });
+  assert.deepEqual(localizeCard(deck.cards[0], 'cs'), { id: 99, name: 'Karta 0', sections:{meaning: 'Význam', description: 'Český popis.'}, faceAsset: 'cs-face' });
   assert.equal(localizeCard(deck.cards[0], 'en').faceAsset, 'face');
   assert.equal(localizeBackAsset(deck, 'cs'), 'cs-back'); assert.equal(localizeBackAsset(deck, 'en'), 'back');
 });

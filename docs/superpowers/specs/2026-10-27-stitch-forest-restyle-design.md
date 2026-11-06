@@ -1,5 +1,11 @@
 # Stitch forest-green visual adaptation
 
+## Follow-up requested 2026-11-04
+
+The user requests stronger use of this Stitch project for fonts, typography hierarchy and overall visual styling. Typography is the highest visual priority, especially the distinction between card title, section headings and body text. Revisit the initial system-font compromise below when planning this follow-up; EB Garamond and DM Sans are reference candidates, not yet selected implementation dependencies. Fonts must work offline and support Czech/English and system text scaling.
+
+Updated by the later user instruction on 2026-11-04: remove the visible Draw a card instruction and redundant Catalogue/Settings/results page titles, rather than moving the draw instruction above the mat. That removal is implemented; keep its localized accessible draw action. The fabric-like shuffle surface remains pending. Preserve usable animation bounds, accepted movement/timing and persistent artwork surfaces. These are saved requirements awaiting design/implementation and phone review. See [current priorities](../../current-status.md#visual-refinement-priority); historical scope restrictions and deferred-feature notes below describe the original styling pass.
+
 ## Authorized reference and scope
 
 The user requests the same application and prepared animations with visual styling closer to their own Stitch screens, and explicitly selected **Forest green and warm ivory**. This is a direct visual adaptation of those supplied designs, not a new product concept or flow. No new screen features are inferred from the mockups.

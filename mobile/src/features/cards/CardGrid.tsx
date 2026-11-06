@@ -11,10 +11,10 @@ export type CardGridProps = {
   onOpen: (id: CardId, origin: TileOrigin) => void; scrollKey: string;
   /** Disables new opens while the catalogue is obscured or unfocused. */
   active?: boolean; hiddenCardId?: CardId | null; scrollEnabled?: boolean; maxTileWidth?: number;
-  headerContent?: ReactNode; emptyContent?: ReactNode;
+  headerContent?: ReactNode; emptyContent?: ReactNode; bottomClearance?: number;
 };
 export type CardGridHandle = { measureCard: (id: CardId, callback: (rect: TileOrigin['rect']) => void) => void; focusCard: (id: CardId) => void };
-export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardGrid({ cards, locale, assetRegistry, onOpen, scrollKey, active = true, hiddenCardId = null, scrollEnabled = true, maxTileWidth = Infinity, headerContent, emptyContent }, ref) {
+export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardGrid({ cards, locale, assetRegistry, onOpen, scrollKey, active = true, hiddenCardId = null, scrollEnabled = true, maxTileWidth = Infinity, headerContent, emptyContent, bottomClearance = 0 }, ref) {
   const { width, fontScale } = useWindowDimensions();
   const columns = getGridColumns(width, fontScale);
   const availableWidth = (width - 2 * GRID_PADDING - (columns - 1) * GRID_GUTTER) / columns;
@@ -37,7 +37,7 @@ export const CardGrid = forwardRef<CardGridHandle, CardGridProps>(function CardG
     keyExtractor={card => String(card.id)} extraData={{ locale, tileWidth, hiddenCardId, active }} scrollEnabled={scrollEnabled}
     ListHeaderComponent={headerContent ? <>{headerContent}</> : undefined}
     ListEmptyComponent={emptyContent ? <>{emptyContent}</> : undefined}
-    contentContainerStyle={{ padding: GRID_PADDING, gap: 20 }}
+    contentContainerStyle={{ padding: GRID_PADDING, paddingBottom: GRID_PADDING + bottomClearance, gap: 20 }}
     columnWrapperStyle={columns === 2 ? { gap: GRID_GUTTER } : undefined}
     initialNumToRender={8} maxToRenderPerBatch={8} windowSize={5}
     scrollEventThrottle={32}

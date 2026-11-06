@@ -5,7 +5,8 @@ import { localizeCard } from '../../domain/deck';
 import type { AssetRegistry } from '../../decks/assets';
 import { validRect, type Rect } from './overlayGeometry';
 import { t } from '../../i18n/locale';
-import { colors, type, spacing, radius, shadow } from '../../ui/theme';
+import { spacing, radius, shadow } from '../../ui/theme';
+import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui/useThemeStyles';
 
 export type TileOrigin = {
   rect: { x: number; y: number; width: number; height: number } | null;
@@ -15,6 +16,7 @@ export type TileOrigin = {
 export function CardFace({ card, locale, assetRegistry, testID, onLoadEnd }: {
   card: Card; locale: Locale; assetRegistry: AssetRegistry; testID: string; onLoadEnd?: () => void;
 }) {
+  const styles = useThemeStyles(makeStyles);
   const content = localizeCard(card, locale), source = assetRegistry[content.faceAsset];
   const [failedAsset, setFailedAsset] = useState<string | null>(null);
   useEffect(() => { if (!source) onLoadEnd?.(); }, [source, onLoadEnd]);
@@ -33,6 +35,7 @@ export const CardTile = forwardRef<CardTileHandle, {
   card: Card; locale: Locale; assetRegistry: AssetRegistry; width: number; scrollKey: string;
   onOpen: (id: CardId, origin: TileOrigin) => void; active?: boolean; hidden?: boolean;
 }>(function CardTile({ card, locale, assetRegistry, width, scrollKey, onOpen, active = true, hidden = false }, ref) {
+  const styles = useThemeStyles(makeStyles);
   const face = useRef<ComponentRef<typeof View>>(null), content = localizeCard(card, locale);
   const button = useRef<ComponentRef<typeof View>>(null);
   const pending = useRef(new Set<() => void>());
@@ -123,8 +126,8 @@ export const CardTile = forwardRef<CardTileHandle, {
     <Text style={styles.caption}>{content.name}</Text>
   </Pressable>;
 });
-const styles = StyleSheet.create({
-  face: { ...shadow.card, borderRadius: radius.card },
-  caption: { color: colors.deepForest, fontFamily: type.serif, fontSize: 20, lineHeight: 28, paddingTop: spacing.sm, textAlign: 'center' },
-  missing: { width: '100%', justifyContent: 'center', backgroundColor: colors.panel, padding: spacing.md, borderRadius: radius.card },
+const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
+  face: { ...shadow.card, shadowColor: colors.shadow, borderRadius: radius.card },
+  caption: { ...typography.sectionHeading, color: colors.primary, paddingTop: spacing.sm, textAlign: 'center' },
+  missing: { width: '100%', justifyContent: 'center', backgroundColor: colors.surface, padding: spacing.md, borderRadius: radius.card },
 });

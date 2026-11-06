@@ -1,0 +1,104 @@
+{
+  "sourceCommit": "7d1c94f239a387cad7a8391c472741338331740f",
+  "fonts": [
+    {
+      "family": "EB Garamond",
+      "weight": "500",
+      "alias": "Theme_EBGaramond_500",
+      "path": "assets/fonts/eb-garamond/EBGaramond_500Medium.ttf",
+      "licensePath": "assets/fonts/eb-garamond/OFL.txt",
+      "sha256": "fa216955996d7490192e361eced78f5e3b50ae1742c5441bb635672f1600541a",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/eb-garamond/500Medium/EBGaramond_500Medium.ttf"
+    },
+    {
+      "family": "DM Sans",
+      "weight": "400",
+      "alias": "Theme_DMSans_400",
+      "path": "assets/fonts/dm-sans/DMSans_400Regular.ttf",
+      "licensePath": "assets/fonts/dm-sans/OFL.txt",
+      "sha256": "20ccb90498d8ca511bb0be31a74eccd5f29fbe1161852ef72781b703929e98ec",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/dm-sans/400Regular/DMSans_400Regular.ttf"
+    },
+    {
+      "family": "DM Sans",
+      "weight": "600",
+      "alias": "Theme_DMSans_600",
+      "path": "assets/fonts/dm-sans/DMSans_600SemiBold.ttf",
+      "licensePath": "assets/fonts/dm-sans/OFL.txt",
+      "sha256": "b3ee9c6f271318066adae56c3033e6e4192f88f5d127cb507686d89a0a269168",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/dm-sans/600SemiBold/DMSans_600SemiBold.ttf"
+    },
+    {
+      "family": "Noto Serif",
+      "weight": "400",
+      "alias": "Theme_NotoSerif_400",
+      "path": "assets/fonts/noto-serif/NotoSerif_400Regular.ttf",
+      "licensePath": "assets/fonts/noto-serif/OFL.txt",
+      "sha256": "a7e8ea1ab7e7d368b001c892d6148325fffc849a46e030e55e1bdc597bbe939d",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/noto-serif/400Regular/NotoSerif_400Regular.ttf"
+    },
+    {
+      "family": "Noto Serif",
+      "weight": "500",
+      "alias": "Theme_NotoSerif_500",
+      "path": "assets/fonts/noto-serif/NotoSerif_500Medium.ttf",
+      "licensePath": "assets/fonts/noto-serif/OFL.txt",
+      "sha256": "89e9a2aeb1866a991275e185bf934af83b9d5cd907e41a029e923f28f5a45372",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/noto-serif/500Medium/NotoSerif_500Medium.ttf"
+    },
+    {
+      "family": "Manrope",
+      "weight": "400",
+      "alias": "Theme_Manrope_400",
+      "path": "assets/fonts/manrope/Manrope_400Regular.ttf",
+      "licensePath": "assets/fonts/manrope/OFL.txt",
+      "sha256": "b5e3105945aac85a820133ec66b516a4514e6fb242b31f2696b15adf43683d46",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/manrope/400Regular/Manrope_400Regular.ttf"
+    },
+    {
+      "family": "Space Grotesk",
+      "weight": "600",
+      "alias": "Theme_SpaceGrotesk_600",
+      "path": "assets/fonts/space-grotesk/SpaceGrotesk_600SemiBold.ttf",
+      "licensePath": "assets/fonts/space-grotesk/OFL.txt",
+      "sha256": "279a5d22b8ab377f41706af566610667db3941b069b50187b98af09ca3b08f91",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/space-grotesk/600SemiBold/SpaceGrotesk_600SemiBold.ttf"
+    },
+    {
+      "family": "Literata",
+      "weight": "500",
+      "alias": "Theme_Literata_500",
+      "path": "assets/fonts/literata/Literata_500Medium.ttf",
+      "licensePath": "assets/fonts/literata/OFL.txt",
+      "sha256": "83cbae9d86654fd53f3f7e5991fd0b32a9b63a99e0a3932813afee2de2496079",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/literata/500Medium/Literata_500Medium.ttf"
+    },
+    {
+      "family": "Literata",
+      "weight": "600",
+      "alias": "Theme_Literata_600",
+      "path": "assets/fonts/literata/Literata_600SemiBold.ttf",
+      "licensePath": "assets/fonts/literata/OFL.txt",
+      "sha256": "f63e5f1b010a93f397cbdafccef644ce1a4b289eec60a1aca0a3ed3fd7b55bac",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/literata/600SemiBold/Literata_600SemiBold.ttf"
+    },
+    {
+      "family": "Plus Jakarta Sans",
+      "weight": "400",
+      "alias": "Theme_PlusJakartaSans_400",
+      "path": "assets/fonts/plus-jakarta-sans/PlusJakartaSans_400Regular.ttf",
+      "licensePath": "assets/fonts/plus-jakarta-sans/OFL.txt",
+      "sha256": "ca6ef907028d1d1808870967d7b7ddcf68c0f33552d15d7f0c6c7d6ae97e7571",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/plus-jakarta-sans/400Regular/PlusJakartaSans_400Regular.ttf"
+    },
+    {
+      "family": "Plus Jakarta Sans",
+      "weight": "600",
+      "alias": "Theme_PlusJakartaSans_600",
+      "path": "assets/fonts/plus-jakarta-sans/PlusJakartaSans_600SemiBold.ttf",
+      "licensePath": "assets/fonts/plus-jakarta-sans/OFL.txt",
+      "sha256": "bbaa1d21ce4839070547b1cc06d5db2a56f520abe90278d971665b3f6dca6851",
+      "sourceUrl": "https://raw.githubusercontent.com/expo/google-fonts/7d1c94f239a387cad7a8391c472741338331740f/font-packages/plus-jakarta-sans/600SemiBold/PlusJakartaSans_600SemiBold.ttf"
+    }
+  ]
+}

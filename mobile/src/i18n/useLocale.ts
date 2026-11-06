@@ -1,6 +1,3 @@
-import { useLocales } from 'expo-localization';
-import { resolveLocale } from './locale';
+import {useAppLocale} from './LanguageProvider';
 
-export function useLocale() {
-  return resolveLocale(useLocales().map(locale => locale.languageTag));
-}
+export function useLocale(){return useAppLocale();}

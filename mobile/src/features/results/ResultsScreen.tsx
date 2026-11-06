@@ -4,17 +4,19 @@ import { assetRegistry } from '../../decks/assets';
 import { t } from '../../i18n/locale';
 import { useLocale } from '../../i18n/useLocale';
 import { useSession } from '../../session/SessionProvider';
-import { colors, radius, spacing, type } from '../../ui/theme';
+import { radius, spacing } from '../../ui/theme';
+import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui/useThemeStyles';
 import { CardCollectionScreen } from '../cards/CardCollectionScreen';
 import { cardsForIds } from '../cards/selectors';
 
 export function ResultsScreen() {
+  const styles = useThemeStyles(makeStyles);
   const { state, error, reset, retry } = useSession();
   const locale = useLocale();
   if (!state) return null;
   const cards = cardsForIds(configuredDeck, state.drawnIds);
-  return <CardCollectionScreen cards={cards} locale={locale} assetRegistry={assetRegistry}
-    title={t('results', locale)} scrollKey={`results:${configuredDeck.id}:${state.sessionId}`} hostTestID="results-host" scrollHeader
+  return <CardCollectionScreen detailTemplate={configuredDeck.detailTemplate} cards={cards} locale={locale} assetRegistry={assetRegistry}
+    scrollKey={`results:${configuredDeck.id}:${state.sessionId}`} hostTestID="results-host" scrollHeader
     headerContent={<>
       <Text style={styles.copy}>{t('drawnCount', locale, { count: cards.length })}</Text>
       <Pressable onPress={reset} accessibilityRole="button" style={styles.button}>
@@ -35,10 +37,10 @@ export function ResultsScreen() {
     </View>} />;
 }
 
-const styles = StyleSheet.create({
-  copy: { ...type.body, fontFamily: type.sans, color: colors.ink },
-  button: { backgroundColor: colors.deepForest, borderRadius: radius.pill, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, minHeight: 48, alignItems: 'center' },
-  buttonText: { ...type.label, fontFamily: type.sans, color: colors.lightInk, textAlign: 'center' },
+const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
+  copy: { ...typography.body, color: colors.text },
+  button: { backgroundColor: colors.primary, borderRadius: radius.pill, paddingHorizontal: spacing.xl, paddingVertical: spacing.md, minHeight: 48, alignItems: 'center' },
+  buttonText: { ...typography.label, color: colors.onPrimary, textAlign: 'center' },
   empty: { padding: spacing.lg, gap: spacing.lg },
   error: { gap: spacing.sm },
 });

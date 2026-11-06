@@ -1,3 +1,4 @@
+import Settings from '../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
@@ -32,7 +33,7 @@ beforeEach(() => { mockId = 0; resetClock(); AppState.currentState = 'active'; m
 afterEach(() => { AppState.currentState = nativeAppState; measure.mockReset(); });
 
 test('Draw consumes the root session and configured artwork/results without resetting on mount', async () => {
-  await renderRouter({ _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': DrawPreview, '(tabs)/catalogue': Idle, 'card/[id]': Details }, { initialUrl: '/catalogue' });
+  await renderRouter({ _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': DrawPreview, '(tabs)/catalogue': Idle, '(tabs)/settings': Settings, 'card/[id]': Details }, { initialUrl: '/catalogue' });
   expect(current.state).toMatchObject({ sessionId: 'draw-owner-1', deckId: 'alternate' });
   expect(screen.getByRole('button', { name: 'Wave' })).toBeVisible();
   const first = current.state!;
@@ -46,12 +47,14 @@ test('Draw consumes the root session and configured artwork/results without rese
   expect(screen.getByText('Wave')).toBeVisible();
   expect(current.state!.sessionId).toBe(first.sessionId);
   await fireEvent.press(screen.getByRole('button', { name: 'Confirm card' }));
+  await settle(); await advance(900); await settle();
   await fireEvent.press(screen.getByRole('button', { name: 'Stop' }));
   expect(screen.getByRole('button', { name: 'Wave' })).toBeVisible();
   expect(screen.queryByText('Movement, change, and your own rhythm.')).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Wave' }));
   await fireEvent(screen.getByTestId('overlay-face-7'), 'loadEnd');
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
+  await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); await flushRn();
   expect(screen.getByText('Movement, change, and your own rhythm.')).toBeVisible();
   await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
@@ -59,4 +62,32 @@ test('Draw consumes the root session and configured artwork/results without rese
   expect(current.state).toMatchObject({ sessionId: first.sessionId, phase: 'results', drawnIds: [7] });
   await fireEvent.press(screen.getByRole('button', { name: 'New session' }));
   expect(current.state).toMatchObject({ sessionId: 'draw-owner-2', phase: 'regrip', drawnIds: [] });
+});
+
+test('Settings manual reveal survives tab and language changes; changing the preference affects only later draws',async()=>{
+ await renderRouter({_layout:RootLayout,'(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
+ await act(()=>router.navigate('/settings'));
+ await fireEvent.press(screen.getByRole('radio',{name:'Tap to flip'}));
+ await act(()=>router.navigate('/'));
+ const first=current.state!;
+ await act(()=>current.draw({x:620,y:330,angle:0,scale:1},first.sessionId,first.epoch));
+ for(let i=0;i<2;i++){const state=current.state!;await act(()=>current.complete(state.sessionId,state.epoch));}
+ expect(current.state!.phase).toBe('awaitingReveal');
+ expect(screen.getByRole('button',{name:'Flip card'})).toBeVisible();expect(screen.queryByText('Wave')).toBeNull();
+ const waiting=current.state!;
+ await act(()=>router.navigate('/settings'));
+ await fireEvent.press(screen.getByRole('radio',{name:'Automatic'}));
+ await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
+ await act(()=>router.navigate('/'));
+ expect(current.state).toBe(waiting);
+ await fireEvent.press(screen.getByRole('button',{name:'Otočit kartu'}));expect(current.state!.phase).toBe('flip');
+ await fireEvent.press(screen.getByRole('button',{name:'Potvrdit kartu'}));expect(current.state!.phase).toBe('flip');
+ const flip=current.state!;await act(()=>current.complete(flip.sessionId,flip.epoch));
+ expect(current.state!.phase).toBe('reveal');
+ expect(screen.getByText('Vlna')).toBeVisible();
+ await fireEvent.press(screen.getByRole('button',{name:'Potvrdit kartu'}));expect(current.state!.phase).toBe('resume');
+ const resume=current.state!;await act(()=>current.complete(resume.sessionId,resume.epoch));
+ const next=current.state!;await act(()=>current.draw({x:620,y:330,angle:0,scale:1},next.sessionId,next.epoch));
+ for(let i=0;i<2;i++){const state=current.state!;await act(()=>current.complete(state.sessionId,state.epoch));}
+ expect(current.state!.phase).toBe('flip');
 });

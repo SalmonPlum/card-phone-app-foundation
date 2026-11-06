@@ -1,3 +1,4 @@
+import './helpers/overlayClock';
 import { render, screen } from '@testing-library/react-native';
 import * as ReactNative from 'react-native';
 import { sampleDeck } from '../../../decks/sample';
@@ -56,7 +57,7 @@ describe.each(nativeImages)('%s native image sizing', (_platform, Image) => {
     { uri: 'unknown.png' },
     { uri: 'invalid.png', width: 0, height: 0 },
   ])('keeps fallback proportions without intrinsic dimensions: %j', async source => {
-    await render(<CardDetails card={card} locale="en" assetRegistry={{ 'sample.seed': source }} />);
+    await render(<CardDetails detailTemplate={sampleDeck.detailTemplate} card={card} locale="en" assetRegistry={{ 'sample.seed': source }} />);
     const face = screen.getByTestId('detail-face-0');
     const nativeStyle = ReactNative.StyleSheet.flatten(face.props.style);
     expect(nativeStyle.height).toBeUndefined();

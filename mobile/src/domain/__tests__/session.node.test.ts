@@ -204,7 +204,7 @@ test('Stop freezes committed results in shuffle phases and ignores draw/reveal p
   assert.equal(send(queued, { type: 'STOP' }), queued);
 });
 
-test('one card lowers intact, commits ID zero only on DRAW, and confirms to results once', () => {
+test('one card lowers intact, commits ID zero and completes confirmation exit before results once', () => {
   let state = complete(start(1));
   state = complete(state);
   assert.equal(state.phase, 'lower');
@@ -221,6 +221,11 @@ test('one card lowers intact, commits ID zero only on DRAW, and confirms to resu
   assert.equal(state.selectedId, 0);
   state = reveal(state);
   state = send(state, { type: 'CONFIRM' });
+  assert.equal(state.phase, 'resume');
+  assert.equal(state.selectedId, null);
+  assert.equal(send(state, { type: 'CONFIRM' }), state);
+  assert.equal(send(state, {type:'PHASE_COMPLETE',sessionId:state.sessionId,epoch:state.epoch-1}),state);
+  state = complete(state);
   assert.equal(state.phase, 'results');
   assert.deepEqual(state.drawnIds, [0]);
   assert.deepEqual(state.remainingIds, []);
@@ -292,4 +297,29 @@ test('invariant checker rejects missing/duplicate IDs, bad layers, and an uncomm
     { ...toStrip(2), flyingIds: [999] },
   ]) assert.throws(() => assertSessionInvariant(corrupted, [0, 17]));
   assert.throws(() => assertSessionInvariant(initial, [0, 0]));
+});
+
+test('manual draw snapshots mode and waits indefinitely for a guarded reveal',()=>{
+  let state=send(start(1),{type:'DRAW',pose,revealMode:'manual'});
+  state=complete(state);assert.equal(state.phase,'lift');
+  state=complete(state);assert.equal(state.phase,'awaitingReveal');
+  for(let i=0;i<20;i++)assert.equal(complete(state),state);
+  for(const event of [{type:'CONFIRM'},{type:'STOP'},{type:'DRAW',revealMode:'automatic'},
+    {type:'REVEAL',sessionId:'stale',epoch:state.epoch},{type:'REVEAL',sessionId:state.sessionId,epoch:state.epoch-1}] as SessionEvent[]) assert.equal(send(state,event),state);
+  const waiting=state;
+  state=send(state,{type:'REVEAL',sessionId:state.sessionId,epoch:state.epoch});assert.equal(state.phase,'flip');
+  assert.equal(send(state,{type:'REVEAL',sessionId:waiting.sessionId,epoch:waiting.epoch}),state);
+  assert.equal(send(state,{type:'CONFIRM'}),state);
+  state=complete(state);assert.equal(state.phase,'reveal');
+  state=send(state,{type:'CONFIRM'});assert.equal(state.phase,'resume');
+  assert.equal(complete(state).phase,'results');
+});
+test('a queued draw retains its chosen mode and automatic draws skip the manual wait',()=>{
+  let state=toStrip();
+  state=send(state,{type:'DRAW',revealMode:'manual'});
+  assert.equal(send(state,{type:'DRAW',revealMode:'automatic'}),state);
+  state=complete(complete(state));assert.equal(state.phase,'lift');
+  assert.equal(complete(state).phase,'awaitingReveal');
+  state=send(start(1),{type:'DRAW',pose,revealMode:'automatic'});
+  assert.equal(complete(complete(state)).phase,'flip');
 });

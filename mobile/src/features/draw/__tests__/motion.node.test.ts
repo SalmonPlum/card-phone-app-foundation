@@ -12,7 +12,7 @@ test('return follows a continuous curve from receiver to source', () => {
 });
 test('stack depth and phase timings match the approved motion', () => {
   assert.ok(layerStep(100) * 99 <= 36);
-  assert.deepEqual(['regrip','ready','strip','contact','return','lower','lift','flip','resume'].map(p => phaseDurationMs(p as Parameters<typeof phaseDurationMs>[0])), [780/1.25,180/1.25,620/1.25,120/1.25,1080/1.25,360,640,620,740]);
+  assert.deepEqual(['regrip','ready','strip','contact','return','lower','lift','flip','resume'].map(p => phaseDurationMs(p as Parameters<typeof phaseDurationMs>[0])), [780/1.25,180/1.25,620/1.25,120/1.25,1080/1.25,360,900,620,900]);
 });
 
 test('layer anchors preserve the physical length of rotated stack offsets', async () => {
@@ -24,4 +24,19 @@ test('layer anchors preserve the physical length of rotated stack offsets', asyn
     assert.ok(Math.abs(actual.y-(base.y+(x*Math.sin(base.angle)+y*Math.cos(base.angle))*base.scale))<1e-9);
     assert.ok(Math.abs(Math.hypot(actual.x-base.x,actual.y-base.y)-Math.hypot(x,y)*base.scale)<1e-9);
   }
+});
+
+test('confirmation exit fades across the full 900ms with the same easing as enlargement', async()=>{
+  const {confirmationExit,ease}=await import('../motion.ts');
+  assert.equal(phaseDurationMs('resume'),phaseDurationMs('lift'));
+  assert.deepEqual(confirmationExit(0),{opacity:1,rise:0,coverOpacity:1});
+  for(const progress of [.25,.5,.75]){
+    const exit=confirmationExit(progress);
+    assert.equal(exit.opacity,1-ease(progress));
+    assert.equal(exit.coverOpacity,exit.opacity);
+    assert.equal(exit.rise,16*ease(progress));
+    assert.ok(exit.opacity>0,'face must remain visible until the full fade completes');
+  }
+  assert.deepEqual(confirmationExit(.5),{opacity:.5,rise:8,coverOpacity:.5});
+  assert.deepEqual(confirmationExit(1),{opacity:0,rise:16,coverOpacity:0});
 });

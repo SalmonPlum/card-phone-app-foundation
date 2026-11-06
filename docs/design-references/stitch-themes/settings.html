@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><meta content="mobile_tab" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&amp;family=EB+Garamond:ital,wght@0,400..800;1,400..800&amp;family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "background": "#fbf9f3", "error-container": "#ffdad6", "on-background": "#1b1c19", "primary-fixed": "#c8ead7", "on-error": "#ffffff", "tertiary-container": "#2b3430", "error": "#ba1a1a", "on-tertiary": "#ffffff", "on-surface": "#1b1c19", "on-secondary": "#ffffff", "surface-bright": "#fbf9f3", "on-tertiary-container": "#929c97", "surface-container": "#f0eee8", "on-secondary-container": "#785a1a", "secondary-fixed-dim": "#e9c176", "secondary-fixed": "#ffdea5", "tertiary": "#161f1b", "tertiary-fixed": "#dbe5df", "on-secondary-fixed": "#261900", "on-error-container": "#93000a", "on-primary-fixed-variant": "#2f4d3f", "surface-dim": "#dcdad4", "surface-container-high": "#eae8e2", "outline-variant": "#c1c8c2", "on-secondary-fixed-variant": "#5d4201", "outline": "#727974", "surface-variant": "#e4e2dd", "on-primary-container": "#81a291", "surface-container-low": "#f5f3ee", "primary-fixed-dim": "#adcebc", "inverse-on-surface": "#f2f1eb", "on-primary": "#ffffff", "on-tertiary-fixed": "#151d1a", "inverse-surface": "#30312d", "tertiary-fixed-dim": "#bfc9c3", "secondary-container": "#fed488", "primary-container": "#1a382b", "on-tertiary-fixed-variant": "#3f4945", "surface-container-lowest": "#ffffff", "primary": "#032217", "surface-container-highest": "#e4e2dd", "on-primary-fixed": "#022115", "inverse-primary": "#adcebc", "surface": "#fbf9f3", "secondary": "#775a19", "on-surface-variant": "#424844", "surface-tint": "#466556" }, "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, "spacing": { "space-sm": "0.5rem", "space-lg": "1.5rem", "space-md": "1rem", "space-xl": "2.5rem", "gutter": "1rem", "space-xs": "0.25rem", "margin": "1.25rem" }, "fontFamily": { "headline-sm": [ "EB Garamond" ], "label-lg": [ "DM Sans" ], "display-lg": [ "EB Garamond" ], "headline-lg-mobile": [ "EB Garamond" ], "headline-md": [ "EB Garamond" ], "headline-lg": [ "EB Garamond" ], "label-sm": [ "DM Sans" ], "title-md": [ "DM Sans" ], "body-md": [ "DM Sans" ], "body-lg": [ "DM Sans" ] }, "fontSize": { "headline-sm": [ "18px", { "lineHeight": "24px", "fontWeight": "600" } ], "label-lg": [ "13px", { "lineHeight": "18px", "letterSpacing": "0.06em", "fontWeight": "600" } ], "display-lg": [ "40px", { "lineHeight": "48px", "letterSpacing": "-0.01em", "fontWeight": "400" } ], "headline-lg-mobile": [ "26px", { "lineHeight": "32px", "fontWeight": "500" } ], "headline-md": [ "22px", { "lineHeight": "28px", "fontWeight": "500" } ], "headline-lg": [ "32px", { "lineHeight": "38px", "fontWeight": "500" } ], "label-sm": [ "11px", { "lineHeight": "14px", "letterSpacing": "0.08em", "fontWeight": "500" } ], "title-md": [ "16px", { "lineHeight": "22px", "letterSpacing": "0.02em", "fontWeight": "600" } ], "body-md": [ "14px", { "lineHeight": "22px", "fontWeight": "400" } ], "body-lg": [ "16px", { "lineHeight": "26px", "fontWeight": "400" } ] } } } };</script><style>@layer base{html,body{width:100%;margin:0;padding:0;background-color:#fbf9f3;color:#1b1c19;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head><body class="bg-surface font-body-md text-body-md text-on-surface antialiased flex flex-col min-h-screen"><header class="fixed top-0 inset-x-0 z-50 bg-surface/85 backdrop-blur-xl pt-safe border-b border-surface-container/50"><div class="h-16 px-margin flex items-center justify-between relative"><div class="flex items-center"><button aria-label="Sound &amp; silence" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">graphic_eq</span></button></div><h1 class="font-headline-md text-headline-md text-primary tracking-wide text-center absolute left-1/2 -translate-x-1/2 pointer-events-none select-none">Catalog</h1><div class="flex items-center gap-space-xs"><button aria-label="Daily intention" class="w-10 h-10 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface transition-colors"><span class="material-symbols-outlined text-[20px]">auto_awesome</span></button><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center shadow-[0_2px_8px_rgba(3,34,23,0.15)]"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="flex flex-col relative w-full pt-16 pb-28 bg-surface px-margin min-h-screen"><div class="flex flex-col w-full pb-8">
+<!-- Ritual Header Introduction -->
+<section class="mb-space-lg flex flex-col items-center text-center">
+<div class="inline-flex items-center gap-space-xs px-space-md py-1 rounded-full bg-surface-container-high mb-space-sm shadow-sm">
+<span class="material-symbols-outlined text-[15px] text-secondary" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+<span class="font-label-sm text-label-sm uppercase tracking-widest text-secondary font-semibold">Sanctuary Preferences</span>
+</div>
+<h2 class="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tight font-medium">Sacred Resonance</h2>
+<p class="font-body-md text-body-md text-on-surface-variant max-w-xs mt-1">Personalize your sacred canvas, tactile rhythms, and contemplative atmosphere.</p>
+</section>
+<!-- Section 1: Color Palettes & Atmosphere -->
+<section class="mb-space-xl flex flex-col gap-space-md">
+<div class="flex flex-col gap-0.5">
+<div class="flex items-center justify-between">
+<h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-secondary">palette</span>
+          Atmosphere &amp; Color
+        </h3>
+<span class="font-label-sm text-label-sm text-secondary bg-surface-container-highest px-2 py-0.5 rounded-full font-medium">Custom Resonance</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant">Choose the visual frequency for your ritual draws and card inspections.</p>
+</div>
+<!-- Appearance Mode Pill Segment -->
+<div class="bg-surface-container p-1 rounded-full flex items-center justify-between shadow-sm relative">
+<button class="appearance-btn flex-1 py-1.5 px-space-xs rounded-full font-label-sm text-label-sm transition-all duration-200 text-on-primary bg-primary shadow-sm flex items-center justify-center gap-1" data-mode="ritual" type="button">
+<span class="material-symbols-outlined text-[14px]">routine</span>
+<span>Ritual Solar</span>
+</button>
+<button class="appearance-btn flex-1 py-1.5 px-space-xs rounded-full font-label-sm text-label-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1" data-mode="parchment" type="button">
+<span class="material-symbols-outlined text-[14px]">light_mode</span>
+<span>Parchment</span>
+</button>
+<button class="appearance-btn flex-1 py-1.5 px-space-xs rounded-full font-label-sm text-label-sm transition-all duration-200 text-on-surface-variant hover:text-on-surface flex items-center justify-center gap-1" data-mode="midnight" type="button">
+<span class="material-symbols-outlined text-[14px]">dark_mode</span>
+<span>Midnight</span>
+</button>
+</div>
+<!-- Palette Cards Grid -->
+<div class="flex flex-col gap-space-sm" id="palette-stack">
+<!-- 1. Mystic Arbor (Selected) -->
+<article class="palette-option group relative bg-surface-container-low p-space-md rounded-xl shadow-md transition-all duration-300 cursor-pointer overflow-hidden" data-selected="true" data-theme-name="Mystic Arbor" role="button" tabindex="0">
+<div class="absolute -right-6 -bottom-6 w-24 h-24 bg-primary/5 rounded-full blur-xl pointer-events-none"></div>
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h4 class="font-headline-sm text-headline-sm text-primary">Mystic Arbor</h4>
+<span class="check-pill inline-flex items-center gap-0.5 bg-primary text-on-primary text-[10px] font-label-sm px-2 py-0.5 rounded-full shadow-xs">
+<span class="material-symbols-outlined text-[12px]">check</span>
+                Active
+              </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-0.5">Grounding earthy tones &amp; quiet woodland sanctuary</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[18px]">forest</span>
+</div>
+</div>
+<!-- Palette Preview Bar with Tokens -->
+<div class="flex items-center gap-2 pt-1">
+<div class="flex-1 flex items-center h-7 rounded-lg overflow-hidden p-0.5 bg-surface-container-highest shadow-inner gap-1">
+<div class="h-full flex-1 rounded bg-primary-container" title="Deep Pine #1a382b"></div>
+<div class="h-full flex-1 rounded bg-surface" title="Warm Parchment #fbf9f3"></div>
+<div class="h-full flex-1 rounded bg-secondary" title="Burnished Gold #c5a059"></div>
+<div class="h-full flex-1 rounded bg-primary-fixed-dim" title="Sage Leaf #4a6b57"></div>
+</div>
+<div class="text-[11px] font-label-sm text-secondary font-medium px-2 py-1 rounded bg-secondary-container/40">
+            Forest &amp; Brass
+          </div>
+</div>
+</article>
+<!-- 2. Celestial Midnight -->
+<article class="palette-option group relative bg-surface-container-low p-space-md rounded-xl shadow-sm transition-all duration-300 cursor-pointer overflow-hidden" data-selected="false" data-theme-name="Celestial Midnight" role="button" tabindex="0">
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h4 class="font-headline-sm text-headline-sm text-primary">Celestial Midnight</h4>
+<span class="check-pill hidden items-center gap-0.5 bg-primary text-on-primary text-[10px] font-label-sm px-2 py-0.5 rounded-full shadow-xs">
+<span class="material-symbols-outlined text-[12px]">check</span>
+                Active
+              </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-0.5">Starlit contemplation &amp; nocturnal intuition</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[18px]">bedtime</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<div class="flex-1 flex items-center h-7 rounded-lg overflow-hidden p-0.5 bg-surface-container-highest shadow-inner gap-1">
+<div class="h-full flex-1 rounded bg-tertiary" title="Midnight Indigo"></div>
+<div class="h-full flex-1 rounded bg-tertiary-fixed" title="Star Dust Silver"></div>
+<div class="h-full flex-1 rounded bg-tertiary-container" title="Cosmic Purple"></div>
+<div class="h-full flex-1 rounded bg-secondary-fixed-dim" title="Starlight Gold"></div>
+</div>
+<div class="text-[11px] font-label-sm text-on-surface-variant font-medium px-2 py-1 rounded bg-surface-container">
+            Indigo &amp; Silver
+          </div>
+</div>
+</article>
+<!-- 3. Solstice Ochre -->
+<article class="palette-option group relative bg-surface-container-low p-space-md rounded-xl shadow-sm transition-all duration-300 cursor-pointer overflow-hidden" data-selected="false" data-theme-name="Solstice Ochre" role="button" tabindex="0">
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h4 class="font-headline-sm text-headline-sm text-primary">Solstice Ochre</h4>
+<span class="check-pill hidden items-center gap-0.5 bg-primary text-on-primary text-[10px] font-label-sm px-2 py-0.5 rounded-full shadow-xs">
+<span class="material-symbols-outlined text-[12px]">check</span>
+                Active
+              </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-0.5">Warm solar dawn, vitality &amp; inner hearth</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[18px]">wb_sunny</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<div class="flex-1 flex items-center h-7 rounded-lg overflow-hidden p-0.5 bg-surface-container-highest shadow-inner gap-1">
+<div class="h-full flex-1 rounded bg-secondary" title="Terracotta Warm"></div>
+<div class="h-full flex-1 rounded bg-secondary-fixed" title="Sunlit Cream"></div>
+<div class="h-full flex-1 rounded bg-on-secondary-fixed-variant" title="Burnt Amber"></div>
+<div class="h-full flex-1 rounded bg-primary-container" title="Olive Hearth"></div>
+</div>
+<div class="text-[11px] font-label-sm text-on-surface-variant font-medium px-2 py-1 rounded bg-surface-container">
+            Amber &amp; Clay
+          </div>
+</div>
+</article>
+<!-- 4. Amethyst Whisper -->
+<article class="palette-option group relative bg-surface-container-low p-space-md rounded-xl shadow-sm transition-all duration-300 cursor-pointer overflow-hidden" data-selected="false" data-theme-name="Amethyst Whisper" role="button" tabindex="0">
+<div class="flex items-start justify-between gap-space-sm mb-space-sm">
+<div class="flex flex-col min-w-0">
+<div class="flex items-center gap-space-xs">
+<h4 class="font-headline-sm text-headline-sm text-primary">Amethyst Whisper</h4>
+<span class="check-pill hidden items-center gap-0.5 bg-primary text-on-primary text-[10px] font-label-sm px-2 py-0.5 rounded-full shadow-xs">
+<span class="material-symbols-outlined text-[12px]">check</span>
+                Active
+              </span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1 mt-0.5">Deep spiritual dreaming &amp; higher reflection</p>
+</div>
+<div class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface-variant shrink-0">
+<span class="material-symbols-outlined text-[18px]">lens_blur</span>
+</div>
+</div>
+<div class="flex items-center gap-2 pt-1">
+<div class="flex-1 flex items-center h-7 rounded-lg overflow-hidden p-0.5 bg-surface-container-highest shadow-inner gap-1">
+<div class="h-full flex-1 rounded bg-tertiary-container" title="Dusky Violet"></div>
+<div class="h-full flex-1 rounded bg-surface-container-lowest" title="Moon Mist"></div>
+<div class="h-full flex-1 rounded bg-secondary-fixed-dim" title="Soft Lilac Tint"></div>
+<div class="h-full flex-1 rounded bg-outline" title="Slate Stone"></div>
+</div>
+<div class="text-[11px] font-label-sm text-on-surface-variant font-medium px-2 py-1 rounded bg-surface-container">
+            Violet &amp; Mist
+          </div>
+</div>
+</article>
+</div>
+</section>
+<!-- Section 2: Ritual Experience & Sensory Flow -->
+<section class="mb-space-xl flex flex-col gap-space-md">
+<div class="flex flex-col gap-0.5">
+<h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-secondary">self_improvement</span>
+        Ritual Experience
+      </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Calibrate haptics, sacred acoustic bowls, and daily awakening.</p>
+</div>
+<!-- Grouped Settings Surface -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-md shadow-sm">
+<!-- Toggle: Ambient Audio -->
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">music_note</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-primary">Ambient Audio &amp; Chimes</span>
+<span class="font-body-md text-body-md text-on-surface-variant leading-snug">Plays singing bowls &amp; soft wind during deck cuts</span>
+</div>
+</div>
+<button aria-checked="true" class="ritual-toggle relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full bg-primary transition-colors duration-200 ease-in-out focus:outline-none shadow-inner" id="toggle-audio" role="switch" type="button">
+<span class="sr-only">Toggle ambient audio</span>
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-on-primary shadow-md transition duration-200 ease-in-out mt-0.5 ml-0.5"></span>
+</button>
+</div>
+<!-- Divider line via background -->
+<div class="w-full h-px bg-surface-container-highest"></div>
+<!-- Toggle: Haptic Feedback -->
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">vibration</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-primary">Haptic Feedback on Draw</span>
+<span class="font-body-md text-body-md text-on-surface-variant leading-snug">Subtle micro-vibrations when sliding card edges</span>
+</div>
+</div>
+<button aria-checked="true" class="ritual-toggle relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full bg-primary transition-colors duration-200 ease-in-out focus:outline-none shadow-inner" id="toggle-haptic" role="switch" type="button">
+<span class="sr-only">Toggle haptic feedback</span>
+<span class="translate-x-5 pointer-events-none inline-block h-5 w-5 transform rounded-full bg-on-primary shadow-md transition duration-200 ease-in-out mt-0.5 ml-0.5"></span>
+</button>
+</div>
+<!-- Divider line via background -->
+<div class="w-full h-px bg-surface-container-highest"></div>
+<!-- Daily Card Reminder with Time -->
+<div class="flex items-center justify-between gap-space-md">
+<div class="flex items-start gap-space-sm min-w-0">
+<div class="w-9 h-9 rounded-full bg-surface-container-highest flex items-center justify-center text-secondary shrink-0 mt-0.5">
+<span class="material-symbols-outlined text-[18px]">alarm</span>
+</div>
+<div class="flex flex-col min-w-0">
+<span class="font-title-md text-title-md text-primary">Daily Intention Call</span>
+<span class="font-body-md text-body-md text-on-surface-variant leading-snug">Morning bell invitation for single-card draw</span>
+</div>
+</div>
+<button class="px-space-md py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors font-title-md text-title-md text-primary shadow-xs flex items-center gap-1" type="button">
+<span>08:30</span>
+<span class="font-label-sm text-label-sm text-secondary uppercase font-semibold">AM</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Section 3: Active Card Decks & Sanctuary Archives -->
+<section class="mb-space-xl flex flex-col gap-space-md">
+<div class="flex flex-col gap-0.5">
+<h3 class="font-headline-sm text-headline-sm text-primary flex items-center gap-space-xs">
+<span class="material-symbols-outlined text-[20px] text-secondary">style</span>
+        Card Decks &amp; Lore
+      </h3>
+<p class="font-body-md text-body-md text-on-surface-variant">Manage consecrated card archetypes and historical pulls.</p>
+</div>
+<!-- Active Deck Card in Bento Presentation -->
+<div class="bg-surface-container-low rounded-xl p-space-md flex flex-col gap-space-md shadow-sm relative overflow-hidden">
+<!-- Deck Badge Header -->
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-space-xs">
+<span class="w-2.5 h-2.5 rounded-full bg-secondary-fixed-dim"></span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary font-semibold">Consecrated Deck</span>
+</div>
+<span class="font-label-sm text-label-sm text-on-surface-variant bg-surface-container px-2 py-0.5 rounded-full">Major + Minor Arc</span>
+</div>
+<!-- Active Deck Details Visual -->
+<div class="flex items-center gap-space-md">
+<!-- Golden Ratio Miniature Deck Representation (1:1.618) -->
+<div class="relative w-14 h-[90px] rounded-lg bg-primary-container shadow-md flex items-center justify-center p-1 shrink-0 overflow-hidden">
+<div class="absolute inset-1 rounded bg-tertiary-container/30"></div>
+<div class="relative z-10 w-8 h-8 rounded-full bg-surface/10 flex items-center justify-center text-secondary-fixed">
+<span class="material-symbols-outlined text-[18px]">explore</span>
+</div>
+<!-- Decorative star accent -->
+<div class="absolute top-1 right-1 text-secondary-fixed-dim/40 text-[9px] select-none">✦</div>
+</div>
+<div class="flex flex-col min-w-0">
+<h4 class="font-headline-sm text-headline-sm text-primary">The Pilgrim's Journey</h4>
+<p class="font-body-md text-body-md text-on-surface-variant line-clamp-1">36 hand-illustrated botanical archetypes</p>
+<div class="flex items-center gap-2 mt-1">
+<span class="font-label-sm text-label-sm text-secondary flex items-center gap-0.5">
+<span class="material-symbols-outlined text-[13px]">check_circle</span>
+              Synchronized
+            </span>
+<span class="text-outline-variant text-[10px]">•</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant">Deck v2.4</span>
+</div>
+</div>
+</div>
+<!-- Deck Action Buttons -->
+<div class="grid grid-cols-2 gap-space-sm pt-1">
+<button class="w-full py-2 px-space-sm rounded-lg bg-surface-container hover:bg-surface-container-high transition-colors font-title-md text-title-md text-primary flex items-center justify-center gap-1 shadow-xs" type="button">
+<span class="material-symbols-outlined text-[16px] text-secondary">grid_view</span>
+          Browse Decks
+        </button>
+<button class="w-full py-2 px-space-sm rounded-lg bg-surface-container hover:bg-error-container/40 transition-colors font-title-md text-title-md text-on-surface-variant hover:text-error flex items-center justify-center gap-1 shadow-xs" id="btn-reset-history" type="button">
+<span class="material-symbols-outlined text-[16px]">restart_alt</span>
+          Reset History
+        </button>
+</div>
+</div>
+</section>
+<!-- Section 4: Sacred Backup & Lore Export (Extra Delight Micro-Component) -->
+<section class="mb-space-lg flex flex-col gap-space-sm">
+<div class="bg-surface-container-high/60 rounded-xl p-space-md flex items-center justify-between gap-space-sm">
+<div class="flex items-center gap-space-sm">
+<div class="w-9 h-9 rounded-full bg-secondary-container/50 flex items-center justify-center text-secondary shrink-0">
+<span class="material-symbols-outlined text-[18px]">cloud_sync</span>
+</div>
+<div class="flex flex-col">
+<span class="font-title-md text-title-md text-primary">Journal &amp; Spreads Backup</span>
+<span class="font-body-md text-body-md text-on-surface-variant text-[12px] leading-tight">Stored privately via iCloud Sacred Key</span>
+</div>
+</div>
+<button class="w-8 h-8 rounded-full bg-surface-container flex items-center justify-center text-on-surface-variant hover:text-primary transition-colors shadow-xs" type="button">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+<!-- Spiritual App Metadata Footer -->
+<div class="flex flex-col items-center justify-center pt-space-md text-center">
+<div class="text-secondary/60 text-[16px] mb-1 select-none">✦ ✧ ✦</div>
+<p class="font-label-sm text-label-sm text-on-surface-variant tracking-wider uppercase font-semibold">Tarot &amp; Contemplation Sanctuary</p>
+<p class="font-label-sm text-label-sm text-outline mt-0.5">Version 3.1.4 • Consecrated MMXXV</p>
+</div>
+</section>
+<!-- Interactive State Micro-Script -->
+<script>
+    (function initSettingsInteractions() {
+      // Toggle Switches
+      document.querySelectorAll('.ritual-toggle').forEach(toggle => {
+        toggle.addEventListener('click', () => {
+          const isChecked = toggle.getAttribute('aria-checked') === 'true';
+          const newState = !isChecked;
+          toggle.setAttribute('aria-checked', String(newState));
+          const knob = toggle.querySelector('span:not(.sr-only)');
+          if (newState) {
+            toggle.classList.remove('bg-surface-container-highest');
+            toggle.classList.add('bg-primary');
+            knob.classList.remove('translate-x-0.5');
+            knob.classList.add('translate-x-5');
+          } else {
+            toggle.classList.remove('bg-primary');
+            toggle.classList.add('bg-surface-container-highest');
+            knob.classList.remove('translate-x-5');
+            knob.classList.add('translate-x-0.5');
+          }
+        });
+      });
+
+      // Palette Card Selection
+      const paletteCards = document.querySelectorAll('.palette-option');
+      paletteCards.forEach(card => {
+        card.addEventListener('click', () => {
+          paletteCards.forEach(c => {
+            c.setAttribute('data-selected', 'false');
+            c.classList.remove('shadow-md', 'bg-surface-container');
+            c.classList.add('bg-surface-container-low', 'shadow-sm');
+            const check = c.querySelector('.check-pill');
+            if (check) {
+              check.classList.add('hidden');
+              check.classList.remove('inline-flex');
+            }
+          });
+          card.setAttribute('data-selected', 'true');
+          card.classList.remove('bg-surface-container-low', 'shadow-sm');
+          card.classList.add('bg-surface-container', 'shadow-md');
+          const activeCheck = card.querySelector('.check-pill');
+          if (activeCheck) {
+            activeCheck.classList.remove('hidden');
+            activeCheck.classList.add('inline-flex');
+          }
+        });
+      });
+
+      // Appearance Segment Controller
+      const modeButtons = document.querySelectorAll('.appearance-btn');
+      modeButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          modeButtons.forEach(b => {
+            b.classList.remove('bg-primary', 'text-on-primary', 'shadow-sm');
+            b.classList.add('text-on-surface-variant');
+          });
+          btn.classList.add('bg-primary', 'text-on-primary', 'shadow-sm');
+          btn.classList.remove('text-on-surface-variant');
+        });
+      });
+
+      // Subtle Reset Feedback
+      const resetBtn = document.getElementById('btn-reset-history');
+      if (resetBtn) {
+        resetBtn.addEventListener('click', () => {
+          const originalText = resetBtn.innerHTML;
+          resetBtn.innerHTML = '<span class="material-symbols-outlined text-[16px] text-secondary">check</span> History Cleared';
+          setTimeout(() => {
+            resetBtn.innerHTML = originalText;
+          }, 1800);
+        });
+      }
+    })();
+  </script>
+</div></main><nav class="fixed bottom-0 inset-x-0 z-50 pb-safe pointer-events-none" data-active-classes="text-secondary font-medium [&amp;_.nav-pip]:scale-100 [&amp;_.nav-icon]:text-secondary"><div class="px-margin pb-3 pt-1 flex justify-center"><div class="w-full max-w-md pointer-events-auto bg-surface/90 backdrop-blur-2xl rounded-full px-space-md py-space-xs shadow-[0_8px_28px_rgba(22,48,36,0.08),0_1px_3px_rgba(119,90,25,0.12)] flex items-center justify-around"><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant transition-all duration-200 group" data-path="draw" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">style</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Draw</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant transition-all duration-200 group" data-path="catalog" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">auto_stories</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Catalog</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant transition-all duration-200 group" data-path="journal" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">history_edu</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Journal</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a><a class="flex flex-col items-center justify-center min-w-[56px] min-h-[44px] py-1 text-on-surface-variant transition-all duration-200 group" data-path="settings" href="#"><span class="material-symbols-outlined nav-icon text-[22px] transition-transform duration-200 group-hover:scale-105">tune</span><span class="font-label-sm text-label-sm tracking-wide mt-0.5">Settings</span><span class="nav-pip w-1 h-1 rounded-full bg-secondary mt-1 scale-0 transition-transform duration-200"></span></a></div></div></nav></body></html>

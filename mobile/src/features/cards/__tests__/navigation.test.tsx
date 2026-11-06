@@ -1,3 +1,4 @@
+import Settings from '../../../app/(tabs)/settings';
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { advance, flushRn, resetClock, settle } from './helpers/overlayClock';
@@ -22,10 +23,11 @@ afterEach(() => { measure.mockReset(); AppState.currentState = nativeAppState; }
 async function enterOverlay() {
   await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
+  await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); await flushRn();
 }
 async function finishClose() { await settle(); await advance(420); await flushRn(); }
-const routes = { _layout: Layout, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': Catalogue, 'card/[id]': Details };
+const routes = { _layout: Layout, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details };
 test('opens the live catalogue from Draw, opens zero, and can open another card after Back', async () => {
   await renderRouter(routes);
   await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
@@ -49,9 +51,11 @@ test('follows the Czech app locale throughout Draw, catalogue, details and Back'
   const locales = jest.spyOn(Localization, 'useLocales').mockReturnValue([{ ...locale, languageTag: 'cs-CZ', languageCode: 'cs' }]);
   try {
     await renderRouter(routes);
+    await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));
+    await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
     expect(screen.getByRole('tab', { name: 'Tahání' })).toBeVisible();
     await fireEvent.press(screen.getByRole('tab', { name: 'Katalog' }));
-    expect(screen.getByRole('header', { name: 'Všechny karty' })).toBeVisible();
+    expect(screen.queryByRole('header', { name: 'Všechny karty' })).toBeNull();
     await fireEvent.press(screen.getByRole('button', { name: 'Semínko' }));
     expect(screen).toHavePathname('/catalogue');
     await enterOverlay();

@@ -1,48 +1,107 @@
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import {useCallback,useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import type { DeckManifest, Locale, Pose, SessionState } from '../../domain/contracts';
 import { assetRegistry, type AssetRegistry } from '../../decks/assets';
 import { t } from '../../i18n/locale';
+import {DrawRevealReader} from './DrawRevealReader';
+import {drawReadingKey,type DrawReadingState} from './revealReading';
 import { Stack } from './Stack';
+import { ShuffleSurface } from './ShuffleSurface';
 import { useShuffleAnimation } from './useShuffleAnimation';
-import { colors, type, spacing, radius } from '../../ui/theme';
+import { confirmationExit, ease } from './motion';
+import { fitDrawForeground } from './foreground';
+import { spacing, radius } from '../../ui/theme';
+import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui/useThemeStyles';
 
-type Props={state:SessionState;deck:DeckManifest;locale:Locale;onDraw:(pose:Pose,sessionId:string,epoch:number)=>void;onConfirm:()=>void;onPhaseComplete:(sessionId:string,epoch:number)=>void;paused:boolean;reducedMotion?:boolean};
-export function ShuffleScene({state,deck,locale,onDraw,onConfirm,onPhaseComplete,paused,reducedMotion=false}:Props) {
- const [size,setSize]=useState({width:0,height:0}), [failedId,setFailedId]=useState<number|null>(null);
- // Keep the last revealed artwork through the RN→UI confirmation boundary.
- const displayId=state.selectedId ?? state.drawnIds.at(-1) ?? null;
- const assetFailed=displayId!==null && failedId===displayId;
- const {progress,frame,samplePose}=useShuffleAnimation(state,paused,reducedMotion,onPhaseComplete);
- const selected=deck.cards.find(c=>c.id===displayId), name=selected?.translations[locale].name;
- const faceKey=selected?.translations[locale].faceAsset ?? selected?.faceAsset;
- const assets:AssetRegistry=assetRegistry;
- const back=assets[deck.localizedBackAssets?.[locale] ?? deck.backAsset];
- const scale=Math.min(size.width/900,size.height/960);
- const canDraw=['regrip','ready','strip','contact','return','lower'].includes(state.phase)&&!state.drawQueued&&!paused;
- return <View style={styles.outer} onLayout={e=>setSize(e.nativeEvent.layout)}>
-  <View pointerEvents="none" style={styles.decoration} accessible={false}>
-    <View style={[styles.speck,{left:'8%',top:'18%'}]}/><View style={[styles.speck,{right:'10%',top:'27%'}]}/>
-    <View style={[styles.speck,{left:'15%',bottom:'18%'}]}/><View style={[styles.speck,{right:'16%',bottom:'14%'}]}/>
-    <View style={[styles.speck,{left:'46%',top:'12%'}]}/><View style={[styles.speck,{right:'7%',bottom:'38%'}]}/>
-  </View>
-  {scale>0 && <View pointerEvents="none" style={{position:'absolute',width:900,height:960,left:(size.width-900)/2,top:(size.height-960)/2,transform:[{scale}]}}>
-    {(['intact','source','receiver','flying','selected'] as const).map(role=><Stack key={role} role={role} frame={frame} revealed={state.phase==='reveal'} progress={progress} back={back} face={role==='selected'&&!assetFailed&&faceKey?assets[faceKey]:undefined} name={role==='selected'?name:undefined} onAssetError={()=>setFailedId(displayId)}/>)}
-  </View>}
-  {state.phase==='reveal' && <View style={styles.label}><Text style={styles.name}>{name}</Text>{assetFailed && <Pressable onPress={()=>setFailedId(null)} accessibilityRole="button"><Text style={styles.error}>{t('assetError',locale)} {t('retry',locale)}</Text></Pressable>}</View>}
-  <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={t(state.phase==='reveal'?'confirm':'draw',locale)} disabled={paused||(!canDraw&&state.phase!=='reveal')} onPress={()=>state.phase==='reveal'?onConfirm():samplePose(onDraw)}>
-    <Text accessible={false} style={styles.guidance}>{t(state.phase==='reveal'?'confirm':'draw',locale)}</Text>
-  </Pressable>
-  {assetFailed && state.phase==='reveal' && <Pressable style={styles.retry} onPress={()=>setFailedId(null)} accessibilityRole="button"><Text style={styles.error}>{t('retry',locale)}</Text></Pressable>}
- </View>;
+type Props={state:SessionState;deck:DeckManifest;locale:Locale;onDraw:(pose:Pose,sessionId:string,epoch:number)=>void;onConfirm:()=>void;onReveal?:(sessionId:string,epoch:number)=>void;onPhaseComplete:(sessionId:string,epoch:number)=>void;paused:boolean;reducedMotion?:boolean;footer?:ReactNode;bottomClearance?:number};
+export function ShuffleScene({state,deck,locale,onDraw,onConfirm,onReveal,onPhaseComplete,paused,reducedMotion=false,footer,bottomClearance=0}:Props) {
+  const styles = useThemeStyles(makeStyles);
+  const [size,setSize]=useState({width:0,height:0});
+  const [mat,setMat]=useState<{x:number;y:number;width:number;height:number}|null>(null);
+  const [captionHeight,setCaptionHeight]=useState(0),[headerHeight,setHeaderHeight]=useState(64);
+  const [failedId,setFailedId]=useState<number|null>(null);
+  const scrollOffset=useSharedValue(0);
+  const readingKey=drawReadingKey(state);
+  const reading=useSharedValue<DrawReadingState>({key:readingKey,offset:0});
+  const latest=useRef({state,paused}),live=useRef(true);
+  useLayoutEffect(()=>{latest.current={state,paused};},[state,paused]);
+  useEffect(()=>{live.current=true;return()=>{live.current=false;};},[]);
+  const confirm=useCallback(()=>{
+    const current=latest.current;
+    if(live.current&&!current.paused&&current.state.phase==='reveal'&&current.state.sessionId===state.sessionId&&current.state.epoch===state.epoch) onConfirm();
+  },[onConfirm,state.sessionId,state.epoch]);
+  const reveal=useCallback(()=>{
+    const current=latest.current;
+    if(live.current&&!current.paused&&current.state.phase==='awaitingReveal'&&current.state.sessionId===state.sessionId&&current.state.epoch===state.epoch) onReveal?.(state.sessionId,state.epoch);
+  },[onReveal,state.sessionId,state.epoch]);
+  const {fontScale}=useWindowDimensions();
+  // Keep the last revealed artwork through the RN→UI confirmation boundary.
+  const displayId=state.selectedId ?? state.drawnIds.at(-1) ?? null;
+  const assetFailed=displayId!==null && failedId===displayId;
+  const {progress,frame,samplePose}=useShuffleAnimation(state,paused,reducedMotion,onPhaseComplete,reading);
+  const selected=deck.cards.find(c=>c.id===displayId), name=selected?.translations[locale].name;
+  const faceKey=selected?.translations[locale].faceAsset ?? selected?.faceAsset;
+  const assets:AssetRegistry=assetRegistry;
+  const back=assets[deck.localizedBackAssets?.[locale] ?? deck.backAsset];
+  const usableSize={width:size.width,height:Math.max(0,size.height-bottomClearance)};
+  const bounds=mat ?? {...usableSize,x:0,y:0};
+  const scale=Math.min(bounds.width/900,bounds.height/960);
+  const scene={x:bounds.x+(bounds.width-900*scale)/2,y:bounds.y+(bounds.height-960*scale)/2,scale};
+  // Reserve hints for the large first view; long hints/info share the reader scroll.
+  const captionLimit=usableSize.height>0?usableSize.height*.25:48*fontScale+20;
+  const panelHeight=Math.min(captionHeight || 48*fontScale+20,captionLimit);
+  const target=fitDrawForeground(usableSize,panelHeight,headerHeight);
+  const foreground=['lift','awaitingReveal','flip','reveal','resume'].includes(state.phase);
+  const canDraw=['regrip','ready','strip','contact','return','lower'].includes(state.phase)&&!state.drawQueued&&!paused;
+  // Visibility follows the same UI frame as the selected image, so RN cannot
+  // hide its caption early or leave it behind after confirmation.
+  const captionStyle=useAnimatedStyle(()=>{
+    const exit=confirmationExit(progress.value);
+    const resuming=frame.value.phase==='resume';
+    return {opacity:resuming?exit.opacity:frame.value.phase==='reveal'||frame.value.phase==='awaitingReveal'?1:0,transform:[{translateY:resuming?-exit.rise:0}]};
+  });
+  const dimStyle=useAnimatedStyle(()=>{
+    const phase=frame.value.phase;
+    const opacity=phase==='lift'?ease(progress.value):phase==='awaitingReveal'||phase==='flip'||phase==='reveal'?1:phase==='resume'?(frame.value.remaining===0?1:confirmationExit(progress.value).coverOpacity):0;
+    return {opacity};
+  });
+  return <View testID="draw-stage" style={styles.stage} onLayout={e=>setSize(e.nativeEvent.layout)}>
+    <ScrollView testID="shuffle-scroll" style={[styles.scroll,{marginBottom:bottomClearance}]} contentContainerStyle={styles.content} scrollEnabled={!foreground} scrollsToTop={!foreground}
+      pointerEvents={foreground?'none':'auto'} accessibilityElementsHidden={foreground} importantForAccessibility={foreground?'no-hide-descendants':'auto'}
+      onScroll={e=>{scrollOffset.value=e.nativeEvent.contentOffset.y;}} scrollEventThrottle={16}>
+      <View testID="shuffle-mat" style={styles.mat} onLayout={e=>setMat(e.nativeEvent.layout)}>
+        <ShuffleSurface/>
+        {scale>0 && <View pointerEvents="none" style={{position:'absolute',width:900,height:960,left:(bounds.width-900)/2,top:(bounds.height-960)/2,transform:[{scale}]}}>
+          {(['intact','source','receiver','flying'] as const).map(role=><Stack key={role} role={role} frame={frame} progress={progress} back={back}/>)}
+        </View>}
+        <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={t('draw',locale)} disabled={!canDraw} onPress={()=>samplePose(onDraw)}>
+          <Text style={[styles.drawHint,{opacity:canDraw?1:0}]} accessibilityElementsHidden={!canDraw}
+            importantForAccessibility={canDraw?'auto':'no-hide-descendants'}>{t('tapToDraw',locale)}</Text>
+        </Pressable>
+      </View>
+      {footer}
+    </ScrollView>
+    <Animated.View testID="draw-foreground-dim" pointerEvents="none" accessible={false}
+      accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.dim,dimStyle]}/>
+    <Animated.View testID="draw-reveal-caption" pointerEvents={(state.phase==='reveal'||state.phase==='awaitingReveal')&&!paused?'box-none':'none'} style={[StyleSheet.absoluteFill,captionStyle]}>
+      <DrawRevealReader detailTemplate={deck.detailTemplate} key={readingKey} card={selected} locale={locale} phase={state.phase} paused={paused} reducedMotion={reducedMotion}
+        frame={frame} reading={reading} readingKey={readingKey} target={target} hostHeight={usableSize.height} bottomClearance={bottomClearance} headerHeight={headerHeight}
+        onHeaderHeight={setHeaderHeight} onHintsHeight={setCaptionHeight} onConfirm={confirm} onReveal={reveal} assetFailed={assetFailed} onRetry={()=>setFailedId(null)}/>
+    </Animated.View>
+    {/* The selected image never changes parent when the user starts reading. */}
+    <View pointerEvents="none" style={[StyleSheet.absoluteFill,{opacity:scale>0?1:0}]}>
+      <Stack role="selected" frame={frame} progress={progress} back={back}
+        face={!assetFailed&&faceKey?assets[faceKey]:undefined} name={name} onAssetError={()=>setFailedId(displayId)}
+        viewport={{scene,target,scrollOffset,reading,reducedMotion}}/>
+    </View>
+  </View>;
 }
-const styles=StyleSheet.create({
- outer:{flex:1,overflow:'hidden',backgroundColor:colors.forest,borderRadius:radius.mat,minHeight:260},
- decoration:{...StyleSheet.absoluteFill,opacity:0.45},
- speck:{position:'absolute',width:2,height:2,borderRadius:1,backgroundColor:colors.brass},
- guidance:{...type.label,fontFamily:type.sans,color:colors.lightInk,position:'absolute',top:spacing.lg,left:spacing.lg,right:spacing.lg,textAlign:'center'},
- label:{position:'absolute',bottom:16,left:12,right:12,alignItems:'center'},
- name:{fontFamily:type.serif,fontSize:23,lineHeight:30,color:colors.lightInk},
- error:{fontFamily:type.sans,color:colors.lightInk},
- retry:{position:'absolute',bottom:0,right:0,padding:12},
+const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
+  stage:{flex:1,overflow:'hidden'},
+  dim:{...StyleSheet.absoluteFill,backgroundColor:colors.canvas},
+  scroll:{flex:1},
+  content:{flexGrow:1,padding:spacing.lg,gap:spacing.md},
+  mat:{flex:1,overflow:'hidden',backgroundColor:colors.mat,borderRadius:radius.mat,minHeight:260},
+  drawHint:{...typography.caption,color:colors.onMat,textAlign:'center',position:'absolute',bottom:spacing.lg,left:spacing.lg,right:spacing.lg},
 });

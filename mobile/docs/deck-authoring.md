@@ -10,10 +10,11 @@ Set `deckId` to `alternate` to select it.
 ## Manifest and identity
 
 Start from `src/decks/sample.ts` or `alternate.ts` and satisfy `DeckManifest`.
-Use `schemaVersion: 1`, a nonblank string deck ID and version, Czech/English deck
+Use `schemaVersion: 2`, a nonblank string deck ID and version, Czech/English deck
 names, a back asset key, and 1–100 cards. Each card needs a nonnegative safe integer
-ID, a shared face key, and complete nonblank `name`, `meaning`, and `description`
-text in both `cs` and `en`. The description supports plain-text paragraphs.
+ID, a shared face key, and complete nonblank `name` plus a `sections` content map
+in both `cs` and `en`. Every section declared in the deck template is required.
+Section text supports plain-text paragraphs.
 
 IDs are stable identities, not array indices. Zero and nonconsecutive IDs are
 valid; duplicate, negative, fractional, string, and unsafe integer IDs are
@@ -27,6 +28,68 @@ the shared face. `localizedBackAssets.cs` and `.en` likewise override `backAsset
 An omitted override uses the shared asset; a present blank or unknown key is
 invalid. Overrides do not make text translations optional. Use `localizeCard` and
 `localizeBackAsset` from `domain/deck.ts` to apply these rules.
+
+## Deck-defined detail sections
+
+Each deck defines `detailTemplate.sections` once. Each entry has a stable section
+`id` and localized `titles.cs` / `titles.en`. The array determines display order;
+card content-map key order does not. Cards provide their own text by section ID.
+Different decks can define different headings, IDs and numbers of sections.
+
+For example, a schema-2 deck can declare:
+
+```ts
+detailTemplate: {
+  sections: [
+    { id: 'meaning', titles: { cs: 'Význam', en: 'Meaning' } },
+    { id: 'guidance', titles: { cs: 'Doporučení', en: 'Guidance' } },
+    { id: 'reflection', titles: { cs: 'Zamyšlení', en: 'Reflection' } },
+  ],
+},
+// On each card:
+translations: {
+  cs: {
+    name: 'Semínko',
+    sections: {
+      meaning: 'Malý začátek.',
+      guidance: 'Vyberte jeden malý krok.',
+      reflection: 'Čemu dnes věnujete péči?\n\nDopřejte si čas na odpověď.',
+    },
+  },
+  en: {
+    name: 'Seed',
+    sections: {
+      meaning: 'A small beginning.',
+      guidance: 'Choose one small step.',
+      reflection: 'What will you care for today?\n\nTake time to answer.',
+    },
+  },
+},
+```
+
+Validation requires a nonempty template; unique IDs matching
+`^[a-z][a-z0-9_-]*$`; nonblank Czech/English headings; and nonblank content for
+**every declared section on every card in both languages**. Missing/blank sections,
+undeclared content keys, invalid IDs, duplicate IDs and malformed maps fail with
+a field path. There is no new section-count cap. Optional/empty sections and rich
+text are not supported in this first version. Paragraph breaks are preserved;
+text is not truncated. Extra resource fields do not automatically become sections:
+declare each section in the template and put its text in the content map.
+
+The shared renderer displays all template sections in Catalogue, drawn results,
+direct links and swipe-up reading immediately after drawing. Names stay fixed
+above the readers; existing artwork scrolling and reveal behavior are unchanged.
+Headings are deck content, not hardcoded interface translation keys.
+
+### Compatibility with original decks
+
+`validateDeck` still accepts raw schema-1 objects containing each translation's
+`meaning` and `description`. It returns canonical schema 2 with a Meaning/Description
+template and copies both complete bodies into the section map, preserving names,
+IDs and artwork overrides without mutating the original input. Use the returned
+validated deck. New TypeScript packages using `satisfies DeckManifest` must use
+schema 2. The bundled sample and alternate decks are migrated with all original
+text and assets intact; their two current sections are content choices, not a UI limit.
 
 ## Local images and registration
 
@@ -60,7 +123,7 @@ names identical in both languages. Validation checks dictionary parity, blank
 strings, and interpolation fields. Missing interpolation values remain visible
 as `{fields}` to expose authoring mistakes.
 
-Pass preferred BCP 47 language tags to `resolveLocale`, in preference order. It
+The app now defaults to English and uses its saved Settings language choice for interface and card content. `resolveLocale` remains a standalone helper, not the app default policy. Pass preferred BCP 47 language tags to `resolveLocale`, in preference order. It
 chooses the first supported Czech or English primary language (case insensitive)
 and otherwise falls back to English. Thus `['en-GB', 'cs-CZ']` resolves to English,
 while `['de-DE', 'cs-CZ']` resolves to Czech.

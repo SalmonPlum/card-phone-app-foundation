@@ -1,0 +1,504 @@
+{
+  "projectId": "11243207567328593716",
+  "fetchedOn": "2026-11-04",
+  "designSystems": [
+    {
+      "designSystem": {
+        "displayName": "Celestial Midnight",
+        "styleGuidelines": "## Brand & Style\n\nThis design system channels the quiet contemplation and expansive clarity of an unpolluted night sky. The aesthetic balances deep, layered nocturnal shadows with crisp, star-like illuminations and warm, navigational radiance. It is built for experiences requiring focus, atmospheric immersion, intuitive exploration, and elevated craftsmanship—such as premier observatory interfaces, celestial publishing, reflective productivity suites, or bespoke creative sanctuaries.\n\n### Aesthetic Movement\nThe visual language merges **Minimalism** with subtle **Ethereal Glassmorphism** and high-contrast editorial typography. Rather than relying on heavy textures or noisy gradients, depth is communicated through translucent indigo washes, refined hairline borders, and targeted luminescent accents.\n\n### Core Attributes\n- **Contemplative & Still:** Deep blue-blacks minimize ocular strain and invite slow, deliberate immersion.\n- **Star-lit Precision:** Information is treated with crisp readability; metadata and structural guides evoke astronomical instruments and celestial charts.\n- **Transcendent Warmth:** The amber-gold accent prevents the deep nocturnal palette from feeling cold or isolating, acting like a guiding lantern in the expanse.\n\n## Layout & Spacing\n\nThe layout embraces expansive negative space to emulate celestial vastness. Clutter is strictly avoided; content clusters are grouped into crisp gravitational zones.\n\n### Grid Architecture\n- **Desktop (1200px+):** 12-column responsive fluid grid with generous outer margins (`margin-lg: 4rem`) and comfortable column gutters (`gutter: 1.5rem`). Max-width constrained to `1360px` for optimal reading comfort.\n- **Tablet (768px – 1199px):** 8-column layout with `margin: 2rem` and `gutter: 1.5rem`. Side-by-side elements collapse into clean vertical hierarchies where necessary.\n- **Mobile (Up to 767px):** 4-column layout with tight edge control (`margin-sm: 1rem`) and unified inner gutters (`gutter-sm: 1rem`).\n\n### Rhythm\nComponents follow an 8px base spacing increment (represented through tokens `space-xs` through `space-xl`). Sections must be separated by generous margins to preserve the nocturnal mood and prevent visual compression.\n\n## Elevation & Depth\n\nElevation does not rely on harsh drop shadows. Instead, depth is articulated through three distinct celestial mechanics: tonal stacking, glassmorphism, and starlight edge definition.\n\n### Surface Tiers\n- **Tier 0 (The Deep Field):** `#0B1120`. Base canvas, subterranean background.\n- **Tier 1 (Nebula Surface):** `rgba(15, 23, 42, 0.75)` with `backdrop-filter: blur(16px)` and a subtle `1px` inner highlight border of `rgba(226, 232, 240, 0.08)`. Used for major content cards and navigation headers.\n- **Tier 2 (Orbital Float):** `rgba(30, 41, 59, 0.85)` with `backdrop-filter: blur(24px)` and hairline border `rgba(226, 232, 240, 0.16)`. Used for dropdowns, tooltips, popovers, and floating status bars.\n\n### Luminescence & Glows\n- **Ambient Shadow:** Replaced by soft, colored radial diffusion. High-elevation components cast an ethereal glow: `0 12px 32px -8px rgba(11, 17, 32, 0.8), 0 0 24px -4px rgba(139, 92, 246, 0.12)`.\n- **Focal Beacon:** Active, focused, or interactive elements emit a soft warm gold halo: `box-shadow: 0 0 16px -2px rgba(245, 158, 11, 0.28)`.\n\n## Components\n\n### Buttons\n- **Primary (Beacon):** Background solid warm gold (`#F59E0B`), foreground deep midnight (`#0B1120`), font `Space Grotesk` bold uppercase tracking. On hover: subtle scale transform with gold luminescent halo (`box-shadow: 0 0 20px rgba(245, 158, 11, 0.4)`).\n- **Secondary (Nebula Glass):** Background `rgba(30, 41, 59, 0.6)` with backdrop blur, border `1px solid rgba(226, 232, 240, 0.2)`, foreground starlight silver (`#E2E8F0`). On hover: border brightens to nebula violet (`#8B5CF6`).\n- **Ghost:** Transparent background with starlight silver text; hover triggers a moonlit wash `rgba(255, 255, 255, 0.05)`.\n\n### Cards & Panels\n- **Structure:** Nocturnal indigo container (`#0F172A`) overlayed with hairline starlight border (`rgba(226, 232, 240, 0.1)`).\n- **Header:** Features `Noto Serif` medium titles accented with uppercase `Space Grotesk` category tags in Starlight Cyan or Nebula Violet.\n- **Interactive State:** Hover subtly lifts the border luminance to `rgba(226, 232, 240, 0.25)` and casts an ethereal nebula shadow.\n\n### Input Fields\n- **Default:** Background `rgba(11, 17, 32, 0.8)`, border `1px solid rgba(226, 232, 240, 0.15)`, text moonlit cream (`#F8FAFC`), placeholder text muted star haze (`#64748B`).\n- **Focus:** Border transitions smoothly to warm gold (`#F59E0B`) with an ambient warm glow ring: `0 0 0 2px rgba(245, 158, 11, 0.2)`.\n\n### Chips & Badges\n- **Style:** Compact, understated indicators with `Space Grotesk` uppercase text.\n- **Treatment:** Semi-translucent dark field with colored hairline borders corresponding to system states: Gold (active/celestial focus), Violet (ethereal/tertiary), Cyan (telemetry/signal).\n\n### Checkboxes & Radio Buttons\n- **Unchecked:** Dark indigo box (`rgba(15, 23, 42, 0.8)`) with `1px solid rgba(226, 232, 240, 0.3)`.\n- **Checked:** Solid warm gold fill with crisp nocturnal indigo checkmark icon. Smooth glow pulse on interaction.\n\n### Lists & Key-Value Metrics\n- Dividers are hairline astronomical guides (`rgba(226, 232, 240, 0.08)`).\n- Values are displayed with high contrast moonlit white; parameter keys use `Space Grotesk` uppercase muted silver.\n\n### Observational Modals & Drawers\n- Heavy backdrop dimming with nocturnal indigo tint (`rgba(11, 17, 32, 0.85)`) coupled with a strong backdrop blur (`12px`).\n- Modal frames feature subtle gradient hairline borders shifting from nebula violet at the top left to starlight silver at the bottom right.",
+        "theme": {
+          "bodyFont": "MANROPE",
+          "bodyFontFamily": "Manrope",
+          "colorMode": "DARK",
+          "colorVariant": "FIDELITY",
+          "customColor": "#f59e0b",
+          "designMd": "---\nname: Celestial Midnight\ncolors:\n  surface: '#0d1322'\n  surface-dim: '#0d1322'\n  surface-bright: '#33394a'\n  surface-container-lowest: '#080e1d'\n  surface-container-low: '#151b2b'\n  surface-container: '#191f2f'\n  surface-container-high: '#242a3a'\n  surface-container-highest: '#2f3445'\n  on-surface: '#dde2f8'\n  on-surface-variant: '#d8c3ad'\n  inverse-surface: '#dde2f8'\n  inverse-on-surface: '#2a3040'\n  outline: '#a08e7a'\n  outline-variant: '#534434'\n  surface-tint: '#ffb95f'\n  primary: '#ffc174'\n  on-primary: '#472a00'\n  primary-container: '#f59e0b'\n  on-primary-container: '#613b00'\n  inverse-primary: '#855300'\n  secondary: '#d0bcff'\n  on-secondary: '#3c0091'\n  secondary-container: '#571bc1'\n  on-secondary-container: '#c4abff'\n  tertiary: '#8ed5ff'\n  on-tertiary: '#00354a'\n  tertiary-container: '#38bdf8'\n  on-tertiary-container: '#004965'\n  error: '#ffb4ab'\n  on-error: '#690005'\n  error-container: '#93000a'\n  on-error-container: '#ffdad6'\n  primary-fixed: '#ffddb8'\n  primary-fixed-dim: '#ffb95f'\n  on-primary-fixed: '#2a1700'\n  on-primary-fixed-variant: '#653e00'\n  secondary-fixed: '#e9ddff'\n  secondary-fixed-dim: '#d0bcff'\n  on-secondary-fixed: '#23005c'\n  on-secondary-fixed-variant: '#5516be'\n  tertiary-fixed: '#c4e7ff'\n  tertiary-fixed-dim: '#7bd0ff'\n  on-tertiary-fixed: '#001e2c'\n  on-tertiary-fixed-variant: '#004c69'\n  background: '#0d1322'\n  on-background: '#dde2f8'\n  surface-variant: '#2f3445'\ntypography:\n  headline-xl:\n    fontFamily: Noto Serif\n    fontSize: 48px\n    fontWeight: '400'\n    lineHeight: 56px\n    letterSpacing: -0.02em\n  headline-xl-mobile:\n    fontFamily: Noto Serif\n    fontSize: 32px\n    fontWeight: '400'\n    lineHeight: 40px\n    letterSpacing: -0.01em\n  headline-lg:\n    fontFamily: Noto Serif\n    fontSize: 36px\n    fontWeight: '400'\n    lineHeight: 44px\n    letterSpacing: -0.015em\n  headline-lg-mobile:\n    fontFamily: Noto Serif\n    fontSize: 26px\n    fontWeight: '400'\n    lineHeight: 34px\n    letterSpacing: -0.01em\n  headline-md:\n    fontFamily: Noto Serif\n    fontSize: 28px\n    fontWeight: '500'\n    lineHeight: 36px\n    letterSpacing: -0.01em\n  headline-sm:\n    fontFamily: Noto Serif\n    fontSize: 22px\n    fontWeight: '500'\n    lineHeight: 30px\n    letterSpacing: 0em\n  body-lg:\n    fontFamily: Manrope\n    fontSize: 18px\n    fontWeight: '400'\n    lineHeight: 28px\n    letterSpacing: 0em\n  body-md:\n    fontFamily: Manrope\n    fontSize: 15px\n    fontWeight: '400'\n    lineHeight: 24px\n    letterSpacing: 0.005em\n  body-sm:\n    fontFamily: Manrope\n    fontSize: 13px\n    fontWeight: '400'\n    lineHeight: 20px\n    letterSpacing: 0.01em\n  label-lg:\n    fontFamily: Space Grotesk\n    fontSize: 14px\n    fontWeight: '600'\n    lineHeight: 18px\n    letterSpacing: 0.05em\n  label-md:\n    fontFamily: Space Grotesk\n    fontSize: 12px\n    fontWeight: '500'\n    lineHeight: 16px\n    letterSpacing: 0.08em\n  label-sm:\n    fontFamily: Space Grotesk\n    fontSize: 10px\n    fontWeight: '600'\n    lineHeight: 14px\n    letterSpacing: 0.12em\nrounded:\n  sm: 0.125rem\n  DEFAULT: 0.25rem\n  md: 0.375rem\n  lg: 0.5rem\n  xl: 0.75rem\n  full: 9999px\nspacing:\n  gutter: 1.5rem\n  gutter-sm: 1rem\n  margin: 2rem\n  margin-sm: 1rem\n  margin-lg: 4rem\n  space-xs: 0.25rem\n  space-sm: 0.5rem\n  space-md: 1rem\n  space-lg: 1.5rem\n  space-xl: 2.5rem\n---\n\n## Brand & Style\n\nThis design system channels the quiet contemplation and expansive clarity of an unpolluted night sky. The aesthetic balances deep, layered nocturnal shadows with crisp, star-like illuminations and warm, navigational radiance. It is built for experiences requiring focus, atmospheric immersion, intuitive exploration, and elevated craftsmanship—such as premier observatory interfaces, celestial publishing, reflective productivity suites, or bespoke creative sanctuaries.\n\n### Aesthetic Movement\nThe visual language merges **Minimalism** with subtle **Ethereal Glassmorphism** and high-contrast editorial typography. Rather than relying on heavy textures or noisy gradients, depth is communicated through translucent indigo washes, refined hairline borders, and targeted luminescent accents.\n\n### Core Attributes\n- **Contemplative & Still:** Deep blue-blacks minimize ocular strain and invite slow, deliberate immersion.\n- **Star-lit Precision:** Information is treated with crisp readability; metadata and structural guides evoke astronomical instruments and celestial charts.\n- **Transcendent Warmth:** The amber-gold accent prevents the deep nocturnal palette from feeling cold or isolating, acting like a guiding lantern in the expanse.\n\n## Colors\n\nThe palette is tuned around a dark-field philosophy where light is treated as an intentional, precious element against nocturnal depth.\n\n### Palette Hierarchy\n- **Canvas Base (`#0B1120`):** The foundational cosmic void. Ground-level containers, page canvases, and subterranean roots.\n- **Surface Elevation (`#0F172A` to `#1E293B`):** Step-up dark tones for panels, card containers, and elevated sheets.\n- **Primary Accent (`#F59E0B`):** Guiding Warm Gold. Reserved for primary calls-to-action, active indicators, focus beacons, and high-impact states.\n- **Secondary Accent (`#8B5CF6`):** Nebula Violet. Used for atmospheric glow, secondary highlights, tags, and ethereal decorative gradients.\n- **Tertiary Accent (`#38BDF8`):** Starlight Cyan. Applied sparingly for informational signals, system states, and micro-metric accents.\n- **Neutrals & Text:**\n  - `Text-Primary` (`#F8FAFC` to `#FFFDF7`): Moonlit Cream/White for high-contrast clarity.\n  - `Text-Secondary` (`#E2E8F0`): Starlight Silver for section headers, subheadings, and interactive secondary text.\n  - `Text-Muted` (`#94A3B8`): Distant star haze for captions, timestamps, and secondary metadata.\n  - `Borders & Rules` (`rgba(226, 232, 240, 0.12)`): Low-contrast hairline dividers that organize content without breaking night adaptation.\n\n## Typography\n\nThe typographical pairing provides a tension between timeless literary observation and technical instrument design.\n\n- **Display & Headlines (`Noto Serif`):** Delivers literary gravity, human depth, and classical elegance. It frames narratives, page titles, and hero statements with contemplative grace.\n- **Long-Form & General Body (`Manrope`):** An impeccably readable, contemporary sans-serif engineered to maintain legibility against deep dark backgrounds without blooming or visual vibration.\n- **Labels, Metrics & Technical Interface (`Space Grotesk`):** Provides navigational clarity. Set with open tracking and deliberate uppercase configurations for tags, coordinates, dates, system monitors, and button labels, referencing celestial mechanics and astronomical chart labels.\n\n## Layout & Spacing\n\nThe layout embraces expansive negative space to emulate celestial vastness. Clutter is strictly avoided; content clusters are grouped into crisp gravitational zones.\n\n### Grid Architecture\n- **Desktop (1200px+):** 12-column responsive fluid grid with generous outer margins (`margin-lg: 4rem`) and comfortable column gutters (`gutter: 1.5rem`). Max-width constrained to `1360px` for optimal reading comfort.\n- **Tablet (768px – 1199px):** 8-column layout with `margin: 2rem` and `gutter: 1.5rem`. Side-by-side elements collapse into clean vertical hierarchies where necessary.\n- **Mobile (Up to 767px):** 4-column layout with tight edge control (`margin-sm: 1rem`) and unified inner gutters (`gutter-sm: 1rem`).\n\n### Rhythm\nComponents follow an 8px base spacing increment (represented through tokens `space-xs` through `space-xl`). Sections must be separated by generous margins to preserve the nocturnal mood and prevent visual compression.\n\n## Elevation & Depth\n\nElevation does not rely on harsh drop shadows. Instead, depth is articulated through three distinct celestial mechanics: tonal stacking, glassmorphism, and starlight edge definition.\n\n### Surface Tiers\n- **Tier 0 (The Deep Field):** `#0B1120`. Base canvas, subterranean background.\n- **Tier 1 (Nebula Surface):** `rgba(15, 23, 42, 0.75)` with `backdrop-filter: blur(16px)` and a subtle `1px` inner highlight border of `rgba(226, 232, 240, 0.08)`. Used for major content cards and navigation headers.\n- **Tier 2 (Orbital Float):** `rgba(30, 41, 59, 0.85)` with `backdrop-filter: blur(24px)` and hairline border `rgba(226, 232, 240, 0.16)`. Used for dropdowns, tooltips, popovers, and floating status bars.\n\n### Luminescence & Glows\n- **Ambient Shadow:** Replaced by soft, colored radial diffusion. High-elevation components cast an ethereal glow: `0 12px 32px -8px rgba(11, 17, 32, 0.8), 0 0 24px -4px rgba(139, 92, 246, 0.12)`.\n- **Focal Beacon:** Active, focused, or interactive elements emit a soft warm gold halo: `box-shadow: 0 0 16px -2px rgba(245, 158, 11, 0.28)`.\n\n## Shapes\n\nThe design system employs a **Soft** shape language (`roundedness: 1`). Corners are gently disciplined, mirroring the precision of lenses, telescopes, and technical navigational plates rather than playful toy-like surfaces.\n\n- **Base Components (Inputs, Small Badges, Chips):** `0.25rem` (4px).\n- **Cards, Panels & Modal Containers:** `0.5rem` (8px).\n- **Hero Windows & Floating Overlays:** `0.75rem` (12px).\n- **Pill Exceptions:** Micro badges or status beacon dots can optionally feature fully rounded pill shapes to distinguish transient system metadata from structural panels.\n\n## Components\n\n### Buttons\n- **Primary (Beacon):** Background solid warm gold (`#F59E0B`), foreground deep midnight (`#0B1120`), font `Space Grotesk` bold uppercase tracking. On hover: subtle scale transform with gold luminescent halo (`box-shadow: 0 0 20px rgba(245, 158, 11, 0.4)`).\n- **Secondary (Nebula Glass):** Background `rgba(30, 41, 59, 0.6)` with backdrop blur, border `1px solid rgba(226, 232, 240, 0.2)`, foreground starlight silver (`#E2E8F0`). On hover: border brightens to nebula violet (`#8B5CF6`).\n- **Ghost:** Transparent background with starlight silver text; hover triggers a moonlit wash `rgba(255, 255, 255, 0.05)`.\n\n### Cards & Panels\n- **Structure:** Nocturnal indigo container (`#0F172A`) overlayed with hairline starlight border (`rgba(226, 232, 240, 0.1)`).\n- **Header:** Features `Noto Serif` medium titles accented with uppercase `Space Grotesk` category tags in Starlight Cyan or Nebula Violet.\n- **Interactive State:** Hover subtly lifts the border luminance to `rgba(226, 232, 240, 0.25)` and casts an ethereal nebula shadow.\n\n### Input Fields\n- **Default:** Background `rgba(11, 17, 32, 0.8)`, border `1px solid rgba(226, 232, 240, 0.15)`, text moonlit cream (`#F8FAFC`), placeholder text muted star haze (`#64748B`).\n- **Focus:** Border transitions smoothly to warm gold (`#F59E0B`) with an ambient warm glow ring: `0 0 0 2px rgba(245, 158, 11, 0.2)`.\n\n### Chips & Badges\n- **Style:** Compact, understated indicators with `Space Grotesk` uppercase text.\n- **Treatment:** Semi-translucent dark field with colored hairline borders corresponding to system states: Gold (active/celestial focus), Violet (ethereal/tertiary), Cyan (telemetry/signal).\n\n### Checkboxes & Radio Buttons\n- **Unchecked:** Dark indigo box (`rgba(15, 23, 42, 0.8)`) with `1px solid rgba(226, 232, 240, 0.3)`.\n- **Checked:** Solid warm gold fill with crisp nocturnal indigo checkmark icon. Smooth glow pulse on interaction.\n\n### Lists & Key-Value Metrics\n- Dividers are hairline astronomical guides (`rgba(226, 232, 240, 0.08)`).\n- Values are displayed with high contrast moonlit white; parameter keys use `Space Grotesk` uppercase muted silver.\n\n### Observational Modals & Drawers\n- Heavy backdrop dimming with nocturnal indigo tint (`rgba(11, 17, 32, 0.85)`) coupled with a strong backdrop blur (`12px`).\n- Modal frames feature subtle gradient hairline borders shifting from nebula violet at the top left to starlight silver at the bottom right.",
+          "font": "NOTO_SERIF",
+          "headlineFont": "NOTO_SERIF",
+          "headlineFontFamily": "Noto Serif",
+          "labelFont": "SPACE_GROTESK",
+          "labelFontFamily": "Space Grotesk",
+          "namedColors": {
+            "background": "#0d1322",
+            "error": "#ffb4ab",
+            "error_container": "#93000a",
+            "inverse_on_surface": "#2a3040",
+            "inverse_primary": "#855300",
+            "inverse_surface": "#dde2f8",
+            "on_background": "#dde2f8",
+            "on_error": "#690005",
+            "on_error_container": "#ffdad6",
+            "on_primary": "#472a00",
+            "on_primary_container": "#613b00",
+            "on_primary_fixed": "#2a1700",
+            "on_primary_fixed_variant": "#653e00",
+            "on_secondary": "#3c0091",
+            "on_secondary_container": "#c4abff",
+            "on_secondary_fixed": "#23005c",
+            "on_secondary_fixed_variant": "#5516be",
+            "on_surface": "#dde2f8",
+            "on_surface_variant": "#d8c3ad",
+            "on_tertiary": "#00354a",
+            "on_tertiary_container": "#004965",
+            "on_tertiary_fixed": "#001e2c",
+            "on_tertiary_fixed_variant": "#004c69",
+            "outline": "#a08e7a",
+            "outline_variant": "#534434",
+            "primary": "#ffc174",
+            "primary_container": "#f59e0b",
+            "primary_fixed": "#ffddb8",
+            "primary_fixed_dim": "#ffb95f",
+            "secondary": "#d0bcff",
+            "secondary_container": "#571bc1",
+            "secondary_fixed": "#e9ddff",
+            "secondary_fixed_dim": "#d0bcff",
+            "surface": "#0d1322",
+            "surface_bright": "#33394a",
+            "surface_container": "#191f2f",
+            "surface_container_high": "#242a3a",
+            "surface_container_highest": "#2f3445",
+            "surface_container_low": "#151b2b",
+            "surface_container_lowest": "#080e1d",
+            "surface_dim": "#0d1322",
+            "surface_tint": "#ffb95f",
+            "surface_variant": "#2f3445",
+            "tertiary": "#8ed5ff",
+            "tertiary_container": "#38bdf8",
+            "tertiary_fixed": "#c4e7ff",
+            "tertiary_fixed_dim": "#7bd0ff"
+          },
+          "overrideNeutralColor": "#0b1120",
+          "overridePrimaryColor": "#f59e0b",
+          "overrideSecondaryColor": "#8b5cf6",
+          "overrideTertiaryColor": "#38bdf8",
+          "roundness": "ROUND_FOUR",
+          "spacing": {
+            "gutter": "1.5rem",
+            "gutter-sm": "1rem",
+            "margin": "2rem",
+            "margin-lg": "4rem",
+            "margin-sm": "1rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem"
+          },
+          "spacingScale": 2,
+          "typography": {
+            "body-lg": {
+              "fontFamily": "Manrope",
+              "fontSize": "18px",
+              "fontWeight": "400",
+              "letterSpacing": "0em",
+              "lineHeight": "28px"
+            },
+            "body-md": {
+              "fontFamily": "Manrope",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "letterSpacing": "0.005em",
+              "lineHeight": "24px"
+            },
+            "body-sm": {
+              "fontFamily": "Manrope",
+              "fontSize": "13px",
+              "fontWeight": "400",
+              "letterSpacing": "0.01em",
+              "lineHeight": "20px"
+            },
+            "headline-lg": {
+              "fontFamily": "Noto Serif",
+              "fontSize": "36px",
+              "fontWeight": "400",
+              "letterSpacing": "-0.015em",
+              "lineHeight": "44px"
+            },
+            "headline-lg-mobile": {
+              "fontFamily": "Noto Serif",
+              "fontSize": "26px",
+              "fontWeight": "400",
+              "letterSpacing": "-0.01em",
+              "lineHeight": "34px"
+            },
+            "headline-md": {
+              "fontFamily": "Noto Serif",
+              "fontSize": "28px",
+              "fontWeight": "500",
+              "letterSpacing": "-0.01em",
+              "lineHeight": "36px"
+            },
+            "headline-sm": {
+              "fontFamily": "Noto Serif",
+              "fontSize": "22px",
+              "fontWeight": "500",
+              "letterSpacing": "0em",
+              "lineHeight": "30px"
+            },
+            "headline-xl": {
+              "fontFamily": "Noto Serif",
+              "fontSize": "48px",
+              "fontWeight": "400",
+              "letterSpacing": "-0.02em",
+              "lineHeight": "56px"
+            },
+            "headline-xl-mobile": {
+              "fontFamily": "Noto Serif",
+              "fontSize": "32px",
+              "fontWeight": "400",
+              "letterSpacing": "-0.01em",
+              "lineHeight": "40px"
+            },
+            "label-lg": {
+              "fontFamily": "Space Grotesk",
+              "fontSize": "14px",
+              "fontWeight": "600",
+              "letterSpacing": "0.05em",
+              "lineHeight": "18px"
+            },
+            "label-md": {
+              "fontFamily": "Space Grotesk",
+              "fontSize": "12px",
+              "fontWeight": "500",
+              "letterSpacing": "0.08em",
+              "lineHeight": "16px"
+            },
+            "label-sm": {
+              "fontFamily": "Space Grotesk",
+              "fontSize": "10px",
+              "fontWeight": "600",
+              "letterSpacing": "0.12em",
+              "lineHeight": "14px"
+            }
+          }
+        }
+      },
+      "name": "assets/4ec8122474c1442d86bd7052848b694c",
+      "version": "1"
+    },
+    {
+      "designSystem": {
+        "displayName": "Mystic Arbor",
+        "styleGuidelines": "## Brand & Style\n\nThis design system embodies a mindful, contemplative card divination experience steeped in sacred geometry, natural tranquility, and artisanal printcraft. The brand balances ethereal mysticism with tactile grounding—evoking antique bookbinding, botanical archives, and meditative rituals.\n\nThe target audience seeks intentional pauses in daily life: individuals drawn to mindful tarot, archetypal contemplation, journaling, and holistic wellness. The experience feels reverent, uncluttered, and silent, steering far away from gamified casino mechanics or neon-infused psychic tropes.\n\n### Aesthetic Foundation\n- **Warm Minimalist Sacred Geometry:** Quiet spaces framed with warm parchment grounds, thin metallic rules, and balanced celestial symmetry.\n- **Organic Tactility:** Surface interactions emulate heavyweight cotton rag paper, debossed hot-foil brass accents, and matte herbal ink.\n- **Ritual-Centered Atmosphere:** High contrast between deep forest green velvet draw mats and luminous parchment cards, guiding the mind into a focused, tranquil flow.\n\n## Layout & Spacing\n\nThe layout is built upon an airy, focused mobile-first flow that breathes quiet contemplation:\n\n- **Grid Model:** Fluid 4-column layout on mobile devices transitioning to an 8-column layout on tablets and desktops.\n- **Canvas Margins:** Fixed `1.25rem` outer gutters maintain safe touch areas away from edge bezels.\n- **Card Aspect Ratio:** Sacred ratio of `1 : 1.618` (Golden Ratio) for cards in the deck, modal inspections, and catalog grids.\n- **Bottom Navigation Clearance:** Standard `4.5rem` bottom spacer ensures scrollable catalogs and ritual spaces never collide with the persistent lower dock.\n\n## Elevation & Depth\n\nVisual hierarchy does not rely on harsh synthetic drop shadows. Instead, it employs tonal layering, gilded borders, and soft atmospheric ambient diffusion:\n\n- **Level 0 (The Mat / Canvas):** Deep green felt `#163024` during rituals; warm ivory `#FBF9F3` in archive views.\n- **Level 1 (Resting Cards & Pill Elements):** Ivory surface defined by a `1.5px` border of `#1A382B` accompanied by a nested `1px` inner hair-line in muted gold `#C5A059`. Subtle ambient shadow: `0 4px 16px rgba(22, 48, 36, 0.08)`.\n- **Level 2 (Lifted / Drawn Cards & Overlays):** Deep spiritual levitation rendered with layered warm shadows: `0 12px 32px rgba(18, 38, 28, 0.22), 0 2px 6px rgba(197, 160, 89, 0.12)`.\n- **Level 3 (Fixed Bottom Dock):** Frosted glassmorphism over canvas with `backdrop-filter: blur(16px)`, background tinted to `rgba(251, 249, 243, 0.88)` on light screens and `rgba(22, 48, 36, 0.88)` on dark ritual canvases, framed by a top hair-line border in `rgba(197, 160, 89, 0.3)`.\n\n## Components\n\n### Card Component\n- **Structure:** `1:1.618` aspect ratio. Front face in parchment `#FBF9F3`, double-bordered with outer Forest Green (`2px`) and an inner recessed gold hairline (`1px`, `6px` inset).\n- **Face Elements:** Central sage circular medallion (`#D8E2DC`) showcasing the symbolic motif in deep forest green and brass. Starburst indicator at the apex, tripartite balance dots at the bottom.\n- **Back Face:** Deep forest green (`#1A382B`) patterned with fine geometric gold point grids and a central 8-pointed star medallion.\n\n### Buttons & Pills\n- **Primary Pill (e.g., \"Ukončit\", \"Vytáhnout kartu\"):** Pill shape with transparent or forest green background, crisp `1.5px` border in `#C5A059` or `#F4EFE6`, typography set in `DM Sans` Medium.\n- **Secondary Icon Button (e.g., Settings cog):** Circle container in `rgba(216, 226, 220, 0.2)` with a subtle gold perimeter, housing a centered monochrome glyph.\n\n### Navigation Dock (Fixed Bottom Bar)\n- **Layout:** Persistent horizontal floating dock, `64px` height, anchored `16px` above the bottom screen safe area, pill-padded.\n- **Items:** \n  1. **Tahání (Draw):** Star/card arc icon.\n  2. **Katalog (Catalog / Všechny karty):** Four-card grid icon.\n  3. **Nastavení (Settings):** Minimalist astronomical gear icon.\n- **Active State:** Highlighted in burnished gold (`#C5A059`) with a miniature gold pip underneath; inactive state in muted sage green (`#6D8B7D`).\n\n### Inspection Detail Sheet\n- **Presentation:** Half-to-full height bottom sheet in parchment cream (`#FBF9F3`).\n- **Typography:** Serif title in `EB Garamond` (`26px`), followed by gold uppercase category caps (\"VÝZNAM\", \"POPIS\") and high-readability body descriptions in `DM Sans`.",
+        "theme": {
+          "bodyFont": "DM_SANS",
+          "bodyFontFamily": "DM Sans",
+          "colorMode": "LIGHT",
+          "colorVariant": "FIDELITY",
+          "customColor": "#1a382b",
+          "designMd": "---\nname: Mystic Arbor\ncolors:\n  surface: '#fbf9f3'\n  surface-dim: '#dcdad4'\n  surface-bright: '#fbf9f3'\n  surface-container-lowest: '#ffffff'\n  surface-container-low: '#f5f3ee'\n  surface-container: '#f0eee8'\n  surface-container-high: '#eae8e2'\n  surface-container-highest: '#e4e2dd'\n  on-surface: '#1b1c19'\n  on-surface-variant: '#424844'\n  inverse-surface: '#30312d'\n  inverse-on-surface: '#f2f1eb'\n  outline: '#727974'\n  outline-variant: '#c1c8c2'\n  surface-tint: '#466556'\n  primary: '#032217'\n  on-primary: '#ffffff'\n  primary-container: '#1a382b'\n  on-primary-container: '#81a291'\n  inverse-primary: '#adcebc'\n  secondary: '#775a19'\n  on-secondary: '#ffffff'\n  secondary-container: '#fed488'\n  on-secondary-container: '#785a1a'\n  tertiary: '#161f1b'\n  on-tertiary: '#ffffff'\n  tertiary-container: '#2b3430'\n  on-tertiary-container: '#929c97'\n  error: '#ba1a1a'\n  on-error: '#ffffff'\n  error-container: '#ffdad6'\n  on-error-container: '#93000a'\n  primary-fixed: '#c8ead7'\n  primary-fixed-dim: '#adcebc'\n  on-primary-fixed: '#022115'\n  on-primary-fixed-variant: '#2f4d3f'\n  secondary-fixed: '#ffdea5'\n  secondary-fixed-dim: '#e9c176'\n  on-secondary-fixed: '#261900'\n  on-secondary-fixed-variant: '#5d4201'\n  tertiary-fixed: '#dbe5df'\n  tertiary-fixed-dim: '#bfc9c3'\n  on-tertiary-fixed: '#151d1a'\n  on-tertiary-fixed-variant: '#3f4945'\n  background: '#fbf9f3'\n  on-background: '#1b1c19'\n  surface-variant: '#e4e2dd'\ntypography:\n  display-lg:\n    fontFamily: EB Garamond\n    fontSize: 40px\n    fontWeight: '400'\n    lineHeight: 48px\n    letterSpacing: -0.01em\n  headline-lg:\n    fontFamily: EB Garamond\n    fontSize: 32px\n    fontWeight: '500'\n    lineHeight: 38px\n  headline-lg-mobile:\n    fontFamily: EB Garamond\n    fontSize: 26px\n    fontWeight: '500'\n    lineHeight: 32px\n  headline-md:\n    fontFamily: EB Garamond\n    fontSize: 22px\n    fontWeight: '500'\n    lineHeight: 28px\n  headline-sm:\n    fontFamily: EB Garamond\n    fontSize: 18px\n    fontWeight: '600'\n    lineHeight: 24px\n  title-md:\n    fontFamily: DM Sans\n    fontSize: 16px\n    fontWeight: '600'\n    lineHeight: 22px\n    letterSpacing: 0.02em\n  body-lg:\n    fontFamily: DM Sans\n    fontSize: 16px\n    fontWeight: '400'\n    lineHeight: 26px\n  body-md:\n    fontFamily: DM Sans\n    fontSize: 14px\n    fontWeight: '400'\n    lineHeight: 22px\n  label-lg:\n    fontFamily: DM Sans\n    fontSize: 13px\n    fontWeight: '600'\n    lineHeight: 18px\n    letterSpacing: 0.06em\n  label-sm:\n    fontFamily: DM Sans\n    fontSize: 11px\n    fontWeight: '500'\n    lineHeight: 14px\n    letterSpacing: 0.08em\nrounded:\n  sm: 0.25rem\n  DEFAULT: 0.5rem\n  md: 0.75rem\n  lg: 1rem\n  xl: 1.5rem\n  full: 9999px\nspacing:\n  gutter: 1rem\n  margin: 1.25rem\n  space-xs: 0.25rem\n  space-sm: 0.5rem\n  space-md: 1rem\n  space-lg: 1.5rem\n  space-xl: 2.5rem\n---\n\n## Brand & Style\n\nThis design system embodies a mindful, contemplative card divination experience steeped in sacred geometry, natural tranquility, and artisanal printcraft. The brand balances ethereal mysticism with tactile grounding—evoking antique bookbinding, botanical archives, and meditative rituals.\n\nThe target audience seeks intentional pauses in daily life: individuals drawn to mindful tarot, archetypal contemplation, journaling, and holistic wellness. The experience feels reverent, uncluttered, and silent, steering far away from gamified casino mechanics or neon-infused psychic tropes.\n\n### Aesthetic Foundation\n- **Warm Minimalist Sacred Geometry:** Quiet spaces framed with warm parchment grounds, thin metallic rules, and balanced celestial symmetry.\n- **Organic Tactility:** Surface interactions emulate heavyweight cotton rag paper, debossed hot-foil brass accents, and matte herbal ink.\n- **Ritual-Centered Atmosphere:** High contrast between deep forest green velvet draw mats and luminous parchment cards, guiding the mind into a focused, tranquil flow.\n\n## Colors\n\nThe color palette centers on the natural harmony between deep arbor green and artisanal warm ivory, highlighted by celestial brass.\n\n### Color Roles & Surfaces\n- **Primary (`#1A382B` & `#163024`):** Deep Forest Green. Used for active draw surface mats, primary button fills, card backs, and top-tier typographic headings. Represents grounding, ancient foliage, and stillness.\n- **Secondary (`#C5A059` & `#D4AF37`):** Muted Celestial Brass & Gold. Reserved for fine hairline borders, astronomical card emblems, celestial starbursts, and active navigation indicators. Conveys sacred illumination and wisdom.\n- **Tertiary (`#D8E2DC`):** Muted Sage & Botanical Mist. Serves as soft circular glyph backdrops, card halo washes, secondary tag fills, and quiet separators.\n- **Neutral Base (`#FBF9F3` & `#F4EFE6`):** Warm Ivory & Aged Parchment. Forms the primary canvas background across catalog views, reading sheets, and modal bottom drawers, preventing visual fatigue.\n- **Text & Foreground Nuance:** Deep Evergreen (`#13241C`) for body text on light surfaces; Light Parchment (`#F4EFE6`) for text on deep green mats.\n\n## Typography\n\nThe type system blends literary classicism with ergonomic modernity:\n\n- **Display & Headings (`EB Garamond`):** Instills historic depth, intellectual mindfulness, and contemplative gravitas. Card titles, section headers, and archetype names harness natural serifs.\n- **Interface & Body Text (`DM Sans`):** Provides pristine legibility at miniature sizes, maintaining geometry without cold sterility. Used across card interpretations, counter tallies, and navigation labels.\n- **Capitalization & Trackings:** All labels, navigation items, and mystical sub-headers employ slight uppercase tracking (`0.06em` to `0.08em`) to echo inscribed bronze tablets.\n\n## Layout & Spacing\n\nThe layout is built upon an airy, focused mobile-first flow that breathes quiet contemplation:\n\n- **Grid Model:** Fluid 4-column layout on mobile devices transitioning to an 8-column layout on tablets and desktops.\n- **Canvas Margins:** Fixed `1.25rem` outer gutters maintain safe touch areas away from edge bezels.\n- **Card Aspect Ratio:** Sacred ratio of `1 : 1.618` (Golden Ratio) for cards in the deck, modal inspections, and catalog grids.\n- **Bottom Navigation Clearance:** Standard `4.5rem` bottom spacer ensures scrollable catalogs and ritual spaces never collide with the persistent lower dock.\n\n## Elevation & Depth\n\nVisual hierarchy does not rely on harsh synthetic drop shadows. Instead, it employs tonal layering, gilded borders, and soft atmospheric ambient diffusion:\n\n- **Level 0 (The Mat / Canvas):** Deep green felt `#163024` during rituals; warm ivory `#FBF9F3` in archive views.\n- **Level 1 (Resting Cards & Pill Elements):** Ivory surface defined by a `1.5px` border of `#1A382B` accompanied by a nested `1px` inner hair-line in muted gold `#C5A059`. Subtle ambient shadow: `0 4px 16px rgba(22, 48, 36, 0.08)`.\n- **Level 2 (Lifted / Drawn Cards & Overlays):** Deep spiritual levitation rendered with layered warm shadows: `0 12px 32px rgba(18, 38, 28, 0.22), 0 2px 6px rgba(197, 160, 89, 0.12)`.\n- **Level 3 (Fixed Bottom Dock):** Frosted glassmorphism over canvas with `backdrop-filter: blur(16px)`, background tinted to `rgba(251, 249, 243, 0.88)` on light screens and `rgba(22, 48, 36, 0.88)` on dark ritual canvases, framed by a top hair-line border in `rgba(197, 160, 89, 0.3)`.\n\n## Shapes\n\nThe form language balances organic softness with pill capsules:\n\n- **Cards:** Defined by `rounded-lg` (`1rem` / `16px`) corners, echoing archival tarot decks. Card outlines incorporate double-line geometry with rounded corners.\n- **Action Buttons & Badges:** Full pill radii (`9999px`) provide ergonomic, calming tactile targets.\n- **Glyph Medallions:** Perfect circles (`50%` radius) framing delicate line-art illustrations, backed by soft sage (`#D8E2DC`) washes.\n- **Modal Sheets:** Rounded top corners (`1.5rem` / `24px`) opening upwards gracefully like a sanctuary envelope.\n\n## Components\n\n### Card Component\n- **Structure:** `1:1.618` aspect ratio. Front face in parchment `#FBF9F3`, double-bordered with outer Forest Green (`2px`) and an inner recessed gold hairline (`1px`, `6px` inset).\n- **Face Elements:** Central sage circular medallion (`#D8E2DC`) showcasing the symbolic motif in deep forest green and brass. Starburst indicator at the apex, tripartite balance dots at the bottom.\n- **Back Face:** Deep forest green (`#1A382B`) patterned with fine geometric gold point grids and a central 8-pointed star medallion.\n\n### Buttons & Pills\n- **Primary Pill (e.g., \"Ukončit\", \"Vytáhnout kartu\"):** Pill shape with transparent or forest green background, crisp `1.5px` border in `#C5A059` or `#F4EFE6`, typography set in `DM Sans` Medium.\n- **Secondary Icon Button (e.g., Settings cog):** Circle container in `rgba(216, 226, 220, 0.2)` with a subtle gold perimeter, housing a centered monochrome glyph.\n\n### Navigation Dock (Fixed Bottom Bar)\n- **Layout:** Persistent horizontal floating dock, `64px` height, anchored `16px` above the bottom screen safe area, pill-padded.\n- **Items:** \n  1. **Tahání (Draw):** Star/card arc icon.\n  2. **Katalog (Catalog / Všechny karty):** Four-card grid icon.\n  3. **Nastavení (Settings):** Minimalist astronomical gear icon.\n- **Active State:** Highlighted in burnished gold (`#C5A059`) with a miniature gold pip underneath; inactive state in muted sage green (`#6D8B7D`).\n\n### Inspection Detail Sheet\n- **Presentation:** Half-to-full height bottom sheet in parchment cream (`#FBF9F3`).\n- **Typography:** Serif title in `EB Garamond` (`26px`), followed by gold uppercase category caps (\"VÝZNAM\", \"POPIS\") and high-readability body descriptions in `DM Sans`.",
+          "font": "EB_GARAMOND",
+          "headlineFont": "EB_GARAMOND",
+          "headlineFontFamily": "EB Garamond",
+          "labelFont": "DM_SANS",
+          "labelFontFamily": "DM Sans",
+          "namedColors": {
+            "background": "#fbf9f3",
+            "error": "#ba1a1a",
+            "error_container": "#ffdad6",
+            "inverse_on_surface": "#f2f1eb",
+            "inverse_primary": "#adcebc",
+            "inverse_surface": "#30312d",
+            "on_background": "#1b1c19",
+            "on_error": "#ffffff",
+            "on_error_container": "#93000a",
+            "on_primary": "#ffffff",
+            "on_primary_container": "#81a291",
+            "on_primary_fixed": "#022115",
+            "on_primary_fixed_variant": "#2f4d3f",
+            "on_secondary": "#ffffff",
+            "on_secondary_container": "#785a1a",
+            "on_secondary_fixed": "#261900",
+            "on_secondary_fixed_variant": "#5d4201",
+            "on_surface": "#1b1c19",
+            "on_surface_variant": "#424844",
+            "on_tertiary": "#ffffff",
+            "on_tertiary_container": "#929c97",
+            "on_tertiary_fixed": "#151d1a",
+            "on_tertiary_fixed_variant": "#3f4945",
+            "outline": "#727974",
+            "outline_variant": "#c1c8c2",
+            "primary": "#032217",
+            "primary_container": "#1a382b",
+            "primary_fixed": "#c8ead7",
+            "primary_fixed_dim": "#adcebc",
+            "secondary": "#775a19",
+            "secondary_container": "#fed488",
+            "secondary_fixed": "#ffdea5",
+            "secondary_fixed_dim": "#e9c176",
+            "surface": "#fbf9f3",
+            "surface_bright": "#fbf9f3",
+            "surface_container": "#f0eee8",
+            "surface_container_high": "#eae8e2",
+            "surface_container_highest": "#e4e2dd",
+            "surface_container_low": "#f5f3ee",
+            "surface_container_lowest": "#ffffff",
+            "surface_dim": "#dcdad4",
+            "surface_tint": "#466556",
+            "surface_variant": "#e4e2dd",
+            "tertiary": "#161f1b",
+            "tertiary_container": "#2b3430",
+            "tertiary_fixed": "#dbe5df",
+            "tertiary_fixed_dim": "#bfc9c3"
+          },
+          "overrideNeutralColor": "#fbf9f3",
+          "overridePrimaryColor": "#1a382b",
+          "overrideSecondaryColor": "#c5a059",
+          "overrideTertiaryColor": "#d8e2dc",
+          "roundness": "ROUND_EIGHT",
+          "spacing": {
+            "gutter": "1rem",
+            "margin": "1.25rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem"
+          },
+          "spacingScale": 2,
+          "typography": {
+            "body-lg": {
+              "fontFamily": "DM Sans",
+              "fontSize": "16px",
+              "fontWeight": "400",
+              "lineHeight": "26px"
+            },
+            "body-md": {
+              "fontFamily": "DM Sans",
+              "fontSize": "14px",
+              "fontWeight": "400",
+              "lineHeight": "22px"
+            },
+            "display-lg": {
+              "fontFamily": "EB Garamond",
+              "fontSize": "40px",
+              "fontWeight": "400",
+              "letterSpacing": "-0.01em",
+              "lineHeight": "48px"
+            },
+            "headline-lg": {
+              "fontFamily": "EB Garamond",
+              "fontSize": "32px",
+              "fontWeight": "500",
+              "lineHeight": "38px"
+            },
+            "headline-lg-mobile": {
+              "fontFamily": "EB Garamond",
+              "fontSize": "26px",
+              "fontWeight": "500",
+              "lineHeight": "32px"
+            },
+            "headline-md": {
+              "fontFamily": "EB Garamond",
+              "fontSize": "22px",
+              "fontWeight": "500",
+              "lineHeight": "28px"
+            },
+            "headline-sm": {
+              "fontFamily": "EB Garamond",
+              "fontSize": "18px",
+              "fontWeight": "600",
+              "lineHeight": "24px"
+            },
+            "label-lg": {
+              "fontFamily": "DM Sans",
+              "fontSize": "13px",
+              "fontWeight": "600",
+              "letterSpacing": "0.06em",
+              "lineHeight": "18px"
+            },
+            "label-sm": {
+              "fontFamily": "DM Sans",
+              "fontSize": "11px",
+              "fontWeight": "500",
+              "letterSpacing": "0.08em",
+              "lineHeight": "14px"
+            },
+            "title-md": {
+              "fontFamily": "DM Sans",
+              "fontSize": "16px",
+              "fontWeight": "600",
+              "letterSpacing": "0.02em",
+              "lineHeight": "22px"
+            }
+          }
+        }
+      },
+      "name": "assets/8611f465687f4aefbb72efbdb0d60c16",
+      "version": "1"
+    },
+    {
+      "designSystem": {
+        "displayName": "Solstice Ochre",
+        "styleGuidelines": "## Brand & Style\n\nThis design system channels the primordial warmth of baked earth, sun-drenched sandstone, and radiating hearths. It merges an organic, editorial sensibility with contemporary structural discipline. The aesthetic balances grounded permanence with solar vitality, speaking to users who value artisanal craft, slow living, and rooted wellness.\n\n### Style Archetype: Tactile Editorial Minimalist\n- **Core Attitude:** Earthy, contemplative, luminous, and tactile.\n- **Visual Expression:** Generous linen-toned negative space framed by architectural terracotta structures, glowing solar accents, and warm deep clay ink tones. Contrast is preserved through rich soil neutrals rather than stark synthetic blacks.\n- **Physicality:** Subtle paper and stone materialities expressed through low-contrast warm boundaries, matte surfaces, and gentle ambient shadows tinted with umber.\n\n## Layout & Spacing\n\nThe layout philosophy uses a disciplined fluid grid anchored by expansive, breathing margins that emulate gallery spaces and high-end print design.\n\n### Grid Anatomy\n- **Desktop (1024px+):** 12-column layout, 48px outer canvas margin, 24px column gutters. Maximum content constrainer is capped at 1280px to preserve comfortable reading lengths.\n- **Tablet (768px – 1023px):** 8-column layout, 32px margins, 20px gutters.\n- **Mobile (< 768px):** 4-column layout, 20px margins, 16px gutters.\n\n### Vertical Rhythm\nA base unit of 8px (0.5rem) governs rhythm. Major thematic sections use generous breathing space (`space-xl` and higher) to evoke open desert vistas, whereas component internals use tighter increments (`space-xs` to `space-md`) to ensure tactile cohesion.\n\n## Elevation & Depth\n\nVisual depth avoids cold, neutral grey dropshadows. Hierarchy is established through warm tonal layering and soft, daylight-inspired amber-cast ambient diffusion.\n\n### Elevation Principles\n- **Ground Floor (Base Canvas):** `#FDF8F0` represents untreated papyrus.\n- **Surface Level 1 (Cards, Shelves):** `#F7EFE2` with a 1px border colored with `#E7DAC8` (warm sand outline).\n- **Surface Level 2 (Flyouts, Active States):** Tinted warm lift. Shadow is calculated using umber tones: `0 8px 24px -4px rgba(62, 39, 35, 0.08), 0 2px 6px -1px rgba(62, 39, 35, 0.04)`.\n- **Surface Level 3 (Dialogs, Overlays):** `0 20px 40px -8px rgba(42, 24, 16, 0.16)`.\n- **Solar Radiant Accents:** Key floating elements or active toggles employ an internal or subtle perimeter glow using amber tones: `box-shadow: 0 0 0 1px #D97706, 0 4px 12px rgba(217, 119, 6, 0.2)`.\n\n## Components\n\n### Buttons\n- **Primary:** Solid terracotta (`#9E472A`) with light papyrus text (`#FDF8F0`). On hover, transition to deep umber-terracotta (`#853A21`). Focus ring is a 2px offset amber (`#D97706`).\n- **Secondary / Solar:** Amber base (`#D97706`) with deep clay text (`#2A1810`). Reserved for secondary accents or seasonal callouts.\n- **Outlined:** Transparent background with a 1.5px border of `#CBB8A3` and `#3E2723` text. On hover, background shifts to `#F0E5D4`.\n\n### Cards & Panels\n- **Structure:** Background in `#F7EFE2` with a 1px perimeter stroke of `#E5D7C3`.\n- **Behavior:** Subtle translateY on hover (-2px) with the ambient umber shadow intensifying.\n- **Header Areas:** Decorated with optional micro-accents like a hairline border in `#D97706` or an earthy ochre category indicator.\n\n### Input Fields & Controls\n- **Fields:** Surface `#FFFFFF` or `#FCF9F3` framed with a 1px boundary of `#D8C8B5`.\n- **Active / Focus:** Border shifts cleanly to `#9E472A` with an ambient glow of `rgba(158, 71, 42, 0.15)`. Labels sit strictly in `label-md` using `#3E2723`.\n- **Checkboxes & Radios:** Terracotta fill with `#FDF8F0` check marks when active. Unchecked borders leverage clay-neutral tones.\n\n### Chips & Badges\n- **Status Badges:** Pill-shaped surfaces in `#F1E3D0` with rich `#9E472A` or `#D97706` text.\n- **Interactive Chips:** Light sand fill, shifting to deep terracotta fill with warm white text when selected.\n\n### Editorial & Narrative Elements\n- **Solar Dividers:** Subtle horizontal rules carrying an organic gradient running from `#E5D7C3` to `#D97706` to `#E5D7C3` at 1px height.\n- **Blockquotes & Pull-outs:** Left border 3px in solid `#9E472A`, styled in `Literata` italic, providing warmth and grounded storytelling moments.",
+        "theme": {
+          "bodyFont": "PLUS_JAKARTA_SANS",
+          "bodyFontFamily": "Plus Jakarta Sans",
+          "colorMode": "LIGHT",
+          "colorVariant": "FIDELITY",
+          "customColor": "#9e472a",
+          "designMd": "---\nname: Solstice Ochre\ncolors:\n  surface: '#fff8f0'\n  surface-dim: '#e1d9cc'\n  surface-bright: '#fff8f0'\n  surface-container-lowest: '#ffffff'\n  surface-container-low: '#fbf3e6'\n  surface-container: '#f5ede0'\n  surface-container-high: '#efe7da'\n  surface-container-highest: '#e9e2d5'\n  on-surface: '#1e1b14'\n  on-surface-variant: '#55423d'\n  inverse-surface: '#343028'\n  inverse-on-surface: '#f8f0e3'\n  outline: '#88726c'\n  outline-variant: '#dcc1b9'\n  surface-tint: '#9b4428'\n  primary: '#7f3015'\n  on-primary: '#ffffff'\n  primary-container: '#9e472a'\n  on-primary-container: '#ffd3c6'\n  inverse-primary: '#ffb59e'\n  secondary: '#904d00'\n  on-secondary: '#ffffff'\n  secondary-container: '#fe932c'\n  on-secondary-container: '#663500'\n  tertiary: '#5d433e'\n  on-tertiary: '#ffffff'\n  tertiary-container: '#775a55'\n  on-tertiary-container: '#fad4cd'\n  error: '#ba1a1a'\n  on-error: '#ffffff'\n  error-container: '#ffdad6'\n  on-error-container: '#93000a'\n  primary-fixed: '#ffdbd0'\n  primary-fixed-dim: '#ffb59e'\n  on-primary-fixed: '#3a0b00'\n  on-primary-fixed-variant: '#7c2e13'\n  secondary-fixed: '#ffdcc3'\n  secondary-fixed-dim: '#ffb77d'\n  on-secondary-fixed: '#2f1500'\n  on-secondary-fixed-variant: '#6e3900'\n  tertiary-fixed: '#ffdad4'\n  tertiary-fixed-dim: '#e3beb8'\n  on-tertiary-fixed: '#2b1613'\n  on-tertiary-fixed-variant: '#5b403c'\n  background: '#fff8f0'\n  on-background: '#1e1b14'\n  surface-variant: '#e9e2d5'\ntypography:\n  display-lg:\n    fontFamily: Literata\n    fontSize: 56px\n    fontWeight: '600'\n    lineHeight: 64px\n    letterSpacing: -0.02em\n  display-lg-mobile:\n    fontFamily: Literata\n    fontSize: 38px\n    fontWeight: '600'\n    lineHeight: 46px\n    letterSpacing: -0.01em\n  headline-lg:\n    fontFamily: Literata\n    fontSize: 36px\n    fontWeight: '600'\n    lineHeight: 44px\n    letterSpacing: -0.015em\n  headline-lg-mobile:\n    fontFamily: Literata\n    fontSize: 28px\n    fontWeight: '600'\n    lineHeight: 36px\n    letterSpacing: -0.01em\n  headline-md:\n    fontFamily: Literata\n    fontSize: 26px\n    fontWeight: '500'\n    lineHeight: 34px\n    letterSpacing: -0.01em\n  headline-sm:\n    fontFamily: Literata\n    fontSize: 20px\n    fontWeight: '500'\n    lineHeight: 28px\n    letterSpacing: 0em\n  body-lg:\n    fontFamily: Plus Jakarta Sans\n    fontSize: 18px\n    fontWeight: '400'\n    lineHeight: 28px\n    letterSpacing: -0.005em\n  body-md:\n    fontFamily: Plus Jakarta Sans\n    fontSize: 15px\n    fontWeight: '400'\n    lineHeight: 24px\n    letterSpacing: 0em\n  body-sm:\n    fontFamily: Plus Jakarta Sans\n    fontSize: 13px\n    fontWeight: '400'\n    lineHeight: 20px\n    letterSpacing: 0.005em\n  label-lg:\n    fontFamily: Plus Jakarta Sans\n    fontSize: 14px\n    fontWeight: '600'\n    lineHeight: 20px\n    letterSpacing: 0.01em\n  label-md:\n    fontFamily: Plus Jakarta Sans\n    fontSize: 12px\n    fontWeight: '600'\n    lineHeight: 16px\n    letterSpacing: 0.02em\n  label-sm:\n    fontFamily: Plus Jakarta Sans\n    fontSize: 11px\n    fontWeight: '700'\n    lineHeight: 14px\n    letterSpacing: 0.04em\nrounded:\n  sm: 0.25rem\n  DEFAULT: 0.5rem\n  md: 0.75rem\n  lg: 1rem\n  xl: 1.5rem\n  full: 9999px\nspacing:\n  gutter: 1.5rem\n  gutter-mobile: 1rem\n  margin: 3rem\n  margin-mobile: 1.25rem\n  space-xs: 0.25rem\n  space-sm: 0.5rem\n  space-md: 1rem\n  space-lg: 1.5rem\n  space-xl: 2.5rem\n---\n\n## Brand & Style\n\nThis design system channels the primordial warmth of baked earth, sun-drenched sandstone, and radiating hearths. It merges an organic, editorial sensibility with contemporary structural discipline. The aesthetic balances grounded permanence with solar vitality, speaking to users who value artisanal craft, slow living, and rooted wellness.\n\n### Style Archetype: Tactile Editorial Minimalist\n- **Core Attitude:** Earthy, contemplative, luminous, and tactile.\n- **Visual Expression:** Generous linen-toned negative space framed by architectural terracotta structures, glowing solar accents, and warm deep clay ink tones. Contrast is preserved through rich soil neutrals rather than stark synthetic blacks.\n- **Physicality:** Subtle paper and stone materialities expressed through low-contrast warm boundaries, matte surfaces, and gentle ambient shadows tinted with umber.\n\n## Colors\n\nThe palette draws inspiration directly from baked earth pigments, solar transitions, and raw fibers.\n\n- **Primary (`#9E472A` - Solar Terracotta):** Represents hearth warmth and oxidized iron earth. Used for primary interactions, key focal points, active states, and structural highlights.\n- **Secondary (`#D97706` - Radiant Amber Gold):** The solar spark. Used for accents, badges, subtle glow highlights, secondary actions, and progress indicators.\n- **Tertiary (`#3E2723` - Deep Umber Clay):** Deep foundational soil. Serves as high-contrast structural framing, prominent headers, and high-emphasis textual ink. Pair with `#2A1810` for deep content bases.\n- **Neutral Foundation (`#F7EFE2` / `#FDF8F0` - Desert Papyrus & Linen):** Warm, soft, non-fatiguing canvas backgrounds that replace cold digital whites.\n\n### Hierarchy & Usage\n- **Canvas Base:** `#FDF8F0` provides maximum readability with soft organic warmth.\n- **Surface Tiering:** Elevated elements step down to `#F7EFE2` and `#EFE3D0` to retain tactile depth.\n- **Text & Hierarchy:** Never use `#000000`. Use `#2A1810` for high emphasis, `#5A3E36` for medium body, and `#8C7066` for subtle captions.\n\n## Typography\n\nThe pairing blends literary presence with modern legibility.\n\n- **Headline Font (Literata):** A warm, bookish serif engineered for clarity. It brings craftsmanship, timelessness, and an editorial presence to large headlines and display blocks.\n- **Body & Label Font (Plus Jakarta Sans):** A friendly, contemporary geometric grotesque. It provides crisp utility, preventing the system from feeling historicist while optimizing scan-ability across dense informational layouts.\n- **Scale Rules:** Display headers scale fluidly between phone screens and desktop canvasses. Reserve `Literata` for titles, hero statements, and editorial quotes. Use `Plus Jakarta Sans` across navigation links, metrics, interactive chips, and long-form operational copy.\n\n## Layout & Spacing\n\nThe layout philosophy uses a disciplined fluid grid anchored by expansive, breathing margins that emulate gallery spaces and high-end print design.\n\n### Grid Anatomy\n- **Desktop (1024px+):** 12-column layout, 48px outer canvas margin, 24px column gutters. Maximum content constrainer is capped at 1280px to preserve comfortable reading lengths.\n- **Tablet (768px – 1023px):** 8-column layout, 32px margins, 20px gutters.\n- **Mobile (< 768px):** 4-column layout, 20px margins, 16px gutters.\n\n### Vertical Rhythm\nA base unit of 8px (0.5rem) governs rhythm. Major thematic sections use generous breathing space (`space-xl` and higher) to evoke open desert vistas, whereas component internals use tighter increments (`space-xs` to `space-md`) to ensure tactile cohesion.\n\n## Elevation & Depth\n\nVisual depth avoids cold, neutral grey dropshadows. Hierarchy is established through warm tonal layering and soft, daylight-inspired amber-cast ambient diffusion.\n\n### Elevation Principles\n- **Ground Floor (Base Canvas):** `#FDF8F0` represents untreated papyrus.\n- **Surface Level 1 (Cards, Shelves):** `#F7EFE2` with a 1px border colored with `#E7DAC8` (warm sand outline).\n- **Surface Level 2 (Flyouts, Active States):** Tinted warm lift. Shadow is calculated using umber tones: `0 8px 24px -4px rgba(62, 39, 35, 0.08), 0 2px 6px -1px rgba(62, 39, 35, 0.04)`.\n- **Surface Level 3 (Dialogs, Overlays):** `0 20px 40px -8px rgba(42, 24, 16, 0.16)`.\n- **Solar Radiant Accents:** Key floating elements or active toggles employ an internal or subtle perimeter glow using amber tones: `box-shadow: 0 0 0 1px #D97706, 0 4px 12px rgba(217, 119, 6, 0.2)`.\n\n## Shapes\n\nThe design system adopts a balanced roundedness (`0.5rem` / `8px` default). This curves raw masonry edges just enough to communicate human touch, ceramic pottery smoothness, and warmth without feeling bubbly or whimsical.\n\n- **Standard Elements (0.5rem):** Form inputs, default buttons, cards, list rows.\n- **Macro Containers (1rem):** Modals, major article groupings, dashboard panels.\n- **Pill Exceptions:** Badges, status tags, and floating action buttons may use full pill curves (`9999px`) to echo polished river stones and organic pebble silhouettes.\n\n## Components\n\n### Buttons\n- **Primary:** Solid terracotta (`#9E472A`) with light papyrus text (`#FDF8F0`). On hover, transition to deep umber-terracotta (`#853A21`). Focus ring is a 2px offset amber (`#D97706`).\n- **Secondary / Solar:** Amber base (`#D97706`) with deep clay text (`#2A1810`). Reserved for secondary accents or seasonal callouts.\n- **Outlined:** Transparent background with a 1.5px border of `#CBB8A3` and `#3E2723` text. On hover, background shifts to `#F0E5D4`.\n\n### Cards & Panels\n- **Structure:** Background in `#F7EFE2` with a 1px perimeter stroke of `#E5D7C3`.\n- **Behavior:** Subtle translateY on hover (-2px) with the ambient umber shadow intensifying.\n- **Header Areas:** Decorated with optional micro-accents like a hairline border in `#D97706` or an earthy ochre category indicator.\n\n### Input Fields & Controls\n- **Fields:** Surface `#FFFFFF` or `#FCF9F3` framed with a 1px boundary of `#D8C8B5`.\n- **Active / Focus:** Border shifts cleanly to `#9E472A` with an ambient glow of `rgba(158, 71, 42, 0.15)`. Labels sit strictly in `label-md` using `#3E2723`.\n- **Checkboxes & Radios:** Terracotta fill with `#FDF8F0` check marks when active. Unchecked borders leverage clay-neutral tones.\n\n### Chips & Badges\n- **Status Badges:** Pill-shaped surfaces in `#F1E3D0` with rich `#9E472A` or `#D97706` text.\n- **Interactive Chips:** Light sand fill, shifting to deep terracotta fill with warm white text when selected.\n\n### Editorial & Narrative Elements\n- **Solar Dividers:** Subtle horizontal rules carrying an organic gradient running from `#E5D7C3` to `#D97706` to `#E5D7C3` at 1px height.\n- **Blockquotes & Pull-outs:** Left border 3px in solid `#9E472A`, styled in `Literata` italic, providing warmth and grounded storytelling moments.",
+          "font": "LITERATA",
+          "headlineFont": "LITERATA",
+          "headlineFontFamily": "Literata",
+          "labelFont": "PLUS_JAKARTA_SANS",
+          "labelFontFamily": "Plus Jakarta Sans",
+          "namedColors": {
+            "background": "#fff8f0",
+            "error": "#ba1a1a",
+            "error_container": "#ffdad6",
+            "inverse_on_surface": "#f8f0e3",
+            "inverse_primary": "#ffb59e",
+            "inverse_surface": "#343028",
+            "on_background": "#1e1b14",
+            "on_error": "#ffffff",
+            "on_error_container": "#93000a",
+            "on_primary": "#ffffff",
+            "on_primary_container": "#ffd3c6",
+            "on_primary_fixed": "#3a0b00",
+            "on_primary_fixed_variant": "#7c2e13",
+            "on_secondary": "#ffffff",
+            "on_secondary_container": "#663500",
+            "on_secondary_fixed": "#2f1500",
+            "on_secondary_fixed_variant": "#6e3900",
+            "on_surface": "#1e1b14",
+            "on_surface_variant": "#55423d",
+            "on_tertiary": "#ffffff",
+            "on_tertiary_container": "#fad4cd",
+            "on_tertiary_fixed": "#2b1613",
+            "on_tertiary_fixed_variant": "#5b403c",
+            "outline": "#88726c",
+            "outline_variant": "#dcc1b9",
+            "primary": "#7f3015",
+            "primary_container": "#9e472a",
+            "primary_fixed": "#ffdbd0",
+            "primary_fixed_dim": "#ffb59e",
+            "secondary": "#904d00",
+            "secondary_container": "#fe932c",
+            "secondary_fixed": "#ffdcc3",
+            "secondary_fixed_dim": "#ffb77d",
+            "surface": "#fff8f0",
+            "surface_bright": "#fff8f0",
+            "surface_container": "#f5ede0",
+            "surface_container_high": "#efe7da",
+            "surface_container_highest": "#e9e2d5",
+            "surface_container_low": "#fbf3e6",
+            "surface_container_lowest": "#ffffff",
+            "surface_dim": "#e1d9cc",
+            "surface_tint": "#9b4428",
+            "surface_variant": "#e9e2d5",
+            "tertiary": "#5d433e",
+            "tertiary_container": "#775a55",
+            "tertiary_fixed": "#ffdad4",
+            "tertiary_fixed_dim": "#e3beb8"
+          },
+          "overrideNeutralColor": "#f7efe2",
+          "overridePrimaryColor": "#9e472a",
+          "overrideSecondaryColor": "#d97706",
+          "overrideTertiaryColor": "#3e2723",
+          "roundness": "ROUND_EIGHT",
+          "spacing": {
+            "gutter": "1.5rem",
+            "gutter-mobile": "1rem",
+            "margin": "3rem",
+            "margin-mobile": "1.25rem",
+            "space-lg": "1.5rem",
+            "space-md": "1rem",
+            "space-sm": "0.5rem",
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem"
+          },
+          "spacingScale": 2,
+          "typography": {
+            "body-lg": {
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": "18px",
+              "fontWeight": "400",
+              "letterSpacing": "-0.005em",
+              "lineHeight": "28px"
+            },
+            "body-md": {
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": "15px",
+              "fontWeight": "400",
+              "letterSpacing": "0em",
+              "lineHeight": "24px"
+            },
+            "body-sm": {
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": "13px",
+              "fontWeight": "400",
+              "letterSpacing": "0.005em",
+              "lineHeight": "20px"
+            },
+            "display-lg": {
+              "fontFamily": "Literata",
+              "fontSize": "56px",
+              "fontWeight": "600",
+              "letterSpacing": "-0.02em",
+              "lineHeight": "64px"
+            },
+            "display-lg-mobile": {
+              "fontFamily": "Literata",
+              "fontSize": "38px",
+              "fontWeight": "600",
+              "letterSpacing": "-0.01em",
+              "lineHeight": "46px"
+            },
+            "headline-lg": {
+              "fontFamily": "Literata",
+              "fontSize": "36px",
+              "fontWeight": "600",
+              "letterSpacing": "-0.015em",
+              "lineHeight": "44px"
+            },
+            "headline-lg-mobile": {
+              "fontFamily": "Literata",
+              "fontSize": "28px",
+              "fontWeight": "600",
+              "letterSpacing": "-0.01em",
+              "lineHeight": "36px"
+            },
+            "headline-md": {
+              "fontFamily": "Literata",
+              "fontSize": "26px",
+              "fontWeight": "500",
+              "letterSpacing": "-0.01em",
+              "lineHeight": "34px"
+            },
+            "headline-sm": {
+              "fontFamily": "Literata",
+              "fontSize": "20px",
+              "fontWeight": "500",
+              "letterSpacing": "0em",
+              "lineHeight": "28px"
+            },
+            "label-lg": {
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": "14px",
+              "fontWeight": "600",
+              "letterSpacing": "0.01em",
+              "lineHeight": "20px"
+            },
+            "label-md": {
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": "12px",
+              "fontWeight": "600",
+              "letterSpacing": "0.02em",
+              "lineHeight": "16px"
+            },
+            "label-sm": {
+              "fontFamily": "Plus Jakarta Sans",
+              "fontSize": "11px",
+              "fontWeight": "700",
+              "letterSpacing": "0.04em",
+              "lineHeight": "14px"
+            }
+          }
+        }
+      },
+      "name": "assets/b9301badd22844e9bac3b84372e5f105",
+      "version": "1"
+    }
+  ]
+}
