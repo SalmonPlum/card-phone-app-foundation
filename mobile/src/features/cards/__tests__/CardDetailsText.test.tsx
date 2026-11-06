@@ -25,8 +25,8 @@ test('uses each supplied deck template and updates titles/content with locale wi
 
 test.each([
  ['mystic-arbor','Theme_EBGaramond_500','Theme_EBGaramond_500','Theme_DMSans_400',32,22,16],
- ['celestial-midnight','Theme_NotoSerif_400','Theme_NotoSerif_500','Theme_Manrope_400',32,22,18],
- ['solstice-ochre','Theme_Literata_600','Theme_Literata_500','Theme_PlusJakartaSans_400',38,20,18],
+ ['celestial-midnight','Theme_NotoSerif_400','Theme_NotoSerif_500','Theme_Manrope_400',29.13,20.03,14.93],
+ ['solstice-ochre','Theme_Literata_600','Theme_Literata_500','Theme_PlusJakartaSans_400',29.67,20.4,15.04],
 ] as const)('uses distinct resource title/section/body roles in %s without truncating text',async(id,titleFont,headingFont,bodyFont,titleSize,headingSize,bodySize)=>{
  const deck=templateFixture();
  await render(<ThemeProvider resource={{...themeResource,defaultThemeId:id}} storage={{read:async()=>id,write:async()=>{}}}>
@@ -35,7 +35,7 @@ test.each([
  const title=screen.getByRole('header',{name:deck.cards[0].translations.cs.name});
  const heading=screen.getByRole('header',{name:deck.detailTemplate.sections[0].titles.cs});
  const body=screen.getByText(deck.cards[0].translations.cs.sections.reflection);
- expect(title).toHaveStyle({fontFamily:titleFont,fontSize:titleSize});
+ expect(title).toHaveStyle({fontFamily:titleFont,fontSize:titleSize,lineHeight:48});
  expect(heading).toHaveStyle({fontFamily:headingFont,fontSize:headingSize});
  expect(body).toHaveStyle({fontFamily:bodyFont,fontSize:bodySize});
  for(const node of [title,heading,body]){

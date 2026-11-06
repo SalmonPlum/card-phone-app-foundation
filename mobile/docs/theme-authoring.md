@@ -6,8 +6,8 @@ resource and offers its themes in Settings. Selecting a theme updates interface
 colors and saves only its ID in a separate app-private preference file.
 Typography roles now control rendered fonts and metrics as well as colors. Font
 files and licenses are bundled offline. The shuffle frame now has optional
-resource-controlled fabric. Themed card backs and Settings layout polish remain
-separate saved work.
+resource-controlled fabric. Settings visual polish has positive phone feedback;
+themed card backs remain separate saved work.
 
 ## Resource structure
 
@@ -78,8 +78,8 @@ and `caption`. Each contains:
 {
   "fontFamily": "Literata",
   "fontWeight": "500",
-  "fontSize": 20,
-  "lineHeight": 28,
+  "fontSize": 20.4,
+  "lineHeight": 34,
   "letterSpacing": 0
 }
 ```
@@ -103,10 +103,35 @@ The initial themes use these reference families:
 | Celestial Midnight | Noto Serif | Manrope | Space Grotesk |
 | Solstice Ochre | Literata | Plus Jakarta Sans | Plus Jakarta Sans |
 
-The initial resource maps large card names, smaller serif section headings and
-body text into distinct roles. Sizes are implemented reference values awaiting
-phone review, not final visual approval. Tile names and Settings section titles
-use the section-heading role; controls/dock use labels.
+The resource maps large card names, smaller serif section headings and body text
+into distinct roles. Tile names and Settings section titles use the
+section-heading role; controls/dock use labels.
+
+The shipped themes now match visible type size per role to Mystic Arbor, rather
+than copying equal nominal font sizes between fonts with different proportions.
+For title roles (`title`, `cardTitle`, `sectionHeading`), match cap height; for
+body/UI roles (`body`, `label`, `caption`), match x-height. Read those values and
+units-per-em from the actual bundled TTFs. The authoring calculation is:
+
+`fontSize = targetVisibleHeight * unitsPerEm / capHeight` (or `/ xHeight`).
+
+Keep these adjusted values in the separately authored JSON resource. Do not
+hardcode family-specific corrections into readers. Rounded to 0.01dp, current
+card-name sizes are 32dp EB Garamond, 29.13dp Noto Serif and 29.67dp Literata;
+each has approximately 20.8dp cap height. Different letter shapes and widths are
+preserved. Matching cap/x-height is an objective sizing baseline; final perceived
+appearance still requires phone review.
+
+Each role has common line spacing across themes: title 40dp, card title 48dp,
+section heading 34dp, body 26dp, label 22dp, caption 24dp. Fixed line heights below
+the font's natural ascent/descent can clip the first/last line on Android, even
+when the surrounding header grows. Reserve at least
+`ceil(fontSize * max(hheaAscent + abs(hheaDescent), winAscent + winDescent) / unitsPerEm)`
+and leave rounding room. The shipped-resource regression checks this conservative
+bound using `inspectFont()` metrics, along with matching visible size and common
+line spacing. Native readers still measure wrapped/scaled headers normally;
+system font scaling remains enabled. System-font recovery uses platform fonts,
+whose actual shapes/metrics differ from the bundled faces.
 
 ## Shuffle surface resources
 
@@ -141,7 +166,9 @@ no theme-specific screen branches or inclusion list are needed.
 ## Adding font assets
 
 1. Add licensed static upright TTFs under `assets/fonts/<family>/`, retaining
-   their SIL Open Font license in that directory's `OFL.txt`.
+   their SIL Open Font license in that directory's `OFL.txt`. Font inspection
+   requires OS/2 version 2+ with positive cap-height/x-height and valid head/hhea
+   sizing metrics; all shipped faces meet this requirement.
 2. Add metadata in `src/themes/fontCatalog.json`: `family`, string `weight`, unique
    `alias`, local `path`, `licensePath`, `sha256` and pinned `sourceUrl`. The catalog
    records the official Expo Google Fonts source commit for the initial files.

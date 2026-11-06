@@ -1,13 +1,98 @@
 # Current status and next work
 
+## Accepted UI checkpoint and next feature (2026-11-06)
+
+The user accepted the Settings polish and the corrected theme font sizing on the
+phone, then agreed to a checkpoint commit before the independent font-size
+feature. This supersedes the earlier working-tree-only notes for those accepted
+changes. Preserve the user-owned local Expo edits and raw audit report outside
+the checkpoint; no push is requested here. Reuse the valid verification below
+because the implementation is unchanged.
+
+The user agrees with Small / Standard / Large choices, saved independently of
+theme and retained across theme changes, while respecting OS accessibility text
+size. The next design will define exact scale factors and text scope before
+implementation.
+
+## Theme type sizing and clipped card names (2026-11-06)
+
+After giving positive phone feedback on Settings (“Looks good. Is enough for
+now”), the user reported slight bottom clipping of detail card names in some
+themes and requested the same visible type size across themes despite different
+fonts. Investigation found differing resource sizes and negative line leading:
+the bundled title fonts' natural line metrics exceeded the configured line
+heights. React Native's installed Android `CustomLineHeightSpan` reduces first/
+last-line bounds when this happens; glyph measurements also showed descenders
+exceeding the available bottom extent.
+
+The three shipped theme resources now use Mystic Arbor as the visible-size
+reference: heading cap heights and body/UI x-heights match within rounding;
+each role has common conservative line spacing. Card-title line height is 48dp,
+with nominal font sizes 32 / 29.13 / 29.67dp for Garamond / Noto Serif / Literata
+(approximately 20.8dp cap height). Resource versions are 1.0.1. Fonts, weights,
+system scaling, dynamic header measurement, artwork and animation are retained.
+`inspectFont()` exposes actual bundled TTF sizing metrics for regression checks;
+no new dependency or runtime font-specific renderer logic was added.
+
+See [sizing diagnosis and verification](2026-11-06-theme-font-sizing-validation.md).
+Verification: 116 domain tests passed. The full Jest run plus two affected-suite
+reruns after updating stale size assertions cover all 34 suites / 271 tests.
+TypeScript, full lint, font/theme validation and diff checks passed. A font sample
+using the actual offline files was rendered and inspected; it is not native UI
+acceptance. Independent scoped review approved the fix; its stale authoring
+example finding was corrected in documentation.
+The user subsequently reviewed this correction on the phone and said “Looks
+good.” Retain it as the accepted visual baseline; this does not establish every
+large-text, wrapped-name, accessibility or lifecycle check. This is a correction
+to the previous theme-specific metrics, not implementation of the independent
+font-size preference below.
+
+## Requested next iteration: independent font size
+
+The user requested a font-size control independent of the selected theme. Save
+this for the next iteration: theme choice should not determine the user's size
+preference. Decide the available size choices, persistence and interaction with
+OS text scaling when planning that feature. It is not part of the current
+clipping/consistency fix. Preserve accessible scaling and measured readers.
+
+## Settings visual polish (2026-11-06)
+
+Implemented the [approved Settings design](superpowers/specs/2026-11-06-settings-visual-polish-design.md)
+in the existing feature checkout after the user said “Go implementing.” Language
+and reveal mode now use compact grouped controls; theme cards include four
+resource-derived color swatches and visible radio selection. Active theme fonts
+and selected foreground/background pairs are retained. Binary controls stack at
+widths below 360dp or font scale at least 1.3; labels remain unrestricted and
+touch targets are at least 48dp. Save errors/retries and measured dock-height
+scroll-end clearance remain intact. No providers, artwork, animation, session
+behavior, translations or dependencies changed.
+
+Verification: new responsive/palette cases observed RED before implementation,
+then all 10 Settings tests passed. The two affected navigation suites passed
+26 tests. TypeScript, scoped ESLint and tracked diff checks passed. Independent
+scoped review found no blockers or minor findings. The existing unchanged
+foundation full-check results remain valid for untouched areas; no new full-suite
+run, Metro export, release build or physical-device check was performed.
+
+The user gave positive phone feedback on Settings and considers its polish
+sufficient for now. This does not establish every specific accessibility/device
+check. Remaining checks: inspect all three themes, English/Czech, large system text,
+final-card/retry scrolling above the floating menu and screen-reader navigation.
+Mocked tests do not establish native text measurement, visual/touch acceptance
+or screen-reader traversal. Keep the current implementation in the working tree
+for that review; no additional commit/push was requested. Optional theme-aware
+backs, later faces, Catalogue search and saved animation/security follow-ups
+remain separate work.
+
 ## Foundation Git checkpoint (2026-11-06)
 
 The user authorized a foundation checkpoint commit and supplied
 `https://github.com/SalmonPlum/card-phone-app-foundation.git`; it is configured as
 `origin`. This supersedes the staged plan's earlier statement that no commit was
-requested. GitHub DNS resolution failed, including an escalated retry, so remote
-branch inspection and publication remain pending. Preserve the existing local
-history and `feat/android-foundation` branch.
+requested. Checkpoint `1201b3a` was created locally; after GitHub DNS resolution
+failed in the agent environment, the user pushed it themselves and confirmed
+success. The local branch now tracks `origin/feat/android-foundation`. Preserve
+the existing history and branch.
 
 Fresh checkpoint verification: 34 Jest suites / 266 tests, 114 domain tests,
 TypeScript, full lint, deck/translation validation and theme/font validation all
@@ -21,6 +106,11 @@ Keep user-owned `mobile/.gitignore`, `mobile/expo-env.d.ts` and the raw
 `mobile/npm-audit-after.json` outside this checkpoint. Settings visual polish is
 the recommended next task; optional theme-aware backs and Catalogue name search
 remain saved work. The current accepted animation/fabric baseline is unchanged.
+
+The user authorized continuing with Settings visual polish after pushing the
+checkpoint, chose the grouped-controls/theme-preview direction, and approved
+the written design. Implementation and remaining phone review are recorded in
+the latest checkpoint above.
 
 Updated 2026-11-04 from the user's instructions. This file records the current task order; older implementation checklists and phase-one notes are historical and must not override it.
 

@@ -1,5 +1,8 @@
-/** Read static TrueType weight and Unicode cmap coverage without a native/font-tool dependency. */
-export function inspectFont(bytes: Uint8Array): { weight: number; variable: boolean; codepoints: Set<number> } {
+/** Read static TrueType coverage and sizing metrics without a native/font-tool dependency. */
+export function inspectFont(bytes: Uint8Array): {
+  weight: number; variable: boolean; codepoints: Set<number>;
+  metrics: { unitsPerEm: number; capHeight: number; xHeight: number; ascent: number; descent: number; winAscent: number; winDescent: number };
+} {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
   if (bytes.length < 12 || view.getUint32(0) !== 0x00010000) throw new Error('Invalid TrueType font header');
   const tables = new Map<string, { offset: number; length: number }>();
@@ -58,5 +61,17 @@ export function inspectFont(bytes: Uint8Array): { weight: number; variable: bool
     }
   }
   if (codepoints.size === 0) throw new Error('Font has no supported Unicode map');
-  return { weight: view.getUint16(os2.offset + 4), variable: tables.has('fvar'), codepoints };
+  const head = tables.get('head'), hhea = tables.get('hhea');
+  if (!head || head.length < 20 || !hhea || hhea.length < 8 || os2.length < 90 || view.getUint16(os2.offset) < 2) {
+    throw new Error('Missing font sizing metrics');
+  }
+  const metrics = {
+    unitsPerEm: view.getUint16(head.offset + 18), capHeight: view.getInt16(os2.offset + 88), xHeight: view.getInt16(os2.offset + 86),
+    ascent: view.getInt16(hhea.offset + 4), descent: -view.getInt16(hhea.offset + 6),
+    winAscent: view.getUint16(os2.offset + 74), winDescent: view.getUint16(os2.offset + 76),
+  };
+  if (metrics.unitsPerEm <= 0 || metrics.capHeight <= 0 || metrics.xHeight <= 0 || metrics.ascent <= 0 || metrics.descent < 0) {
+    throw new Error('Invalid font sizing metrics');
+  }
+  return { weight: view.getUint16(os2.offset + 4), variable: tables.has('fvar'), codepoints, metrics };
 }

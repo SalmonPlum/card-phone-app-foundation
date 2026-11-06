@@ -4,7 +4,7 @@
   "themes": [
     {
       "id": "mystic-arbor",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "name": {
         "cs": "Mystický háj",
         "en": "Mystic Arbor"
@@ -34,42 +34,42 @@
           "fontFamily": "EB Garamond",
           "fontWeight": "500",
           "fontSize": 26.0,
-          "lineHeight": 32.0,
+          "lineHeight": 40,
           "letterSpacing": 0.0
         },
         "cardTitle": {
           "fontFamily": "EB Garamond",
           "fontWeight": "500",
           "fontSize": 32.0,
-          "lineHeight": 38.0,
+          "lineHeight": 48,
           "letterSpacing": 0.0
         },
         "sectionHeading": {
           "fontFamily": "EB Garamond",
           "fontWeight": "500",
           "fontSize": 22.0,
-          "lineHeight": 28.0,
+          "lineHeight": 34,
           "letterSpacing": 0.0
         },
         "body": {
           "fontFamily": "DM Sans",
           "fontWeight": "400",
           "fontSize": 16.0,
-          "lineHeight": 26.0,
+          "lineHeight": 26,
           "letterSpacing": 0.0
         },
         "label": {
           "fontFamily": "DM Sans",
           "fontWeight": "600",
           "fontSize": 13.0,
-          "lineHeight": 18.0,
+          "lineHeight": 22,
           "letterSpacing": 0.78
         },
         "caption": {
           "fontFamily": "DM Sans",
           "fontWeight": "400",
           "fontSize": 14.0,
-          "lineHeight": 22.0,
+          "lineHeight": 24,
           "letterSpacing": 0.0
         }
       },
@@ -80,7 +80,7 @@
     },
     {
       "id": "celestial-midnight",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "name": {
         "cs": "Nebeská půlnoc",
         "en": "Celestial Midnight"
@@ -109,43 +109,43 @@
         "title": {
           "fontFamily": "Noto Serif",
           "fontWeight": "400",
-          "fontSize": 26.0,
-          "lineHeight": 34.0,
+          "fontSize": 23.67,
+          "lineHeight": 40,
           "letterSpacing": -0.26
         },
         "cardTitle": {
           "fontFamily": "Noto Serif",
           "fontWeight": "400",
-          "fontSize": 32.0,
-          "lineHeight": 40.0,
+          "fontSize": 29.13,
+          "lineHeight": 48,
           "letterSpacing": -0.32
         },
         "sectionHeading": {
           "fontFamily": "Noto Serif",
           "fontWeight": "500",
-          "fontSize": 22.0,
-          "lineHeight": 30.0,
+          "fontSize": 20.03,
+          "lineHeight": 34,
           "letterSpacing": 0.0
         },
         "body": {
           "fontFamily": "Manrope",
           "fontWeight": "400",
-          "fontSize": 18.0,
-          "lineHeight": 28.0,
+          "fontSize": 14.93,
+          "lineHeight": 26,
           "letterSpacing": 0.0
         },
         "label": {
           "fontFamily": "Space Grotesk",
           "fontWeight": "600",
-          "fontSize": 14.0,
-          "lineHeight": 18.0,
+          "fontSize": 13.48,
+          "lineHeight": 22,
           "letterSpacing": 0.7
         },
         "caption": {
           "fontFamily": "Manrope",
           "fontWeight": "400",
-          "fontSize": 15.0,
-          "lineHeight": 24.0,
+          "fontSize": 13.07,
+          "lineHeight": 24,
           "letterSpacing": 0.075
         }
       },
@@ -156,7 +156,7 @@
     },
     {
       "id": "solstice-ochre",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "name": {
         "cs": "Slunovratný okr",
         "en": "Solstice Ochre"
@@ -185,43 +185,43 @@
         "title": {
           "fontFamily": "Literata",
           "fontWeight": "600",
-          "fontSize": 28.0,
-          "lineHeight": 36.0,
+          "fontSize": 24.11,
+          "lineHeight": 40,
           "letterSpacing": -0.28
         },
         "cardTitle": {
           "fontFamily": "Literata",
           "fontWeight": "600",
-          "fontSize": 38.0,
-          "lineHeight": 46.0,
+          "fontSize": 29.67,
+          "lineHeight": 48,
           "letterSpacing": -0.38
         },
         "sectionHeading": {
           "fontFamily": "Literata",
           "fontWeight": "500",
-          "fontSize": 20.0,
-          "lineHeight": 28.0,
+          "fontSize": 20.4,
+          "lineHeight": 34,
           "letterSpacing": 0.0
         },
         "body": {
           "fontFamily": "Plus Jakarta Sans",
           "fontWeight": "400",
-          "fontSize": 18.0,
-          "lineHeight": 28.0,
+          "fontSize": 15.04,
+          "lineHeight": 26,
           "letterSpacing": -0.09
         },
         "label": {
           "fontFamily": "Plus Jakarta Sans",
           "fontWeight": "600",
-          "fontSize": 14.0,
-          "lineHeight": 20.0,
+          "fontSize": 12.11,
+          "lineHeight": 22,
           "letterSpacing": 0.14
         },
         "caption": {
           "fontFamily": "Plus Jakarta Sans",
           "fontWeight": "400",
-          "fontSize": 15.0,
-          "lineHeight": 24.0,
+          "fontSize": 13.16,
+          "lineHeight": 24,
           "letterSpacing": 0.0
         }
       },

@@ -1,4 +1,6 @@
-import {act,fireEvent,render,screen} from '@testing-library/react-native';
+import {act,fireEvent,render,screen,within} from '@testing-library/react-native';
+import {StyleSheet} from 'react-native';
+import {BottomTabBarHeightContext} from 'expo-router/js-tabs';
 import {LanguageProvider} from '../../../i18n/LanguageProvider';
 import {RevealModeProvider} from '../../../settings/RevealModeProvider';
 import {SettingsScreen} from '../SettingsScreen';
@@ -74,4 +76,66 @@ test('Settings lists a separately supplied resource without hardcoded theme name
   await render(<ThemeProvider resource={custom} storage={{read:async()=>null,write:async()=>{}}}><LanguageProvider storage={storage()}><SettingsScreen/></LanguageProvider></ThemeProvider>);await flush();
   expect(screen.getByRole('radio',{name:'My custom theme'}).props.accessibilityState.checked).toBe(true);
   expect(screen.queryByRole('radio',{name:'Mystic Arbor'})).toBeNull();
+});
+
+const native = jest.requireActual('react-native') as typeof import('react-native');
+
+test.each([
+  {width:390,fontScale:1,direction:'row'},
+  {width:320,fontScale:1,direction:'column'},
+  {width:390,fontScale:1.6,direction:'column'},
+] as const)('binary settings adapt at $width dp and font scale $fontScale',async({width,fontScale,direction})=>{
+  const dimensions=jest.spyOn(native,'useWindowDimensions').mockReturnValue({width,height:800,scale:3,fontScale});
+  try {
+    await render(<LanguageProvider storage={storage()}><RevealModeProvider><SettingsScreen/></RevealModeProvider></LanguageProvider>);
+    await flush();
+    for(const name of ['Language','Card reveal']) {
+      const group=screen.getByLabelText(name);
+      expect(group).toHaveStyle({flexDirection:direction});
+      const choices=within(group).getAllByRole('radio');
+      expect(choices).toHaveLength(2);
+      for(const choice of choices) expect(choice).toHaveStyle({minHeight:48});
+    }
+    await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
+    await flush();
+    expect(screen.getByRole('radio',{name:'Otočit klepnutím'})).toBeVisible();
+    const label=screen.getByText('Otočit klepnutím');
+    expect(label.props.numberOfLines).toBeUndefined();
+    expect(label.props.allowFontScaling).not.toBe(false);
+  } finally {
+    dimensions.mockRestore();
+  }
+});
+
+test('custom theme previews keep their candidate colors when the active theme changes',async()=>{
+  const name='A separately authored theme with a long name that must wrap';
+  const candidate={...themeResource.themes[0],id:'custom',name:{en:name,cs:'Vlastní dlouhý název motivu'},
+    colors:{...themeResource.themes[0].colors,canvas:'#fafafa',primary:'#123456',accent:'#654321',mat:'#234567'}};
+  const custom={...themeResource,defaultThemeId:'custom',themes:[candidate,themeResource.themes[1]]};
+  await render(<ThemeProvider resource={custom} storage={{read:async()=>null,write:async()=>{}}}><LanguageProvider storage={storage()}><SettingsScreen/></LanguageProvider></ThemeProvider>);
+  await flush();
+  const preview=screen.getByTestId('theme-preview-custom',{includeHiddenElements:true});
+  expect(preview.props.accessibilityElementsHidden).toBe(true);
+  expect(preview.props.importantForAccessibility).toBe('no-hide-descendants');
+  expect(within(preview).getAllByTestId(/^theme-swatch-/,{includeHiddenElements:true})).toHaveLength(4);
+  for(const role of ['canvas','primary','accent','mat'] as const) {
+    expect(within(preview).getByTestId(`theme-swatch-${role}`,{includeHiddenElements:true})).toHaveStyle({backgroundColor:candidate.colors[role]});
+  }
+  await fireEvent.press(screen.getByRole('radio',{name:'Celestial Midnight'}));
+  await flush();
+  expect(screen.getByTestId('theme-preview-custom',{includeHiddenElements:true})).toBe(preview);
+  expect(within(preview).getByTestId('theme-swatch-primary',{includeHiddenElements:true})).toHaveStyle({backgroundColor:'#123456'});
+  expect(screen.getByText(name).props.numberOfLines).toBeUndefined();
+  expect(screen.getAllByRole('radio')).toHaveLength(6);
+});
+
+test('Settings keeps scroll-end clearance for a tall floating dock',async()=>{
+  await render(<BottomTabBarHeightContext.Provider value={146}><LanguageProvider storage={storage()}><SettingsScreen/></LanguageProvider></BottomTabBarHeightContext.Provider>);
+  await flush();
+  let scroll=screen.getByText('Language').parent;
+  while(scroll && scroll.type!=='RCTScrollView') scroll=scroll.parent;
+  expect(scroll).not.toBeNull();
+  const content=StyleSheet.flatten(scroll!.props.contentContainerStyle);
+  expect(content.paddingBottom).toBeGreaterThanOrEqual(146+24);
+  expect(StyleSheet.flatten(screen.getByTestId('settings-screen').props.style).paddingBottom).toBeUndefined();
 });

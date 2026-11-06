@@ -324,7 +324,7 @@ test('resource theme changes retain a revealed session and image hosts across ta
   expect(screen.getByTestId('draw-foreground-dim',{includeHiddenElements:true})).toBe(cover);
   expect(cover).toHaveStyle({backgroundColor:'#0d1322'});
   expect(screen.getByTestId('draw-reveal-header')).toHaveStyle({backgroundColor:'#0d1322'});
-  expect(screen.getByRole('header',{name:'Spring'})).toHaveStyle({fontFamily:'Theme_NotoSerif_400',fontSize:32});
+  expect(screen.getByRole('header',{name:'Spring'})).toHaveStyle({fontFamily:'Theme_NotoSerif_400',fontSize:29.13,lineHeight:48});
   expect(current.state).toBe(revealed);
   await go('Catalogue');
   const grid=screen.getByTestId('card-grid');
@@ -337,7 +337,7 @@ test('resource theme changes retain a revealed session and image hosts across ta
   expect(screen.getByTestId('card-grid')).toBe(grid);
   expect(screen.getByTestId('card-face-0')).toBe(seed);
   expect(seed.props.source).toBe(source);
-  expect(screen.getByText('Seed')).toHaveStyle({fontFamily:'Theme_Literata_500',fontSize:20});
+  expect(screen.getByText('Seed')).toHaveStyle({fontFamily:'Theme_Literata_500',fontSize:20.4});
   expect(screen.getByTestId('catalogue-host')).toHaveStyle({backgroundColor:'#fff8f0'});
   await go('Draw');
   await fireEvent.press(screen.getByRole('button',{name:'Confirm card'}));
@@ -347,7 +347,7 @@ test('resource theme changes retain a revealed session and image hosts across ta
   expect(current.state!.sessionId).toBe(revealed.sessionId);
   await act(()=>router.push('/card/0'));await settle();
   expect(screen.getByTestId('direct-detail-host')).toHaveStyle({backgroundColor:'#fff8f0'});
-  expect(screen.getByRole('header',{name:'Seed'})).toHaveStyle({fontFamily:'Theme_Literata_600',fontSize:38});
+  expect(screen.getByRole('header',{name:'Seed'})).toHaveStyle({fontFamily:'Theme_Literata_600',fontSize:29.67,lineHeight:48});
 });
 
 test.each(['strip','flip'] as const)('theme selection during paused %s retains the native clock and resumes once',async phase=>{
