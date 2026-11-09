@@ -1,3 +1,4 @@
+import { failArtwork } from '../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
@@ -372,7 +373,7 @@ test('text size scales navigation, readers and errors while preserving sessions,
   expect(screen.getByText('Swipe up for details')).toHaveStyle({fontSize:14*1.15});
   await go('Catalogue');
   const image=screen.getByTestId('card-face-0');
-  await fireEvent(image,'error');
+  await failArtwork(image);
   expect(screen.getByText('Card artwork could not be loaded.')).toHaveStyle({fontSize:22*1.15});
   await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));await settle();
   await fireEvent.press(screen.getByRole('radio',{name:'Celestial Midnight'}));await settle();

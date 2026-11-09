@@ -1,3 +1,5 @@
+import { ArtworkProvider } from '../artwork/ArtworkProvider';
+import { configuredDeck } from '../decks';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -17,9 +19,11 @@ export default function RootLayout(): React.JSX.Element {
           <RevealModeProvider>
             <TextSizeProvider>
               <ThemeFontGate>
-                <SessionProvider>
-                  <ThemedNavigation />
-                </SessionProvider>
+                <ArtworkProvider artwork={configuredDeck.artwork}>
+                  <SessionProvider>
+                    <ThemedNavigation />
+                  </SessionProvider>
+                </ArtworkProvider>
               </ThemeFontGate>
             </TextSizeProvider>
           </RevealModeProvider>

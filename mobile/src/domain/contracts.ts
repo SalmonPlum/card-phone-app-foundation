@@ -1,3 +1,4 @@
+import type { ArtworkResource } from './artwork.ts';
 // Asset identifiers are keys. Native image types belong in the UI registry.
 export type Locale = 'cs' | 'en';
 export type CardId = number;
@@ -13,6 +14,7 @@ export type DeckManifest = {
   version: string;
   name: Record<Locale, string>;
   backAsset: string;
+  artwork?: ArtworkResource;
   localizedBackAssets?: Partial<Record<Locale, string>>;
   cards: {
     id: CardId;

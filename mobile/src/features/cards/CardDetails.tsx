@@ -1,5 +1,6 @@
+import { artworkSize, useArtworkDefinitions } from '../../artwork/ArtworkProvider';
 import { useState } from 'react';
-import { Image, Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import type { Card, DetailTemplate, Locale } from '../../domain/contracts';
 import type { AssetRegistry } from '../../decks/assets';
@@ -16,13 +17,12 @@ export { CardDetailsText } from './CardDetailsText';
 export type CardDetailsProps = {detailTemplate:DetailTemplate;card:Card;locale:Locale;assetRegistry:AssetRegistry;onBack?:()=>void};
 export function CardDetails({detailTemplate,card,locale,assetRegistry,onBack}:CardDetailsProps) {
   const styles = useThemeStyles(makeStyles);
+  const definitions = useArtworkDefinitions();
   const window=useWindowDimensions();
   const [host,setHost]=useState({width:window.width,height:window.height});
   const [headerHeight,setHeaderHeight]=useState(64);
   const scrollOffset=useSharedValue(0), reduced=useReducedMotion()!==false;
-  const source=assetRegistry[localizeCard(card,locale).faceAsset];
-  const size=source?Image.resolveAssetSource(source):null;
-  const width=size?.width ?? 0,height=size?.height ?? 0;
+  const {width,height}=artworkSize(localizeCard(card,locale).faceAsset,assetRegistry,definitions);
   const ratio=width>0&&height>0?width/height:238/358;
   const expanded=fitForegroundRect(host,ratio,0,0,headerHeight);
   const baseWidth=238,baseHeight=baseWidth/ratio;

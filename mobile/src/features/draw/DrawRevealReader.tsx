@@ -12,18 +12,18 @@ import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui
 type Props={
   detailTemplate:DetailTemplate;card?:Card;locale:Locale;phase:SessionState['phase'];paused:boolean;reducedMotion:boolean;
   frame:SharedValue<RenderFrame>;reading:SharedValue<DrawReadingState>;readingKey:string;
-  target:Pose;hostHeight:number;headerHeight:number;bottomClearance?:number;
+  target:Pose;artworkHeight?:number;hostHeight:number;headerHeight:number;bottomClearance?:number;
   onHeaderHeight:(height:number)=>void;onHintsHeight:(height:number)=>void;
   onConfirm:()=>void;onReveal?:()=>void;assetFailed:boolean;onRetry:()=>void;
 };
 /** The visual face stays in Stack. This scroll descendant owns only its pinned tap target. */
-export function DrawRevealReader({detailTemplate,card,locale,phase,paused,reducedMotion,frame,reading,readingKey,target,hostHeight,headerHeight,onHeaderHeight,onHintsHeight,onConfirm,onReveal,assetFailed,onRetry,bottomClearance=0}:Props){
+export function DrawRevealReader({detailTemplate,card,locale,phase,paused,reducedMotion,frame,reading,readingKey,target,artworkHeight=357,hostHeight,headerHeight,onHeaderHeight,onHintsHeight,onConfirm,onReveal,assetFailed,onRetry,bottomClearance=0}:Props){
   const styles = useThemeStyles(makeStyles);
   const nativeOffset=useSharedValue(0),dragged=useRef(false);
   const foreground=['lift','awaitingReveal','flip','reveal','resume'].includes(phase);
   const waiting=phase==='awaitingReveal';
   const enabled=phase==='reveal'&&!paused;
-  const expandedBottom=target.y+178.5*target.scale;
+  const expandedBottom=target.y+artworkHeight/2*target.scale;
   const spacer=Math.max(0,expandedBottom+12-headerHeight);
   const onScroll=useAnimatedScrollHandler({onScroll:event=>{
     const offset=Math.max(0,event.contentOffset.y);
@@ -36,12 +36,12 @@ export function DrawRevealReader({detailTemplate,card,locale,phase,paused,reduce
   // children shrink without changing the expanded spacer/content height.
   const stickyStyle=useAnimatedStyle(()=>({transform:[{translateY:nativeOffset.value}]}));
   const bandStyle=useAnimatedStyle(()=>{
-    const pose=drawReadingPose(target,reading.value.offset,reducedMotion);
-    return {height:Math.max(0,pose.y+178.5*pose.scale+12-headerHeight)};
+    const pose=drawReadingPose(target,reading.value.offset,reducedMotion,artworkHeight);
+    return {height:Math.max(0,pose.y+artworkHeight/2*pose.scale+12-headerHeight)};
   });
   const hitStyle=useAnimatedStyle(()=>{
-    const pose=drawReadingPose(target,reading.value.offset,reducedMotion);
-    return {left:pose.x-119*pose.scale,top:pose.y-178.5*pose.scale-headerHeight,width:238*pose.scale,height:357*pose.scale};
+    const pose=drawReadingPose(target,reading.value.offset,reducedMotion,artworkHeight);
+    return {left:pose.x-119*pose.scale,top:pose.y-artworkHeight/2*pose.scale-headerHeight,width:238*pose.scale,height:artworkHeight*pose.scale};
   });
   return <View style={StyleSheet.absoluteFill} pointerEvents={foreground?'box-none':'none'}
     accessibilityElementsHidden={!foreground} importantForAccessibility={foreground?'auto':'no-hide-descendants'}>
@@ -81,7 +81,7 @@ export function DrawRevealReader({detailTemplate,card,locale,phase,paused,reduce
     {waiting&&<View testID="draw-manual-reveal" style={StyleSheet.absoluteFill} pointerEvents="box-none">
       <Pressable key="flip-action" testID="draw-flip-card" accessibilityRole="button" accessibilityLabel={t('flipCard',locale)}
         accessibilityHint={t('tapCardToReveal',locale)} disabled={paused}
-        style={{position:'absolute',left:target.x-119*target.scale,top:target.y-178.5*target.scale,width:238*target.scale,height:357*target.scale}}
+        style={{position:'absolute',left:target.x-119*target.scale,top:target.y-artworkHeight/2*target.scale,width:238*target.scale,height:artworkHeight*target.scale}}
         onPress={onReveal} onAccessibilityTap={onReveal}
         accessibilityActions={[{name:'activate',label:t('flipCard',locale)}]}
         onAccessibilityAction={event=>{if(event.nativeEvent.actionName==='activate')onReveal?.();}}/>

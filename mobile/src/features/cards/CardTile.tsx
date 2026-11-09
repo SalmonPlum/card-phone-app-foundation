@@ -1,5 +1,7 @@
+import { CardArtwork } from '../../artwork/CardArtwork';
+import { artworkDefinition, artworkSize, useArtworkDefinitions } from '../../artwork/ArtworkProvider';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useRef, useState, type ComponentRef } from 'react';
-import { AccessibilityInfo, AppState, findNodeHandle, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, AppState, findNodeHandle, Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Card, CardId, Locale } from '../../domain/contracts';
 import { localizeCard } from '../../domain/deck';
 import type { AssetRegistry } from '../../decks/assets';
@@ -21,14 +23,15 @@ export function CardFace({ card, locale, assetRegistry, testID, onLoadEnd }: {
   const content = localizeCard(card, locale), source = assetRegistry[content.faceAsset];
   const [failedAsset, setFailedAsset] = useState<string | null>(null);
   useEffect(() => { if (!source) onLoadEnd?.(); }, [source, onLoadEnd]);
-  const size = source ? Image.resolveAssetSource(source) : null;
-  const width = size?.width ?? 238, height = size?.height ?? 358;
+  const definitions = useArtworkDefinitions();
+  const definition = artworkDefinition(content.faceAsset, definitions);
+  const { width, height } = artworkSize(content.faceAsset, assetRegistry, definitions);
   const aspectRatio = width > 0 && height > 0 ? width / height : 238 / 358;
   return failedAsset === content.faceAsset || !source
     ? <View style={[styles.missing, { aspectRatio }]}><Text style={styles.caption}>{t('assetError', locale)}</Text></View>
-    : <View style={styles.artworkClip}><Image testID={testID} source={source} resizeMode="contain" accessible={false} fadeDuration={0} onLoadEnd={onLoadEnd}
+    : <View style={styles.artworkClip}><CardArtwork assetKey={content.faceAsset} registry={assetRegistry} testID={testID} source={source} resizeMode="contain" onLoadEnd={onLoadEnd}
       // Image supplies the asset's intrinsic height; clear it so Yoga sizes the face from its tile width.
-      style={{ width: '100%', height: undefined, aspectRatio }} onError={() => { setFailedAsset(content.faceAsset); onLoadEnd?.(); }} /></View>;
+      style={{ width: '100%', height: undefined, aspectRatio }} onError={() => { setFailedAsset(content.faceAsset); if (!definition) onLoadEnd?.(); }} /></View>;
 }
 
 export type CardTileHandle = { measure: (callback: (rect: Rect | null) => void) => void; focus: () => void };

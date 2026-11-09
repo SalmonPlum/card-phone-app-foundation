@@ -1,3 +1,4 @@
+import { loadArtwork } from '../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../app/(tabs)/settings';
 import type { TestInstance } from 'test-renderer';
 import { useLayoutEffect } from 'react';
@@ -91,17 +92,17 @@ test.each([
     const grid = screen.getByTestId('card-grid');
     expect(StyleSheet.flatten(grid.props.contentContainerStyle).paddingBottom).toBe(fixture.dockHeight+16);
     await fireEvent.press(screen.getByRole('button', { name: results ? 'Spring' : 'Seed' }));
-    await fireEvent(screen.getByTestId(`overlay-face-${results ? 7 : 0}`), 'loadEnd');
+    await loadArtwork(screen.getByTestId(`overlay-face-${results ? 7 : 0}`));
     await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
     await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:headerHeight}}});
     await settle(); await advance(420); await flushRn();
     const face = screen.getByTestId('overlay-face-surface');
     const pose = face.props.style[1].__read();
-    const target = fitForegroundRect({ width: fixture.width, height: hostHeight }, 238 / 358, 24, fixture.dockHeight, headerHeight);
+    const target = fitForegroundRect({ width: fixture.width, height: hostHeight }, 2 / 3, 24, fixture.dockHeight, headerHeight);
     expect(pose.transform[0].translateX).toBeCloseTo(target.x - (238 - target.width) / 2);
-    expect(pose.transform[1].translateY).toBeCloseTo(target.y - (358 - target.height) / 2);
+    expect(pose.transform[1].translateY).toBeCloseTo(target.y - (357 - target.height) / 2);
     expect(pose.transform[2].scaleX).toBeCloseTo(target.width / 238);
-    expect(pose.transform[3].scaleY).toBeCloseTo(target.height / 358);
+    expect(pose.transform[3].scaleY).toBeCloseTo(target.height / 357);
     expect(StyleSheet.flatten(screen.getByTestId('overlay-details').props.style).bottom).toBe(0);
     expect(target.y + target.height).toBeLessThanOrEqual(hostHeight-fixture.dockHeight);
     expect(screen.getByTestId(hostID)).toBe(host);

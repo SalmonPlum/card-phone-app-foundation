@@ -7,7 +7,7 @@ import { validateDeck } from '../src/domain/deck.ts';
 import { cs } from '../src/i18n/cs.ts';
 import { en } from '../src/i18n/en.ts';
 
-type ImageSize = { width: number; height: number };
+type ImageSize = { width: number; height: number; hasAlpha?: boolean };
 const root = new URL('../', import.meta.url);
 
 export async function validateAssetFiles(catalog: Readonly<Record<string, string>>, projectRoot: URL): Promise<ReadonlyMap<string, ImageSize>> {
@@ -21,7 +21,13 @@ export async function validateAssetFiles(catalog: Readonly<Record<string, string
     }
     const width = bytes.readUInt32BE(16), height = bytes.readUInt32BE(20);
     if (width === 0 || height === 0) throw new Error(`Asset ${key}: PNG dimensions must be positive`);
-    sizes.set(key, { width, height });
+    let hasAlpha = bytes[25] === 4 || bytes[25] === 6;
+    for (let offset = 8; offset + 12 <= bytes.length;) {
+      const length = bytes.readUInt32BE(offset);
+      if (bytes.subarray(offset + 4, offset + 8).toString() === 'tRNS') hasAlpha = true;
+      offset += length + 12;
+    }
+    sizes.set(key, { width, height, hasAlpha });
   }
   return sizes;
 }
@@ -34,6 +40,21 @@ export function validateAssetRatios(decks: readonly DeckManifest[], sizes: Reado
     for (const key of keys) {
       const size = sizes.get(key);
       if (!size || size.width * base.height !== base.width * size.height) throw new Error(`${deck.id}: asset ${key} has a different aspect ratio from its back`);
+    }
+  }
+}
+
+export function validateArtworkFiles(decks: readonly DeckManifest[], sizes: ReadonlyMap<string, ImageSize>): void {
+  for (const deck of decks) for (const [key, definition] of Object.entries(deck.artwork?.assets ?? {})) {
+    const sameSize = (asset: string) => {
+      const size = sizes.get(asset);
+      if (!size || size.width !== definition.width || size.height !== definition.height) throw new Error(`${deck.id}.artwork.${key}: ${asset} dimensions differ from declared canvas`);
+      return size;
+    };
+    sameSize(key);
+    for (const layer of definition.layers) {
+      const size = sameSize(layer.asset);
+      if (layer.tint && !size.hasAlpha) throw new Error(`${deck.id}.artwork.${key}.${layer.id}: tint masks require PNG alpha support`);
     }
   }
 }
@@ -58,6 +79,7 @@ async function main(): Promise<void> {
   for (const deck of decks) validateDeck(deck, assetKeys);
   const sizes = await validateAssetFiles(assetCatalog, root);
   validateAssetRatios(decks, sizes);
+  validateArtworkFiles(decks, sizes);
   await validateStaticRegistry(assetCatalog, await readFile(new URL('src/decks/assets.ts', root), 'utf8'));
   const expectedFiles = Object.values(assetCatalog).sort();
   if (JSON.stringify(await pngPaths('assets/decks')) !== JSON.stringify(expectedFiles)) throw new Error('Unregistered or missing PNG in assets/decks');

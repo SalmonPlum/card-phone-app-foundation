@@ -1,4 +1,6 @@
-import {useCallback,useEffect,useLayoutEffect,useRef,useState,type ReactNode} from 'react';
+import { artworkSize } from '../../artwork/ArtworkProvider';
+import { localizeBackAsset } from '../../domain/deck';
+import {useCallback,useEffect,useLayoutEffect,useMemo,useRef,useState,type ReactNode} from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import type { DeckManifest, Locale, Pose, SessionState } from '../../domain/contracts';
@@ -43,7 +45,12 @@ export function ShuffleScene({state,deck,locale,onDraw,onConfirm,onReveal,onPhas
   const selected=deck.cards.find(c=>c.id===displayId), name=selected?.translations[locale].name;
   const faceKey=selected?.translations[locale].faceAsset ?? selected?.faceAsset;
   const assets:AssetRegistry=assetRegistry;
-  const back=assets[deck.localizedBackAssets?.[locale] ?? deck.backAsset];
+  const backKey=localizeBackAsset(deck,locale),back=assets[backKey];
+  const backRun=useMemo(()=>({key:backKey,artwork:deck.artwork}),[backKey,deck.artwork]);
+  const [failedBackRun,setFailedBackRun]=useState<typeof backRun|null>(null),[backRetryKey,setBackRetryKey]=useState(0);
+  const retryBack=()=>{if(!latest.current.paused){setFailedBackRun(null);setBackRetryKey(value=>value+1);}};
+  const canvas=artworkSize(backKey,assets,deck.artwork?.assets ?? {},{width:238,height:357});
+  const artworkHeight=238*canvas.height/canvas.width;
   const usableSize={width:size.width,height:Math.max(0,size.height-bottomClearance)};
   const bounds=mat ?? {...usableSize,x:0,y:0};
   const scale=Math.min(bounds.width/900,bounds.height/960);
@@ -51,7 +58,7 @@ export function ShuffleScene({state,deck,locale,onDraw,onConfirm,onReveal,onPhas
   // Reserve hints for the large first view; long hints/info share the reader scroll.
   const captionLimit=usableSize.height>0?usableSize.height*.25:48*fontScale+20;
   const panelHeight=Math.min(captionHeight || 48*fontScale+20,captionLimit);
-  const target=fitDrawForeground(usableSize,panelHeight,headerHeight);
+  const target=fitDrawForeground(usableSize,panelHeight,headerHeight,canvas.width/canvas.height);
   const foreground=['lift','awaitingReveal','flip','reveal','resume'].includes(state.phase);
   const canDraw=['regrip','ready','strip','contact','return','lower'].includes(state.phase)&&!state.drawQueued&&!paused;
   // Visibility follows the same UI frame as the selected image, so RN cannot
@@ -73,7 +80,7 @@ export function ShuffleScene({state,deck,locale,onDraw,onConfirm,onReveal,onPhas
       <View testID="shuffle-mat" style={styles.mat} onLayout={e=>setMat(e.nativeEvent.layout)}>
         <ShuffleSurface/>
         {scale>0 && <View pointerEvents="none" style={{position:'absolute',width:900,height:960,left:(bounds.width-900)/2,top:(bounds.height-960)/2,transform:[{scale}]}}>
-          {(['intact','source','receiver','flying'] as const).map(role=><Stack key={role} role={role} frame={frame} progress={progress} back={back}/>)}
+          {(['intact','source','receiver','flying'] as const).map(role=><Stack key={role} role={role} frame={frame} progress={progress} back={back} backKey={backKey} artworkHeight={artworkHeight} backRetryKey={backRetryKey} onBackAssetError={()=>setFailedBackRun(backRun)}/>)}
         </View>}
         <Pressable style={StyleSheet.absoluteFill} accessibilityRole="button" accessibilityLabel={t('draw',locale)} disabled={!canDraw} onPress={()=>samplePose(onDraw)}>
           <Text style={[styles.drawHint,{opacity:canDraw?1:0}]} accessibilityElementsHidden={!canDraw}
@@ -86,18 +93,28 @@ export function ShuffleScene({state,deck,locale,onDraw,onConfirm,onReveal,onPhas
       accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={[styles.dim,dimStyle]}/>
     <Animated.View testID="draw-reveal-caption" pointerEvents={(state.phase==='reveal'||state.phase==='awaitingReveal')&&!paused?'box-none':'none'} style={[StyleSheet.absoluteFill,captionStyle]}>
       <DrawRevealReader detailTemplate={deck.detailTemplate} key={readingKey} card={selected} locale={locale} phase={state.phase} paused={paused} reducedMotion={reducedMotion}
-        frame={frame} reading={reading} readingKey={readingKey} target={target} hostHeight={usableSize.height} bottomClearance={bottomClearance} headerHeight={headerHeight}
+        frame={frame} reading={reading} readingKey={readingKey} target={target} artworkHeight={artworkHeight} hostHeight={usableSize.height} bottomClearance={bottomClearance} headerHeight={headerHeight}
         onHeaderHeight={setHeaderHeight} onHintsHeight={setCaptionHeight} onConfirm={confirm} onReveal={reveal} assetFailed={assetFailed} onRetry={()=>setFailedId(null)}/>
     </Animated.View>
     {/* The selected image never changes parent when the user starts reading. */}
     <View pointerEvents="none" style={[StyleSheet.absoluteFill,{opacity:scale>0?1:0}]}>
-      <Stack role="selected" frame={frame} progress={progress} back={back}
-        face={!assetFailed&&faceKey?assets[faceKey]:undefined} name={name} onAssetError={()=>setFailedId(displayId)}
+      <Stack role="selected" frame={frame} progress={progress} back={back} backKey={backKey} artworkHeight={artworkHeight} backRetryKey={backRetryKey} onBackAssetError={()=>setFailedBackRun(backRun)}
+        faceKey={faceKey} face={!assetFailed&&faceKey?assets[faceKey]:undefined} name={name} onAssetError={()=>setFailedId(displayId)}
         viewport={{scene,target,scrollOffset,reading,reducedMotion}}/>
     </View>
+    {failedBackRun===backRun&&<View style={[styles.backError,{bottom:bottomClearance+spacing.md}]}>
+      <Text accessibilityRole="alert" style={styles.errorText}>{t('assetError',locale)}</Text>
+      <Pressable accessibilityRole="button" accessibilityLabel={t('retry',locale)} disabled={paused} onPress={retryBack} style={styles.retryBack}>
+        <Text style={styles.retryText}>{t('retry',locale)}</Text>
+      </Pressable>
+    </View>}
   </View>;
 }
 const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
+  backError:{position:'absolute',left:spacing.md,right:spacing.md,zIndex:20,padding:spacing.md,gap:spacing.sm,borderRadius:radius.panel,backgroundColor:colors.surface},
+  errorText:{...typography.body,color:colors.text},
+  retryBack:{minHeight:48,justifyContent:'center',alignItems:'center',paddingHorizontal:spacing.lg,borderRadius:radius.pill,backgroundColor:colors.primary},
+  retryText:{...typography.label,color:colors.onPrimary},
   stage:{flex:1,overflow:'hidden'},
   dim:{...StyleSheet.absoluteFill,backgroundColor:colors.canvas},
   scroll:{flex:1},

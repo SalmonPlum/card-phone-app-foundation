@@ -4,7 +4,7 @@ Each branded app selects one local package with `appConfig.deckId` in
 `src/config/appConfig.ts`. `src/decks/index.ts` validates bundled manifests and
 exports `configuredDeck`; session and animation code do not need deck-specific
 branches. The current sample is **Tichá zahrada / Quiet Garden** (20 cards, version
-1.1.0). The original eight retain their IDs, order, content and artwork; 12 new
+1.2.0). The original eight retain their IDs, order, content and artwork; 12 new
 cards follow them with sparse IDs 104–234. Names include Czech diacritics and
 multiword labels for future search/layout testing. Every card has distinct offline
 artwork and complete Czech/English meaning and description sections.
@@ -32,6 +32,15 @@ the shared face. `localizedBackAssets.cs` and `.en` likewise override `backAsset
 An omitted override uses the shared asset; a present blank or unknown key is
 invalid. Overrides do not make text translations optional. Use `localizeCard` and
 `localizeBackAsset` from `domain/deck.ts` to apply these rules.
+
+## Optional theme-aware fronts and backs
+
+See [card artwork authoring](card-artwork.md) for the versioned optional
+`artwork` resource, fixed layers, theme-colored alpha masks, localized variants,
+complete PNG fallbacks and validation. Define each card once; its designated
+layers take the current theme's named colors automatically. Fixed artwork remains
+supported. Quiet Garden now exercises layered fronts/back; Shapes in Motion stays
+fixed as a compatibility fixture.
 
 ## Deck-defined detail sections
 

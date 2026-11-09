@@ -19,3 +19,10 @@ test('negative scroll never enlarges and long reading remains a bounded thumbnai
   assert.equal(drawReadingPose(target,10000,false).scale*357,112);
   assert.equal(drawReadingPose(target,1,true).scale*357,112);
 });
+
+test('reading retains the authored canvas ratio and top edge for a shorter card',()=>{
+  const target=fitDrawForeground({width:360,height:900},68,64,.8);
+  const smaller=drawReadingPose(target,100,false,297.5);
+  assert.ok(Math.abs(smaller.scale*297.5-(target.scale*297.5-100))<1e-9);
+  assert.ok(Math.abs(smaller.y-148.75*smaller.scale-(target.y-148.75*target.scale))<1e-9);
+});

@@ -8,7 +8,16 @@ The user wants to change the app's color palette from Settings. Language selecti
 
 Later planning should establish the actual palette choices, accessible contrast, saved preference behavior and consistent application across Draw, covers, dock, Catalogue, results, details and Settings. Preserve card artwork colors/proportions, persistent image surfaces and animation/session behavior. Do not infer dark mode, system theme following or a custom color editor from this request.
 
-## Agreed phased artwork scope (2026-11-04)
+## Updated artwork scope (2026-11-06)
+
+The user prioritized the card/artwork description and functional theme-color
+rendering for real packs with both fronts and backs. They selected authored
+layers rendered with theme colors, rather than complete PNG variants per theme.
+The earlier back-only implementation order below is superseded. See the
+[new artwork design](2026-11-06-theme-aware-card-artwork-design.md), implemented after approval and awaiting phone review. Fixed-artwork decks remain
+supported; the testing deck provides the functional fixture.
+
+## Historical phased artwork scope (2026-11-04)
 
 First phase: support fixed card faces with optionally theme-aware backs. A deck using fixed face/back resources must retain its original artwork when the UI palette changes. Theme-aware backs opt in explicitly: only designated regions follow theme colors; fixed illustration colors remain intact. Existing decks must continue to work without converting their artwork.
 

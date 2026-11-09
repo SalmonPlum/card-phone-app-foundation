@@ -1,3 +1,4 @@
+import { validateArtwork } from './artwork.ts';
 import type { Card, DeckManifest, Locale, LocalizedCard } from './contracts.ts';
 
 function record(value: unknown, path: string): Record<string, unknown> {
@@ -41,6 +42,7 @@ export function validateDeck(input: unknown, assetKeys: ReadonlySet<string>): De
   const name = record(deck.name, 'name');
   for (const locale of ['cs', 'en'] as const) text(name[locale], `name.${locale}`);
   asset(deck.backAsset, 'backAsset');
+  if (deck.artwork !== undefined) validateArtwork(deck.artwork, assetKeys);
   if (deck.localizedBackAssets !== undefined) {
     const backs = record(deck.localizedBackAssets, 'localizedBackAssets');
     for (const locale of ['cs', 'en'] as const) {

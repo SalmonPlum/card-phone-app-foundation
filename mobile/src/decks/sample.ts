@@ -1,14 +1,16 @@
+import { sampleArtwork } from './sampleArtwork.ts';
 import type { DeckManifest } from '../domain/contracts.ts';
 
 export const sampleDeck = {
   "schemaVersion": 2,
   "id": "sample",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": {
     "cs": "Tichá zahrada",
     "en": "Quiet Garden"
   },
   "backAsset": "sample.back",
+  artwork: sampleArtwork,
   "cards": [
     {
       "id": 0,

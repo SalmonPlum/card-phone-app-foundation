@@ -1,3 +1,4 @@
+import { loadArtwork } from '../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
@@ -52,7 +53,7 @@ test('Draw consumes the root session and configured artwork/results without rese
   expect(screen.getByRole('button', { name: 'Wave' })).toBeVisible();
   expect(screen.queryByText('Movement, change, and your own rhythm.')).toBeNull();
   await fireEvent.press(screen.getByRole('button', { name: 'Wave' }));
-  await fireEvent(screen.getByTestId('overlay-face-7'), 'loadEnd');
+  await loadArtwork(screen.getByTestId('overlay-face-7'));
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
   await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); await flushRn();

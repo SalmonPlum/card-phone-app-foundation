@@ -1,5 +1,6 @@
+import { artworkSize, useArtworkDefinitions } from '../../artwork/ArtworkProvider';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
-import { AccessibilityInfo, findNodeHandle, Image, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, findNodeHandle, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import type { Card, DetailTemplate, Locale } from '../../domain/contracts';
@@ -28,9 +29,8 @@ function rectAt(from: Rect, to: Rect, progress: number): Rect {
 /** One native image survives preparation, expansion, reading and the return handoff. */
 export function CardDetailOverlay({ detailTemplate,card, locale, assetRegistry, state, reducedMotion, topInset, bottomInset, onReady, onComplete, onClose }: CardDetailOverlayProps) {
   const styles = useThemeStyles(makeStyles);
-  const asset = assetRegistry[localizeCard(card, locale).faceAsset];
-  const size = asset ? Image.resolveAssetSource(asset) : null;
-  const assetWidth = size?.width ?? 0, assetHeight = size?.height ?? 0;
+  const definitions = useArtworkDefinitions();
+  const {width: assetWidth,height: assetHeight} = artworkSize(localizeCard(card,locale).faceAsset,assetRegistry,definitions);
   const ratio = assetWidth > 0 && assetHeight > 0 ? assetWidth / assetHeight : 238 / 358;
   // Keep the host coordinate system stable; measure wrapping title before entry.
   const [host] = useState(state.host!);

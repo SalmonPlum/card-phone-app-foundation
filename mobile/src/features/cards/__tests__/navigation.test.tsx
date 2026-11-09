@@ -1,3 +1,4 @@
+import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../../app/(tabs)/settings';
 import { router } from 'expo-router';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
@@ -21,7 +22,7 @@ const nativeAppSubscription = (AppState.addEventListener as jest.Mock).getMockIm
 beforeEach(() => { AppState.currentState = 'active'; (AppState.addEventListener as jest.Mock).mockImplementation(nativeAppSubscription); resetClock(); measure.mockImplementation((callback: (x: number, y: number, width: number, height: number) => void) => callback(10, 24, 360, 800)); });
 afterEach(() => { measure.mockReset(); AppState.currentState = nativeAppState; });
 async function enterOverlay() {
-  await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
+  await loadArtwork(screen.getByTestId('overlay-face-0'));
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
   await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); await flushRn();
@@ -138,7 +139,7 @@ test.each([
     expect(foreground.x + foreground.width).toBeLessThanOrEqual(hostWidth - 16);
     expect(foreground.y).toBeGreaterThanOrEqual(88);
     expect(foreground.y + foreground.height).toBeLessThan(hostHeight);
-    expect(image.props.resizeMode).toBe('contain');
+    expect(image.queryAll(node => node.type === 'Image').every(layer => layer.props.resizeMode === 'contain')).toBe(true);
     expect(screen.getByText('Seed').props.numberOfLines).toBeUndefined();
   } finally { dimensions.mockRestore(); insets.mockRestore(); }
 });

@@ -30,3 +30,14 @@ test('unmeasured hosts and oversized captions produce finite bounded fallback po
     assert.ok(pose.scale > 0);
   }
 });
+
+test('non-2:3 artwork retains its authored ratio through foreground fitting', () => {
+  const pose = fitDrawForeground({ width: 360, height: 800 }, 72, 64, .8);
+  const width = 238 * pose.scale, height = 297.5 * pose.scale;
+  assert.ok(width <= 324 + 1e-9);
+  assert.ok(pose.y - height / 2 >= 72 - 1e-9);
+  assert.ok(pose.y + height / 2 <= 700 + 1e-9);
+  assert.ok(Math.abs(width / height - .8) < 1e-9);
+  assert.ok(Math.abs(width - 324) < 1e-9);
+  assert.ok(Math.abs(pose.y - 274.5) < 1e-9);
+});

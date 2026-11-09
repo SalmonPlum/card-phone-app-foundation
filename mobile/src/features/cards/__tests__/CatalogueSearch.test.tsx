@@ -1,3 +1,4 @@
+import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { AppState, FlatList, Keyboard } from 'react-native';
@@ -29,7 +30,7 @@ afterEach(()=>{AppState.currentState=initialAppState;methods.measureInWindow.moc
 async function start(){await renderRouter(routes,{initialUrl:'/catalogue'});await settle();}
 const input=()=>screen.getByLabelText('Search cards by name');
 async function enter(id:number){
-  await fireEvent(screen.getByTestId(`overlay-face-${id}`),'loadEnd');
+  await loadArtwork(screen.getByTestId(`overlay-face-${id}`));
   await fireEvent(screen.getByTestId('overlay-face-surface'),'layout',{nativeEvent:{layout:{width:238,height:357}}});
   await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}),'layout',{nativeEvent:{layout:{height:64}}});
   await settle();await advance(420);await flushRn();

@@ -1,3 +1,4 @@
+import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen, within } from 'expo-router/testing-library';
@@ -70,7 +71,7 @@ async function stopAfter(count: number) {
 async function open(id: number, name: string) {
   const tile = screen.getByRole('button', { name });
   await fireEvent(tile, 'pressIn'); await fireEvent.press(tile);
-  await fireEvent(screen.getByTestId(`overlay-face-${id}`), 'loadEnd');
+  await loadArtwork(screen.getByTestId(`overlay-face-${id}`));
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
   await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); await flushRn();
@@ -257,7 +258,7 @@ test.each(['background', 'layout'] as const)('results survive %s while details r
 test('reset unmounts results while a native opening completion is queued and rejects its late delivery', async () => {
   await stopAfter(3);
   await fireEvent.press(screen.getByRole('button', { name: 'Seed' }));
-  await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
+  await loadArtwork(screen.getByTestId('overlay-face-0'));
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { width: 238, height: 358 } } });
   await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle(); await advance(420); // Completion remains queued on RN.

@@ -1,7 +1,8 @@
+import { artworkSize, useArtworkDefinitions } from '../../artwork/ArtworkProvider';
 import {useDockHeight} from '../../navigation/useDockHeight';
 import { useIsFocused } from 'expo-router';
 import { useEffect, useLayoutEffect, useRef, useState, type ComponentRef, type ReactNode } from 'react';
-import { BackHandler, Image, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { BackHandler, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { localizeCard } from '../../domain/deck';
 import { fitForegroundRect } from './overlayGeometry';
@@ -36,6 +37,7 @@ export type CardCollectionScreenProps = {
 /** The same measured grid and persistent detail surface for every collection. */
 export function CardCollectionScreen({ detailTemplate,cards, locale, assetRegistry, scrollKey, hostTestID, headerContent, emptyContent, scrollHeader = false, visibleCards = cards, filterKey }: CardCollectionScreenProps) {
   const styles = useThemeStyles(makeStyles);
+  const definitions = useArtworkDefinitions();
   const dockHeight = useDockHeight();
   const { theme } = useThemeSettings(), { scale } = useTextSizeSettings();
   const { setBlocked } = useTabInteraction();
@@ -46,9 +48,7 @@ export function CardCollectionScreen({ detailTemplate,cards, locale, assetRegist
   const layoutKey = layout ? `${layout.x}:${layout.y}:${layout.width}:${layout.height}` : '';
   // Reserve visible growth for every localized face in the one-column fallback.
   const maxTileWidth = cards.reduce((limit, card) => {
-    const source = assetRegistry[localizeCard(card, locale).faceAsset];
-    const size = source ? Image.resolveAssetSource(source) : null;
-    const assetWidth = size?.width ?? 0, assetHeight = size?.height ?? 0;
+    const {width: assetWidth,height: assetHeight} = artworkSize(localizeCard(card,locale).faceAsset,assetRegistry,definitions);
     const ratio = assetWidth > 0 && assetHeight > 0 ? assetWidth / assetHeight : 238 / 358;
     return Math.min(limit, fitForegroundRect(layout ?? { width, height }, ratio, insets.top, dockHeight).width * .8);
   }, Infinity);

@@ -10,7 +10,7 @@
 2. **Selection and UI colors (implemented; functional phone confirmation):** load the resource, persist the selected ID independently of language/reveal mode, offer its themes in Settings, and apply semantic UI colors across screens. Test restart, save/read races, stale IDs, active-session identity and dark-theme contrast. Review on phone before proceeding.
 3. **Typography (implemented; positive phone feedback):** bundle the specified font families/weights offline and connect resource typography roles to all text surfaces. The user reviewed the result and said “looks good.” Specific large-text/accessibility/startup/performance checks remain distinct; Settings layout polish is not accepted by this feedback.
 4. **Shuffle presentation (implemented; phone review pending):** resource-controlled woven texture behind unchanged card surfaces. Keep the accepted hint inside the bottom of the mat; earlier move-above instructions are superseded. Native repeat quality and performance need phone review.
-5. **Optional theme-aware backs:** author explicit recolorable regions and choose generated image variants or runtime composition, keeping fixed-artwork decks valid. Preserve fixed faces, ratios and all session/lifecycle guards. Theme-aware faces remain a later follow-up.
+5. **Theme-aware artwork — implemented 2026-11-06:** the user prioritized a shared description/renderer for both fronts and backs and chose runtime authored layers. This supersedes the earlier back-only order. See [artwork design](../specs/2026-11-06-theme-aware-card-artwork-design.md) and [validation/phone review](../../2026-11-06-theme-aware-card-artwork-validation.md). Fixed-artwork decks remain supported.
 
 ## Step 1: resource foundation
 

@@ -85,3 +85,11 @@ test('flip foreshortens only the local horizontal card axis',async()=>{
  const t=.25,turn=t*t*(3-2*t),flip=Math.abs(Math.cos(Math.PI*turn));
  near(await painted(state,'selected',t,[119,178.5]),{x:450+1.25*119*flip,y:555+1.25*178.5});
 });
+
+test('a nonstandard artwork canvas sizes the stack and its native image without stretching', async () => {
+  const view = await render(<Stack role="intact" frame={{value:renderFrame({...base,remainingIds:[0]})} as never} progress={{value:0} as never} back={1} artworkHeight={297.5}/>);
+  const tree = view.toJSON()!;
+  expect(StyleSheet.flatten(tree.props.style)).toMatchObject({width:238,height:297.5});
+  const image = view.container.queryAll(node => node.type === 'Image')[0];
+  expect(StyleSheet.flatten(image.props.style)).toMatchObject({width:238,height:297.5});
+});

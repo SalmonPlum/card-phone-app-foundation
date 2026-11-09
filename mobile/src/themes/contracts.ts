@@ -1,10 +1,11 @@
+import { artworkColorRoles } from '../domain/artwork.ts';
 import type { Locale } from '../domain/contracts.ts';
 
 export const uiColorRoles = [
   'canvas', 'surface', 'text', 'mutedText', 'primary', 'onPrimary',
   'accent', 'border', 'selectedSurface', 'onSelected', 'mat', 'onMat', 'shadow',
 ] as const;
-export const cardColorRoles = ['background', 'accent'] as const;
+export const cardColorRoles = artworkColorRoles;
 export const typographyRoles = ['title', 'cardTitle', 'sectionHeading', 'body', 'label', 'caption'] as const;
 
 export type ThemeTextStyle = Readonly<{

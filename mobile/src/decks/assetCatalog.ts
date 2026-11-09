@@ -24,7 +24,32 @@ export const assetCatalog = {
   "alternate.back": "assets/decks/alternate/back.png",
   "alternate.spark": "assets/decks/alternate/spark.png",
   "alternate.wave": "assets/decks/alternate/wave.png",
-  "alternate.mountain": "assets/decks/alternate/mountain.png"
+  "alternate.mountain": "assets/decks/alternate/mountain.png",
+  "sample.layer.back-accent-mask": "assets/decks/sample/layers/back-accent-mask.png",
+  "sample.layer.back-background-mask": "assets/decks/sample/layers/back-background-mask.png",
+  "sample.layer.back-fixed": "assets/decks/sample/layers/back-fixed.png",
+  "sample.layer.bench-fixed": "assets/decks/sample/layers/bench-fixed.png",
+  "sample.layer.bridge-fixed": "assets/decks/sample/layers/bridge-fixed.png",
+  "sample.layer.circle-fixed": "assets/decks/sample/layers/circle-fixed.png",
+  "sample.layer.dew-fixed": "assets/decks/sample/layers/dew-fixed.png",
+  "sample.layer.feather-fixed": "assets/decks/sample/layers/feather-fixed.png",
+  "sample.layer.flower-fixed": "assets/decks/sample/layers/flower-fixed.png",
+  "sample.layer.front-accent-mask": "assets/decks/sample/layers/front-accent-mask.png",
+  "sample.layer.front-background-mask": "assets/decks/sample/layers/front-background-mask.png",
+  "sample.layer.gate-fixed": "assets/decks/sample/layers/gate-fixed.png",
+  "sample.layer.key-fixed": "assets/decks/sample/layers/key-fixed.png",
+  "sample.layer.lantern-fixed": "assets/decks/sample/layers/lantern-fixed.png",
+  "sample.layer.moon-fixed": "assets/decks/sample/layers/moon-fixed.png",
+  "sample.layer.mountain-fixed": "assets/decks/sample/layers/mountain-fixed.png",
+  "sample.layer.path-fixed": "assets/decks/sample/layers/path-fixed.png",
+  "sample.layer.pond-fixed": "assets/decks/sample/layers/pond-fixed.png",
+  "sample.layer.river-fixed": "assets/decks/sample/layers/river-fixed.png",
+  "sample.layer.roots-fixed": "assets/decks/sample/layers/roots-fixed.png",
+  "sample.layer.seed-fixed": "assets/decks/sample/layers/seed-fixed.png",
+  "sample.layer.spring-fixed": "assets/decks/sample/layers/spring-fixed.png",
+  "sample.layer.star-fixed": "assets/decks/sample/layers/star-fixed.png",
+  "sample.layer.sun-fixed": "assets/decks/sample/layers/sun-fixed.png",
+  "sample.layer.tree-fixed": "assets/decks/sample/layers/tree-fixed.png"
 } as const;
 export type AssetKey = keyof typeof assetCatalog;
 export const assetKeys: ReadonlySet<string> = new Set(Object.keys(assetCatalog));

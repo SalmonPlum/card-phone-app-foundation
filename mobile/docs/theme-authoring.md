@@ -246,5 +246,9 @@ saved IDs and failed reads use the resource default. A failed write keeps the
 chosen colors active and offers retry; language and reveal-mode preferences are
 independent. No automatic device-theme following or runtime theme imports occur.
 
-The fixed card faces, backs and physical stack edges retain their original colors;
-only surrounding UI and the error placeholder follow the selected theme.
+Fixed-artwork packs and physical stack edges retain their original colors.
+Decks can opt into [layered card artwork](card-artwork.md) on fronts and backs.
+Tint masks resolve `cardColors.background` / `cardColors.accent` automatically;
+fixed layers keep their authored colors. No per-theme card definitions/images
+are needed. Add future semantic roles to the shared artwork/theme contract and
+validator together; UI color roles are separate.

@@ -1,5 +1,42 @@
 # Current status and next work
 
+## Theme-aware artwork — accepted on phone (2026-11-09)
+
+After pushing `d57fea6`, the user chose authored layers with runtime theme colors
+and approved the [artwork design](superpowers/specs/2026-11-06-theme-aware-card-artwork-design.md).
+They prioritized the card/artwork description and functional rendering for real
+packs with **both fronts and backs**, superseding the earlier back-only scope.
+
+Delivered the optional versioned deck artwork resource, validated fixed layers
+and background/accent tint masks, shared rendering/sizing on every card surface,
+fixed/legacy/localized compatibility and bounded generation-safe fallback/loading.
+Cards are defined once; selected themes supply named colors automatically. Quiet
+Garden1.2.0 demonstrates21 definitions (20 fronts plus back),25 new authoredRGBA
+layers and50 total PNGs; all25 original fallback/alternate hashes remain unchanged.
+Theme changes retain sessions, clocks and layer surfaces; nonstandard artwork
+ratios also fit drawing/reading without altering the accepted2:3 poses/timing.
+
+See [real-pack authoring](../mobile/docs/card-artwork.md),
+[implementation record](superpowers/plans/2026-11-06-theme-aware-card-artwork.md)
+and [verification/phone checklist](2026-11-06-theme-aware-card-artwork-validation.md).
+Integrated checks plus affected reruns cover44 Jest suites/365 tests and144 domain
+tests. TypeScript/full lint, deck/theme/font validation and final Android export
+passed. One review finding (blank back after terminal layer/fallback failure)
+was reproduced and fixed with localized recovery and artwork-only retry; no
+material findings remain. A three-theme contact sheet was inspected, and shared
+mask reuse/localized overrides/mid-flip theme changes are regression-covered.
+
+On 2026-11-09 the user confirmed “Yes it works on my phone.” Record this as
+functional phone acceptance of theme-aware artwork; it does not establish every
+specific loading/accessibility/performance case in the validation checklist.
+
+The planned implementation is complete and phone functionality is accepted.
+No next implementation task has been selected. Settings visual polish was already
+accepted (see its checkpoint below); do not recommend it as unfinished initial
+work. Slider dragging remains explicitly deferred. Animation polish and unrelated
+security/release/device checks remain saved follow-ups. No commit or push
+requested; keep local Expo files/raw audit report untouched.
+
 ## Accepted feature checkpoint (2026-11-06)
 
 The user accepted the final search animation timing and explicitly requested a

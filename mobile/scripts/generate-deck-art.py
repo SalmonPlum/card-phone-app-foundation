@@ -11,17 +11,49 @@ def star(cx, cy, outer, inner, points=8):
     return [(cx + (outer if i % 2 == 0 else inner) * cos(-pi/2 + i*pi/points),
              cy + (outer if i % 2 == 0 else inner) * sin(-pi/2 + i*pi/points)) for i in range(points*2)]
 
-def garden(kind):
-    image = Image.new('RGB', (W, H), PAPER)
+def garden_mask(d, kind, layer):
+    """Explicit authoring regions, never a pixel-color replacement of finished art."""
+    white, clear = (255,255,255,255), (0,0,0,0)
+    if layer == 'background':
+        d.rounded_rectangle((17,17,582,882),radius=30,fill=white)
+        if kind != 'back':
+            d.rounded_rectangle((31,31,568,868),radius=22,fill=clear)
+        return
+    d.rounded_rectangle((31,31,568,868),radius=22,outline=white,width=3)
+    if kind == 'back':
+        for y in range(75,860,55):
+            for x in range(75,560,55): d.polygon(star(x,y,5,2,4),fill=(255,255,255,100))
+        # The opaque field covers the dotted pattern inside the medallion.
+        d.ellipse((143,293,457,607),fill=clear,outline=white,width=4)
+        d.ellipse((165,315,435,585),outline=white,width=2)
+        d.polygon(star(300,450,104,39,8),fill=white)
+        d.ellipse((283,433,317,467),fill=clear)
+    else:
+        d.arc((91,181,509,599),210,330,fill=white,width=3)
+        d.arc((91,181,509,599),30,150,fill=white,width=3)
+        d.line((154,720,446,720),fill=white,width=3)
+        for x in [270,300,330]: d.ellipse((x-4,754,x+4,762),fill=white)
+        d.polygon(star(300,125,15,5,4),fill=white)
+
+def garden(kind, layer=None):
+    image = Image.new('RGB' if layer is None else 'RGBA', (W, H), PAPER if layer in (None, 'fixed') else (0,0,0,0))
     d = ImageDraw.Draw(image)
-    d.rounded_rectangle((17,17,582,882), radius=30, fill=INK)
-    d.rounded_rectangle((31,31,568,868), radius=22, fill=PAPER, outline=GOLD, width=3)
-    d.ellipse((112,202,488,578), fill='#e3e7d6')
-    d.arc((91,181,509,599), 210, 330, fill=GOLD, width=3)
-    d.arc((91,181,509,599), 30, 150, fill=GOLD, width=3)
-    d.line((154,720,446,720), fill=GOLD, width=3)
-    for x in [270,300,330]: d.ellipse((x-4,754,x+4,762), fill=GOLD)
-    d.polygon(star(300,125,15,5,4), fill=GOLD)
+    if layer in ('background', 'accent'):
+        garden_mask(d, kind, layer)
+        return image
+    if layer == 'fixed' and kind == 'back':
+        return image
+    if layer is None:
+        d.rounded_rectangle((17,17,582,882), radius=30, fill=INK)
+        d.rounded_rectangle((31,31,568,868), radius=22, fill=PAPER, outline=GOLD, width=3)
+        d.ellipse((112,202,488,578), fill='#e3e7d6')
+        d.arc((91,181,509,599), 210, 330, fill=GOLD, width=3)
+        d.arc((91,181,509,599), 30, 150, fill=GOLD, width=3)
+        d.line((154,720,446,720), fill=GOLD, width=3)
+        for x in [270,300,330]: d.ellipse((x-4,754,x+4,762), fill=GOLD)
+        d.polygon(star(300,125,15,5,4), fill=GOLD)
+    else:
+        d.ellipse((112,202,488,578), fill='#e3e7d6')
     if kind == 'seed':
         d.arc((220,400,380,590),180,360,fill=INK,width=8)
         d.line((300,530,300,350),fill=INK,width=10)
@@ -186,4 +218,10 @@ if __name__ == '__main__':
         for kind in kinds:
             render(kind).save(folder/f'{kind}.png',optimize=True)
             count += 1
-    print(f'Authored {count} original 600×900 PNG assets.')
+    layers=ROOT/'sample'/'layers'; layers.mkdir(exist_ok=True)
+    for kind in ['back','seed','spring','path','lantern','bridge','tree','star','circle','moon','sun','mountain','river','flower','feather','key','gate','bench','pond','roots','dew']:
+        garden(kind,'fixed').save(layers/f'{kind}-fixed.png',optimize=True)
+    for kind,label in [('back','back'),('seed','front')]:
+        for role in ['background','accent']:
+            garden(kind,role).save(layers/f'{label}-{role}-mask.png',optimize=True)
+    print(f'Authored {count} original 600×900 PNG assets and 25 explicit RGBA artwork layers.')

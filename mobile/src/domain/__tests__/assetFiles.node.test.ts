@@ -10,7 +10,7 @@ import type { DeckManifest } from '../contracts.ts';
 const root = new URL('../../../', import.meta.url);
 test('all registered files are local PNGs and all bundled cards share the deck aspect ratio', async () => {
   const sizes = await validateAssetFiles(assetCatalog, root);
-  assert.deepEqual(sizes.get('sample.seed'), { width: 600, height: 900 });
+  assert.deepEqual(sizes.get('sample.seed'), { width: 600, height: 900, hasAlpha: false });
   assert.doesNotThrow(() => validateAssetRatios([sampleDeck, alternateDeck], sizes));
 });
 test('missing files and non-PNG files are rejected', async () => {

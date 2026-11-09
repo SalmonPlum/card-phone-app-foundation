@@ -1,3 +1,4 @@
+import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import {templateFixture} from '../../../domain/__tests__/templateFixture';
 import { advance, flushRn, resetClock, settle } from './helpers/overlayClock';
 import { act, fireEvent, render, screen } from '@testing-library/react-native';
@@ -13,7 +14,7 @@ const props: CardDetailOverlayProps = {
 };
 function facePose() { return screen.getByTestId('overlay-face-surface').props.style[1].__read(); }
 async function ready() {
-  await fireEvent(screen.getByTestId('overlay-face-0'), 'loadEnd');
+  await loadArtwork(screen.getByTestId('overlay-face-0'));
   await fireEvent(screen.getByTestId('overlay-face-surface'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 300, height: 450 } } });
   await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}), 'layout', {nativeEvent:{layout:{height:64}}});
   await settle();
@@ -140,7 +141,7 @@ test('name stays outside the scroll view while the persistent face shrinks to fr
 
 test('native header measurement gates entry and reserves wrapped title space',async()=>{
   await render(<CardDetailOverlay {...props}/>);
-  await fireEvent(screen.getByTestId('overlay-face-0'),'loadEnd');
+  await loadArtwork(screen.getByTestId('overlay-face-0'));
   await fireEvent(screen.getByTestId('overlay-face-surface'),'layout',{nativeEvent:{layout:{width:238,height:357}}});
   await settle();expect(props.onReady).not.toHaveBeenCalled();
   await fireEvent(screen.getByTestId('detail-header',{includeHiddenElements:true}),'layout',{nativeEvent:{layout:{height:136}}});

@@ -1,3 +1,7 @@
+import { assetRegistry } from '../../../decks/assets';
+import { ArtworkProvider } from '../../../artwork/ArtworkProvider';
+import { ThemeProvider, useThemeSettings } from '../../../themes/ThemeProvider';
+import { useLayoutEffect } from 'react';
 import { act, fireEvent, render, renderHook } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 import type { TestInstance } from 'test-renderer';
@@ -657,4 +661,40 @@ test('fabric remains a static noninteractive background through shuffle, reveal 
   expect(fabric.props.source).toBe(source);
   for(const saved of images)expect(backImages(view).find(stack=>stack.role===saved.role)!.images[0]).toBe(saved.images[0]);
  }
+});
+
+test('theme changes during a layered flip preserve native layer identities and frame-owned reverse visibility', async () => {
+  let settings!: ReturnType<typeof useThemeSettings>;
+  function Observe() { const current=useThemeSettings(); useLayoutEffect(()=>{settings=current;},[current]); return null; }
+  const state={...full,phase:'flip' as const,epoch:4,selectedId:0,drawnIds:[0]};
+  const view=await render(<ThemeProvider><ArtworkProvider artwork={sampleDeck.artwork}><Observe/>
+    <ShuffleScene state={state} deck={sampleDeck} locale="en" paused={false} {...handlers}/>
+  </ArtworkProvider></ThemeProvider>);
+  await fireEvent(view.getByTestId('draw-stage'),'layout',{nativeEvent:{layout:{width:900,height:960}}});await settle();
+  const back=view.getByTestId('stack-selected-back-layer-background');
+  const face=view.getByTestId('stack-selected-face-layer-accent');
+  const reverse=view.getByTestId('stack-selected-back').parent!;
+  await advance(200);
+  const pose=mapper(view,'selected')();
+  expect(reverse.props.style[1].__read().opacity).toBe(1);
+  await act(()=>settings.setTheme('celestial-midnight'));await settle();
+  expect(mapper(view,'selected')()).toEqual(pose);
+  expect(view.getByTestId('stack-selected-back-layer-background')).toBe(back);
+  expect(view.getByTestId('stack-selected-face-layer-accent')).toBe(face);
+  expect(back).toHaveStyle({tintColor:'#191f2f'});
+  await advance(110);
+  expect(reverse.props.style[1].__read().opacity).toBe(0);
+  await act(()=>settings.setTheme('solstice-ochre'));await settle();
+  expect(reverse.props.style[1].__read().opacity).toBe(0);
+});
+
+test('localized back keys can select a different layered composition without changing the shuffle pose', async () => {
+  const deck = { ...sampleDeck, localizedBackAssets: { cs: 'sample.circle' } };
+  const view = await render(<ArtworkProvider artwork={deck.artwork}><ShuffleScene state={ready} deck={deck} locale="en" paused={false} {...handlers}/></ArtworkProvider>);
+  await fireEvent(view.getByTestId('draw-stage'),'layout',{nativeEvent:{layout:{width:900,height:960}}});await settle();
+  expect(view.getByTestId('stack-selected-back-layer-background').props.source).toBe(assetRegistry['sample.layer.back-background-mask']);
+  const pose=mapper(view,'source')();
+  await view.rerender(<ArtworkProvider artwork={deck.artwork}><ShuffleScene state={ready} deck={deck} locale="cs" paused={false} {...handlers}/></ArtworkProvider>);await settle();
+  expect(view.getByTestId('stack-selected-back-layer-background').props.source).toBe(assetRegistry['sample.layer.front-background-mask']);
+  expect(mapper(view,'source')()).toEqual(pose);
 });
