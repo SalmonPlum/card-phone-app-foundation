@@ -1,5 +1,8 @@
+import {HistorySettings} from '../history/HistorySettings';
+import {ReminderSettings} from './ReminderSettings';
+import {useHapticsSettings} from '../../settings/HapticsProvider';
 import {useDockHeight} from '../../navigation/useDockHeight';
-import {Pressable,ScrollView,StyleSheet,Text,useWindowDimensions,View} from 'react-native';
+import {Pressable,ScrollView,StyleSheet,Switch,Text,useWindowDimensions,View} from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useLanguageSettings} from '../../i18n/LanguageProvider';
 import {useRevealModeSettings} from '../../settings/RevealModeProvider';
@@ -10,7 +13,7 @@ import { spacing, radius } from '../../ui/theme';
 import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui/useThemeStyles';
 import {TextSizeSlider} from './TextSizeSlider';
 
-export function SettingsScreen(){
+export function SettingsScreen({reminderFocusVersion=0}:{reminderFocusVersion?:number}={}){
   const styles = useThemeStyles(makeStyles);
   const {width,fontScale}=useWindowDimensions();
   const textSize=useTextSizeSettings();
@@ -19,6 +22,7 @@ export function SettingsScreen(){
   const dockHeight = useDockHeight();
   const {locale,setLanguage,saveError,retrySave}=useLanguageSettings();
   const reveal=useRevealModeSettings();
+  const haptics=useHapticsSettings();
   const theme=useThemeSettings();
   return <SafeAreaView testID="settings-screen" edges={['top','left','right']} style={styles.screen}>
     <ScrollView contentContainerStyle={[styles.content,{paddingBottom:spacing.xxl+dockHeight}]}>
@@ -54,6 +58,19 @@ export function SettingsScreen(){
           <Pressable accessibilityRole="button" onPress={reveal.retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
         </View>}
       </View>
+      <View style={styles.section}>
+        <View style={styles.switchRow}>
+          <Text style={[styles.heading,styles.switchLabel]}>{t('hapticFeedback',locale)}</Text>
+          <Switch accessibilityLabel={t('hapticFeedback',locale)} value={haptics.enabled} onValueChange={haptics.setEnabled}
+            trackColor={{false:styles.switchTrack.color,true:styles.switchActive.color}}/>
+        </View>
+        {haptics.saveError&&<View style={styles.error}>
+          <Text accessibilityRole="alert" style={styles.copy}>{t('hapticsSaveError',locale)}</Text>
+          <Pressable accessibilityRole="button" onPress={haptics.retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
+        </View>}
+      </View>
+      <HistorySettings/>
+      <ReminderSettings key={reminderFocusVersion}/>
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.heading}>{t('theme',locale)}</Text>
         <View accessibilityRole="radiogroup" accessibilityLabel={t('theme',locale)} style={styles.choices}>
@@ -105,6 +122,10 @@ const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSh
   screen:{flex:1,backgroundColor:colors.canvas},
   content:{paddingHorizontal:20,paddingTop:spacing.xl,paddingBottom:spacing.xxl,gap:32},
   section:{gap:spacing.md},
+  switchRow:{flexDirection:'row',alignItems:'center',gap:spacing.md,minHeight:48},
+  switchLabel:{flex:1},
+  switchTrack:{color:colors.border},
+  switchActive:{color:colors.primary},
   heading:{...typography.sectionHeading,color:colors.primary},
   segments:{flexDirection:'row',padding:spacing.xs,gap:spacing.xs,borderRadius:radius.panel,backgroundColor:colors.surface},
   stacked:{flexDirection:'column'},

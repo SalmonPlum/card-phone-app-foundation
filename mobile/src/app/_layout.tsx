@@ -1,3 +1,7 @@
+import {HistoryProvider} from '../history/HistoryProvider';
+import { ReminderProvider } from '../notifications/ReminderProvider';
+import { ReminderResponseBridge } from '../notifications/ReminderResponseBridge';
+import { HapticsProvider } from '../settings/HapticsProvider';
 import { ArtworkProvider } from '../artwork/ArtworkProvider';
 import { configuredDeck } from '../decks';
 import { Stack } from 'expo-router';
@@ -20,9 +24,15 @@ export default function RootLayout(): React.JSX.Element {
             <TextSizeProvider>
               <ThemeFontGate>
                 <ArtworkProvider artwork={configuredDeck.artwork}>
-                  <SessionProvider>
-                    <ThemedNavigation />
-                  </SessionProvider>
+                  <HapticsProvider>
+                    <ReminderProvider>
+                      <HistoryProvider>
+                        <SessionProvider>
+                          <ThemedNavigation />
+                        </SessionProvider>
+                      </HistoryProvider>
+                    </ReminderProvider>
+                  </HapticsProvider>
                 </ArtworkProvider>
               </ThemeFontGate>
             </TextSizeProvider>
@@ -42,5 +52,6 @@ function ThemedNavigation() {
       <Stack.Screen name="(tabs)" options={{ animation: 'none' }} />
       <Stack.Screen name="card/[id]" options={{ animation: reduced === false ? 'fade' : 'none', animationDuration: 260, gestureEnabled: false }} />
     </Stack>
+    <ReminderResponseBridge/>
   </>;
 }

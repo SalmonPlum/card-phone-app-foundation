@@ -3,6 +3,7 @@ import {StyleSheet} from 'react-native';
 import {BottomTabBarHeightContext} from 'expo-router/js-tabs';
 import {LanguageProvider} from '../../../i18n/LanguageProvider';
 import {RevealModeProvider} from '../../../settings/RevealModeProvider';
+import {HapticsProvider} from '../../../settings/HapticsProvider';
 import {SettingsScreen} from '../SettingsScreen';
 import type {LanguageStorage} from '../../../platform/languageStorage';
 import {ThemeProvider} from '../../../themes/ThemeProvider';
@@ -23,7 +24,7 @@ test('language and reveal choices remain selectable alongside resource theme cho
   expect(screen.getByRole('radio',{name:'English'}).props.accessibilityState).toEqual({checked:true});
   expect(screen.getByRole('radio',{name:'Mystic Arbor'}).props.accessibilityState).toEqual({checked:true});
   expect(screen.getByRole('radio',{name:'Celestial Midnight'})).toBeVisible();
-  expect(screen.queryByRole('switch')).toBeNull();
+  expect(screen.getByRole('switch',{name:'Haptic feedback'})).toBeVisible();
   await fireEvent.press(screen.getByRole('radio',{name:'Tap to flip'}));
   expect(screen.getByRole('radio',{name:'Tap to flip'}).props.accessibilityState).toEqual({checked:true});
   expect(saved.write).not.toHaveBeenCalled();
@@ -191,4 +192,21 @@ test('combined app and OS text scaling stacks controls while Standard keeps the 
     expect(screen.getByLabelText('Language')).toHaveStyle({flexDirection:'column'});
     expect(screen.getByRole('adjustable').props.accessibilityValue.now).toBe(2);
   } finally {dimensions.mockRestore();}
+});
+
+
+test('haptic switch changes immediately and failed saving offers a localized retry',async()=>{
+  const saved={read:jest.fn(async()=>null),write:jest.fn().mockRejectedValueOnce(new Error('unavailable')).mockResolvedValue(undefined)};
+  await render(<LanguageProvider storage={storage()}><HapticsProvider storage={saved}><SettingsScreen/></HapticsProvider></LanguageProvider>);await flush();
+  const toggle=screen.getByRole('switch',{name:'Haptic feedback'});
+  expect(toggle.props.value).toBe(true);
+  await fireEvent(toggle,'valueChange',false);await flush();
+  expect(screen.getByRole('switch',{name:'Haptic feedback'}).props.value).toBe(false);
+  expect(screen.getByRole('alert')).toHaveTextContent(/could not be saved/);
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));await flush();
+  expect(screen.getByRole('switch',{name:'Hmatová odezva'}).props.value).toBe(false);
+  expect(screen.getByRole('alert')).toHaveTextContent(/nepodařilo se/);
+  await fireEvent.press(screen.getByRole('button',{name:'Zkusit znovu'}));await flush();
+  expect(saved.write).toHaveBeenLastCalledWith(false);
+  expect(screen.queryByRole('alert')).toBeNull();
 });

@@ -18,8 +18,9 @@ export function DrawPreview() {
  const [active,setActive]=useState(AppState.currentState==='active'), [focused,setFocused]=useState(false),[reduced,setReduced]=useState(false);
  const {complete:completePhase}=session;
  const activeRef=useRef(AppState.currentState==='active'), focusedRef=useRef(false), deferred=useRef<{sessionId:string;epoch:number}|null>(null);
- const complete=useCallback((sessionId:string,epoch:number)=>{if(!activeRef.current||!focusedRef.current){deferred.current={sessionId,epoch};return;} completePhase(sessionId,epoch);},[completePhase]);
- useEffect(()=>{if(active&&focused&&deferred.current){const token=deferred.current;deferred.current=null;complete(token.sessionId,token.epoch);}},[active,focused,complete]);
+ const complete=useCallback((sessionId:string,epoch:number,feedback=true)=>{if(!activeRef.current||!focusedRef.current){deferred.current={sessionId,epoch};return;} completePhase(sessionId,epoch,feedback);},[completePhase]);
+ // A completion received while away may advance on return, but must not replay feedback.
+ useEffect(()=>{if(active&&focused&&deferred.current){const token=deferred.current;deferred.current=null;complete(token.sessionId,token.epoch,false);}},[active,focused,complete]);
  useEffect(()=>{const subscription=AppState.addEventListener('change',s=>{activeRef.current=s==='active';setActive(activeRef.current);}); AccessibilityInfo.isReduceMotionEnabled().then(setReduced);const reduce=AccessibilityInfo.addEventListener('reduceMotionChanged',setReduced);return()=>{subscription.remove();reduce.remove();};},[]);
  useFocusEffect(useCallback(()=>{focusedRef.current=true;setFocused(true);return()=>{focusedRef.current=false;setFocused(false);};},[]));
  const s=session.state;

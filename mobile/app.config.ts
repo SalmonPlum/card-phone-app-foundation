@@ -19,6 +19,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
+    ['expo-notifications', {defaultChannel:'daily-draw-reminder',enableRemoteNotifications:false}],
     [
       'expo-localization',
       { supportedLocales: ['cs', 'en'], supportsRTL: false },

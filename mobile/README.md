@@ -2,13 +2,13 @@
 
 Android-first Expo Router/TypeScript app in the first development phase. The app name and `com.example.temporarycards` application ID remain temporary. The configured bundled deck is `sample`.
 
-The foundation includes complete Czech/English sample content, validated replaceable decks, secure-random primitives, and the packet-aware session engine. The app opens directly on Draw, with a native overhand-shuffle preview, card reveal, confirmation, and drawn-card results after Stop or final-card confirmation. The persistent Draw/Catalogue/Settings bottom dock also opens the card catalogue: responsive face tiles, full bilingual details, and Close/Android Back to the same list. One root in-memory session survives tab switches; only **New session** explicitly starts over. Restarting the process starts a fresh session, with no saved history.
+The foundation includes complete Czech/English sample content, validated replaceable decks, secure-random primitives, and the packet-aware session engine. The app opens directly on Draw, with a native overhand-shuffle preview, card reveal, confirmation, and drawn-card results after Stop or final-card confirmation. The persistent Draw/Catalogue/Settings bottom dock also opens the card catalogue: responsive face tiles, full bilingual details, and Close/Android Back to the same list. One root in-memory session survives tab switches; only **New session** explicitly starts over. Restarting the process starts a fresh live session; optional History retains saved readings.
 
 Dependencies are installed and the genuine npm lockfile is committed. Application/domain/motion tests, TypeScript, lint, deck validation, and an Android Metro bundle have passed. The user confirmed the baseline development app runs on a phone; the current shuffle movement has been visually accepted on the phone. The user reviewed the current results and said they look good on 2026-10-28. The new larger drawing reveal needs phone review; exhaustive layout/accessibility checks remain separate. The separate security regression remains failing until the targeted CLI Zod refresh is installed.
 
 See [phase-one status and phone launch instructions](docs/phase-one-status.md), [development setup](docs/development.md), [deck authoring](docs/deck-authoring.md), and the [security follow-up](docs/security/follow-up.md). The user requested the recorded audit findings be addressed next iteration.
 
-For the native preview, start Metro with `npm start` and reload the existing development app. Draw opens immediately; the short tab labels are **Tahání / Draw** and **Katalog / Catalogue**. No new native modules were added. See [Android motion validation](docs/android-validation.md).
+For the native preview, start Metro with `npm start` and reload the existing development app. Draw opens immediately; the short tab labels are **Tahání / Draw** and **Katalog / Catalogue**. Drawing haptics adds the native `expo-haptics` module: after installing dependencies, rebuild and install the development app once with `npm run android` before testing feedback. Reloading alone cannot add this module to an older app. See [haptics validation](../docs/2026-11-09-draw-haptics-validation.md) and [Android motion validation](docs/android-validation.md).
 
 ## Try the catalogue
 
@@ -89,3 +89,30 @@ retain their original Meaning/Description content; raw schema-1 decks are normal
 by validation. See [deck authoring](docs/deck-authoring.md) and [verification](../docs/2026-10-28-deck-detail-template-validation.md).
 No dependencies or rebuild are required; reload the development app. Custom-section
 layout, large text and accessibility still need phone acceptance.
+
+## Daily drawing reminder
+
+Settings includes an optional daily reminder and native time picker. It starts
+off at 09:00; choose a time, enable and allow notifications. One local notification
+arrives daily around that local time, with Czech/English copy matching the app.
+Tapping opens Draw and preserves the current session. Turning it off cancels the
+reminder. Android battery and notification settings can delay or suppress delivery.
+
+Notifications and the time picker add native modules: rebuild/install once with
+`npm run android` after installing dependencies; reloading Metro alone is not
+sufficient. The local SDK/JDK paths are already configured in this checkout.
+See [verification and phone checks](../docs/2026-11-09-daily-reminder-validation.md).
+No account, server or remote push setup is used. History is implemented as the separate optional feature below.
+
+## Drawing history
+
+Enable Save drawing history in Settings, then start a new drawing session. History
+does not capture the session that was already running when it was enabled. Cards
+are saved as soon as they reveal, in order, including unfinished readings. The
+History tab keeps the newest 50 sessions for up to 30 days and opens their saved
+bilingual details without resetting the live session. Select sessions to delete
+with confirmation; Settings also offers confirmed Clear history while off.
+
+Switching off stops recording and hides the tab while retaining saved records.
+Re-enabling waits for another new session. No new native module is used: reload
+the existing development client. See [verification/phone checklist](../docs/2026-11-09-drawing-history-validation.md).
