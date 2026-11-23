@@ -34,3 +34,7 @@ jest.mock('./src/platform/localNotifications',()=>({
 
 // Native history I/O only; recording, archive and navigation stay real.
 jest.mock('./src/platform/historyStorage',()=>({historyStorage:{read:jest.fn(async()=>null),write:jest.fn(async()=>{})}}));
+
+// Navigation fixtures stay stable when app authors edit or omit their Info resource.
+// Source validity and generation are checked separately by test:info / validate:info.
+jest.mock('./src/info',()=>({configuredInfoPage:jest.requireActual('./src/info/__tests__/fixture').infoFixture}));

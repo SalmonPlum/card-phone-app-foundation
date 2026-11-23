@@ -1,3 +1,4 @@
+import {findEventHandler} from '@testing-library/react-native/dist/events/propagation';
 import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import {templateFixture} from '../../../domain/__tests__/templateFixture';
 import { advance, flushRn, resetClock, settle } from './helpers/overlayClock';
@@ -186,4 +187,41 @@ test('collection overlay renders its supplied template with all three sections',
  await settle();await advance(160);
  expect(screen.getAllByRole('header').map(node=>node.props.children)).toEqual(['Custom card','Reflect','Try this','Context']);
  expect(screen.getByText('English context.')).toBeVisible();
+});
+test('artwork tap closes only the open generation once and its hit area follows collapsed artwork',async()=>{
+  const view=await render(<CardDetailOverlay {...props} state={{...props.state,stage:'open'}}/>);await settle();
+  const image=screen.getByTestId('overlay-face-0');
+  await fireEvent.scroll(screen.getByTestId('overlay-details'),{nativeEvent:{contentOffset:{y:100}}});await settle();
+  const hit=screen.getByTestId('detail-artwork-hit-area').props.style[1].__read();
+  const painted=facePose().transform,width=238*painted[2].scaleX,height=screen.getByTestId('overlay-face-surface').props.style[0].height*painted[3].scaleY;
+  expect(hit.width).toBeCloseTo(width);expect(hit.height).toBeCloseTo(height);
+  expect(hit.left).toBeCloseTo(painted[0].translateX+(238-width)/2);
+  expect(hit.top-100+props.topInset+64).toBeCloseTo(painted[1].translateY+(screen.getByTestId('overlay-face-surface').props.style[0].height-height)/2);
+  const press=findEventHandler(screen.getByRole('button',{name:'Close card details'}),'press',{bubbles:true}).handler!;
+  await act(()=>{press();});await act(()=>{press();});expect(props.onClose).toHaveBeenCalledTimes(1);
+  expect(screen.getByTestId('overlay-face-0')).toBe(image);
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'open',generation:3}}/>);
+  await act(()=>{press();});expect(props.onClose).toHaveBeenCalledTimes(1);
+  await fireEvent.press(screen.getByRole('button',{name:'Close card details'}));expect(props.onClose).toHaveBeenCalledTimes(2);
+  await view.rerender(<CardDetailOverlay {...props} state={{...props.state,stage:'closing',generation:4}}/>);
+  expect(screen.queryByRole('button',{name:'Close card details'})).toBeNull();
+});
+test('dragging across artwork cancels its press without changing the persistent image',async()=>{
+  await render(<CardDetailOverlay {...props} state={{...props.state,stage:'open'}}/>);await settle();
+  const button=screen.getByRole('button',{name:'Close card details'});
+  await fireEvent(button,'pressIn');await fireEvent(screen.getByTestId('overlay-details'),'scrollBeginDrag');
+  await fireEvent.scroll(screen.getByTestId('overlay-details'),{nativeEvent:{contentOffset:{y:80}}});await fireEvent.press(button);
+  expect(props.onClose).not.toHaveBeenCalled();
+  await fireEvent(button,'pressIn');await fireEvent.press(button);expect(props.onClose).toHaveBeenCalledTimes(1);
+});
+test('accessibility activation can close artwork after scrolling without another physical press',async()=>{
+  await render(<CardDetailOverlay {...props} state={{...props.state,stage:'open'}}/>);await settle();
+  await fireEvent(screen.getByTestId('overlay-details'),'scrollBeginDrag');
+  await fireEvent(screen.getByRole('button',{name:'Close card details'}),'accessibilityAction',{nativeEvent:{actionName:'activate'}});
+  expect(props.onClose).toHaveBeenCalledTimes(1);
+});
+
+test('detail Close is an icon with its localized accessible name',async()=>{
+  await render(<CardDetailOverlay {...props} state={{...props.state,stage:'open'}}/>);await settle();
+  expect(screen.getByRole('button',{name:'Close'})).toBeVisible();expect(screen.queryByText('Close')).toBeNull();
 });

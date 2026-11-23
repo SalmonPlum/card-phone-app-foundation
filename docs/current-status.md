@@ -1,11 +1,211 @@
 # Current status and next work
 
+## Verification scope correction (2026-11-23)
+
+The user reiterated that testing should cover changed behavior and affected
+integrations, not automatically run every suite. The assistant had repeatedly
+broadened to full Jest after review fixes, following a generic workflow instead
+of the repository's targeted-verification agreement. That is not the default for
+future work. Generic claims about shared code or a review fix do not justify a
+full run. Run targeted checks, reuse valid results for unchanged code, and broaden
+only for an explicit user request or a concrete targeted failure that requires
+wider investigation. Documentation-only updates need diff/content review only.
+This user direction takes precedence over skill instructions calling for a full
+suite after fixes or at branch completion.
+
+## Commit preparation checkpoint (2026-11-23)
+
+Prepared the current feature checkpoint for review: bundled Markdown Info page,
+swipeable dock, detail artwork dismissal, History selection/compact controls,
+Settings dividers, compact results actions and the customization/audio backlog.
+Existing targeted validation results remain applicable; Info generated-resource
+consistency and staged whitespace checks passed during preparation. No full test
+suite was rerun. Remaining phone checks are listed in the feature validation notes.
+
+Local Expo-generated `.gitignore`/`expo-env.d.ts` edits and raw
+`mobile/npm-audit-after.json` are excluded from the prepared commit. No commit or
+push has been made by this preparation step.
+
+## Draw/results controls — implemented (2026-11-23)
+
+The user approved the top-right placement. Results with drawn cards now show a
+small, visible circular button with overlapping cards and a restart arrow beside
+the card count, with the translated
+New session accessibility label. Empty results hide New session and show only a
+compact, content-width Draw cards button. Both retain 48 dp touch targets. The
+count row remains inside the existing scrolling results collection. Secure reset,
+retry, result order, active drawing and Stop behavior are unchanged.
+
+Six targeted results cases passed: empty/nonempty actions, successful reset,
+entropy failure/retry with zero and nonzero results, and card-detail return.
+TypeScript, scoped lint and diff checks passed. No full suite or export. Phone
+appearance/large-text review remains; reload to check, no native rebuild required.
+Phone follow-up: the user accepted the top-right restart and requested more space
+above the empty Draw cards action plus a back arrow before its text. Added 16 dp
+extra top spacing and a decorative theme-colored native arrow. The translated
+button label remains unchanged for accessibility, and long labels can wrap.
+Four affected empty/nonempty/short-screen recovery cases and scoped lint passed; no full
+suite. Phone appearance remains to review.
+The user then chose overlapping cards with a restart arrow for the top-right New
+session icon, replacing the standalone restart arrow. Empty Draw cards keeps its
+existing back arrow/spacing. The focused New session visibility/reset test,
+TypeScript and scoped lint passed; phone review of the new glyph remains.
+Changes remain uncommitted. See [validation](2026-11-23-results-controls-validation.md).
+
+## Sound effects — backlogged by user (2026-11-23)
+
+Add bundled default sound effects for interactions such as shuffling, drawing a
+card and opening card details. Allow developers building their own app on this
+foundation to replace these sounds through an authored resource, with the bundled
+defaults available as the starting set. Customization is part of app development;
+no end-user sound customization settings were requested.
+
+The user also accepted these additional default sound directions:
+
+- Stopping the draw: a soft settling sound.
+- Starting a new session: a brief deck-gathering sound.
+- Finishing the whole deck: a gentle completion tone.
+- Closing card details: a quieter companion to the opening sound.
+
+Keep tab navigation, scrolling and Settings silent by default. Favor subtle
+paper/card sounds over electronic clicks or chimes for a consistent default set.
+The additional effects should also be replaceable through the app author's sound
+resource.
+
+This is a backlog requirement only; do not implement playback or select/add audio
+assets yet. The resource format, exact playback timing and mute/volume behavior
+remain to be decided when this work is resumed. Preserve approved animation
+timing and session behavior when integrating sound. This requirement concerns
+interaction effects, separately from existing notification sounds.
+
+## Ambient music — backlogged by user (2026-11-23)
+
+Add ambient background music using bundled royalty-free tracks. Allow developers
+building the final app on this foundation to replace the music through an authored
+resource, alongside the customizable interaction sound effects. Keep tracks
+available offline. When selecting assets, record their source, license and any
+required attribution for distribution with the app.
+
+This is a backlog requirement only; no tracks have been selected or playback
+implemented. Track selection, looping/transitions, playback scope, default enabled
+state, music/effects volume controls and background/interruption behavior remain
+to be decided when the audio work is resumed.
+
+## Per-app text and menu icon configuration — backlogged by user (2026-11-23)
+
+The user wants programmatic author configuration for menu names/icons and action
+copy such as Stop in drawing, to customize the first app built on this foundation.
+This is per-app source/bundled configuration, not an end-user Settings feature.
+
+Current text comes from typed English/Czech dictionaries through `t()`. Most dock
+labels map directly to those keys; Info reads its label from Markdown. Dock icon
+rendering is hardcoded by route. Existing `src/config/appConfig.ts` selects only
+the bundled deck. Themes and Info already have separately authored resources.
+
+Proposed direction: a separate app presentation/branding resource with optional
+bilingual text overrides and menu icon references, defaulting to current values.
+Use stable route/action identities so renaming Stop or Draw changes presentation,
+not navigation/session behavior. Keep complete cs/en text, valid interpolation
+placeholders, accessible labels, offline assets and the accepted swipeable dock.
+Info's Markdown label remains its default, with any explicit app override taking
+precedence only if agreed. No new menu ordering/hiding or feature settings inferred.
+The user chose to keep the existing bundled icons (native drawings, not an
+external icon library); expose them by name rather than adding custom artwork.
+The [short design](superpowers/specs/2026-11-23-app-presentation-resource-design.md)
+proposes a JSON author resource, bilingual interface-key overrides, named menu
+icons and explicit optional Info-label precedence. The user explicitly deferred this feature to the backlog; do not implement it
+before the newly requested Draw/results control polish. No approval or
+implementation is implied by selecting the existing icon set.
+Verification remains targeted to changed configuration/translation/menu/action
+behavior; no automatic full-suite run.
+
+## History selection toolbar at the top — phone refinement (2026-11-23)
+
+The user likes the floating toolbar but requests it at the top rather than above
+the bottom navigation. Moved it below the top safe inset, retaining side insets,
+X/count/trash, confirmation and zero-selection cancellation. Its normal header
+area stays reserved at the maximum measured toolbar height in both modes, so
+selection does not move the list or cover the first record. Normal retention
+copy is visually/accessibly hidden behind the active toolbar; storage errors stay
+below that area. Removed the obsolete extra toolbar clearance at the list bottom;
+normal measured dock clearance remains.
+
+Six targeted History cases passed (12 unrelated cases skipped), plus TypeScript,
+scoped History lint and diff checks. No full suite/export. Reload for phone layout
+review. This top placement supersedes the bottom placement described below.
+
+## Visible circular icon buttons — phone correction (2026-11-23)
+
+The user clarified that only control text should have changed to icons: the
+button itself must remain visible. They also reported poor centering of the
+History back arrow. Restored theme-surface filled/outlined circular buttons for
+History return, card-detail Close and standalone Back/recovery. Each has an exact
+48×48 dp box with a centered 22 dp icon frame. The arrow now uses one symmetric
+chevron joined to a centered shaft. Floating selection toolbar controls retain
+their existing treatment; only the requested navigation/close circles change.
+
+The three affected control-presentation tests passed; TypeScript/scoped lint
+verification is recorded with this correction. No new style-mirroring tests, full
+suite or export. Reload for phone centering/appearance review; changes uncommitted.
+
+## Settings dividers — direct visual refinement (2026-11-23)
+
+The user requests lines separating different Settings options. Added decorative
+1 dp theme-border dividers between the seven existing groups (six lines), with
+16 dp spacing on each side so the former 32 dp inter-section spacing is retained.
+No control behavior, preference, dependency or slider gesture change. The existing
+Settings suite passed (14 tests); scoped SettingsScreen lint and diff checks
+passed. No full suite or new mirrored style unit tests were run. The separate History/icon design remains recorded below.
+
+## Compact History and icon controls — implemented, phone review next (2026-11-23)
+
+The user explicitly authorized implementing the decided changes. History selection
+now uses a floating X/count/trash toolbar above the measured bottom dock, with
+explicit horizontal safe-area offsets. The list is never reflowed by selection.
+The toolbar measures while visually hidden/inaccessible outside selection; stable
+end clearance reserves its maximum measured height in both modes, so final rows
+can scroll clear without shrinking the scroll range on cancel.
+
+Zero selected live records immediately exits selection, whether manually deselected
+or removed/expired. Stored selection IDs reconcile against new archive snapshots,
+so a returning record with the same ID is not silently selected. Existing long-
+press behavior, accessible checked state, color-only selection, Cancel/Back and
+confirmed deletion remain. Saved data/session/controller behavior is unchanged.
+
+History list records and compact saved-reading headers show only date/time and
+card count. Deck names and status are omitted, including accessible row labels;
+saved snapshots and completion metadata remain intact. A small arrow replaces the
+large Back to history button; date/count use compact theme label/caption roles.
+Card details use X for Close and arrows for return controls, including standalone
+recovery. Native line icons retain localized accessible names, 48 dp touch targets,
+overlay focus ref and guarded return callbacks. The standalone arrow precedes its
+title. Settings dividers above remain included and retain their earlier checks.
+
+Targeted verification passed: 18 History cases, 24 detail component cases and 3
+selected route cases (45 unique cases total); unaffected passing results were
+reused after the History-only safe-area fix. Strict TypeScript, scoped changed-file
+lint and diff checks passed. No full suite, domain/security/deck checks or Android
+export was run for this refinement, per the user's explicit testing scope.
+Focused review found the toolbar side-inset issue; a new regression observed RED
+then GREEN after the fix. Measured-clearance and same-ID reappearance assertions
+also passed. No unresolved material findings remain. See
+[design](superpowers/specs/2026-11-23-compact-history-controls-design.md),
+[completed plan](superpowers/plans/2026-11-23-compact-history-controls.md) and
+[validation](2026-11-23-compact-history-controls-validation.md).
+
+Next: reload the existing app; no native rebuild/dependency needed. Review floating
+placement/no list jump, last-row scroll access, large Czech/English text, zero-count
+cancellation, icon clarity/focus, compact reading header and Settings separators
+on the phone. Changes remain uncommitted; preserve all preceding Info/dock work
+and local Expo/audit/Android configuration files.
+
 ## Checkpoint before Info page (2026-11-23)
 
 The user requested committing/pushing the current changes before continuing.
 The checkpoint contains implemented haptics, local daily reminders and drawing
 history, with their existing phone checks still applicable. Info remains a design
-only; selecting one page does not approve all proposed design defaults.
+only at the checkpoint. The user subsequently reported pushing the commits and
+approved the About me design on 2026-11-23; implementation planning now follows.
 
 Fresh checks passed on 2026-11-23: 57 Jest suites / 476 tests, 144 domain tests,
 TypeScript, full lint, deck validation, theme/font validation, Android Metro export
@@ -13,31 +213,125 @@ TypeScript, full lint, deck validation, theme/font validation, Android Metro exp
 code changes were needed. Local Expo files, raw audit report and machine-specific
 Android settings are excluded from the checkpoint. Fetching GitHub failed with
 `Could not resolve host: github.com`, including the elevated retry; remote
-synchronization has not yet been established.
+synchronization could not be established from this environment. The user later
+confirmed the push completed externally.
 
-## Markdown information page — new requirement (2026-11-23)
+## Detail image tap and History selection — implemented, phone review next (2026-11-23)
 
-The user requests an author-configured information page in the bottom menu,
-such as About me or other informational content. A Markdown resource must supply
-both the menu label and the page text. This is app-author configuration, with no
-end-user Settings customization. Design/implementation is not yet complete.
+The selection toolbar and History metadata described in this historical checkpoint
+are superseded by Compact History and icon controls above.
 
-Current navigation explicitly registers and filters Draw, Catalogue, optional
-History and Settings; adding a resource-driven destination touches both the tab
-layout and BottomDock. With History enabled, one information page would make
-five destinations, requiring small-screen/large-text review. No Markdown renderer
-is currently declared in the app dependencies. Proposed defaults, not yet agreed:
-bundle content offline, follow the selected English/Czech locale and app theme,
-and preserve drawing session identity when navigating to the information page.
-The user chose a single page on 2026-11-23. The
-[short design](superpowers/specs/2026-11-23-markdown-info-page-design.md)
-proposes locale-specific Markdown with `menuLabel` metadata, one optional tab
-before Settings, a themed native reader and basic Markdown/link support.
-These implementation defaults await design approval; no app code changed.
+The user approved the top selection toolbar proposal (“yeah sounds good”) and
+requested continuing implementation. Card artwork taps now close Catalogue,
+results and History detail overlays through their existing transition, or return
+from standalone detail links. Close/Back controls remain. A scroll-aware hit area
+follows the image without replacing its native surface; scrolling is canceled as
+an artwork press. Active identity/duplicate guards reject stale actions. Standalone
+Back and artwork share a focus-aware one-shot return, reset on refocus. Drawing
+reveal/tap-confirm behavior, artwork proportions and motion timing are unchanged.
 
-Latest implementation baseline remains the History implementation below; fresh
-checkpoint verification is recorded above. The Info page update records the
-requirement and proposed design only; it adds no application behavior.
+History no longer has a visible Select entry button or checkbox glyphs. A 500 ms
+hold selects that record and enters selection mode; later taps toggle records.
+A fixed top toolbar shows Cancel, selected count and Delete, wrapping at larger
+text sizes. Row fill/border indicates selection, using contrasting selection ink
+in every theme. Accessible checked state and custom Select/activate actions remain.
+Delete stays disabled at zero and retains the existing confirmation. Cancel or
+Android Back exits selection; counts intersect the live archive as records expire
+or are removed. Same-held release and later independent activation are distinct.
+
+Fresh review's three P2 findings were reproduced RED and fixed GREEN: artwork
+accessibility activation after scroll, clearing History's held-record latch after
+release, and shared/focus-scoped standalone return handling. A separate selected
+text contrast regression also passed. Final checks passed: 60 Jest suites / 510
+tests, strict TypeScript/full lint without warnings, deck/interface validation
+(102 strings per locale), Android export and diff checks. Prior 177 domain tests
+remain applicable because domain/controller/storage code is unchanged. See
+[approved behavior](superpowers/specs/2026-11-23-detail-history-interactions-design.md),
+[completed plan](superpowers/plans/2026-11-23-detail-history-interactions.md) and
+[verification](2026-11-23-detail-history-interactions-validation.md).
+
+Next: reload the existing client; no dependency/native rebuild needed. Review
+image tap versus vertical scrolling and existing close animation, History hold/
+toggle/Cancel/Delete confirmation, top-toolbar large-text layout and contrast,
+and screen-reader actions on the phone. Changes remain uncommitted. Preserve
+accepted swipeable navigation/Info work, local Expo/audit and Android settings.
+
+## Swipeable bottom menu — accepted on phone (2026-11-23)
+
+The user reported the About me page looks good but the bottom menu is crowded,
+then selected horizontal scrolling over a More sheet and approved implementation.
+The dock now uses a native horizontal ScrollView: labels stay on one line, items
+size to their content, and decorative edge chevrons indicate hidden destinations.
+The rounded theme-aware pill, transparent surroundings, route order and 48 dp
+minimum targets remain. Unusually long labels are bounded to viewport width and
+ellipsized with their full accessible names retained. All-fitting menus distribute
+items without showing overflow hints.
+
+A newly selected/focused tab is revealed with minimal bounded movement, respecting
+reduced motion. Fresh item measurements handle locale/font/text-size/width and
+conditional destination changes; stale layouts cannot drive scrolling. Swiping
+only explores the menu and does not select a page or snap back. Modal blocking
+also disables scrolling. Native drag/momentum settlement, missing momentum events,
+rapid route changes during an older animation and app/system interruption are
+guarded. Existing drawing session identity, card surfaces, clocks, tab events and
+measured screen clearance remain intact.
+
+Fresh review's three P2 findings were reproduced RED and fixed GREEN: cancel a
+superseded scroll destination even if its replacement is already visible, recover
+canceled native drags, and read the final native release offset. Final verification
+passed: 60 Jest suites / 498 tests, 177 domain tests, TypeScript/full lint without
+warnings, Android Metro export and whitespace checks. Earlier Info/deck/theme
+validation remains valid for unchanged resources. See
+[design](superpowers/specs/2026-11-23-swipeable-bottom-menu-design.md),
+[completed plan](superpowers/plans/2026-11-23-swipeable-bottom-menu.md) and
+[verification](2026-11-23-swipeable-bottom-menu-validation.md).
+
+The user reports “Looks and works great” on the phone. Record functional/visual
+acceptance of the swipeable menu; do not infer that every language, large-text,
+screen-reader or lifecycle checklist case was separately exercised. The next
+requested refinements are detail artwork tapping and History selection above.
+Changes remain uncommitted. Preserve uncommitted Info work, local Expo/audit files
+and Android SDK/JDK settings. This does not resume the deferred Settings slider.
+
+## Markdown information page — positive phone feedback (2026-11-23)
+
+The user approved the single-page design and implementation plan after reporting
+that the earlier checkpoint was pushed. About me / O mně now appears immediately
+before Settings. A single author configuration (`mobile/resources/info/page.json`)
+includes bilingual Markdown sources or omits the page with `null`; neither choice
+is exposed in Settings. Each Markdown resource supplies its own `menuLabel` and
+body. Build-time generation bundles structured JSON offline without new runtime
+dependencies or native modules. Neutral editable sample text is included.
+
+The native reader follows locale, theme, app/system text size and measured dock
+clearance. Supported formatting includes headings, paragraphs, bold/italic, flat
+lists, inline-text quotes, rules and HTTP/HTTPS/email links. Unsupported structures
+and invalid/blank resources are rejected during author validation. Link failures
+stay visible above the dock; stale outcomes/unmount are guarded. The original two-line dock cap has been superseded by the swipeable menu above,
+with one-line labels and full accessibility names. Omitted direct links
+return to Draw. Root drawing session identity and paused clock progress survive
+Info visits and subsequent locale/theme/text-size changes.
+
+Fresh reviewer findings were reproduced and fixed: parser backslash loss and
+underscore nesting/blank content, offscreen link feedback, unbounded labels and
+author-dependent test data. Fixed test fixtures now permit author edits/omission
+without rewriting the suite. Full final verification passed: 59 Jest suites /
+486 tests, 174 domain tests, 31 parser/generation tests (overlapping parser domain
+coverage), TypeScript/full lint without warnings, Info/deck/theme validation and
+Android Metro export. See [validation](2026-11-23-markdown-info-page-validation.md),
+[approved design](superpowers/specs/2026-11-23-markdown-info-page-design.md),
+[completed plan](superpowers/plans/2026-11-23-markdown-info-page.md) and
+[author instructions](../mobile/docs/info-page.md).
+
+The user reports that the page looks good on the phone. Record this as positive
+visual feedback on the Info reader, not proof of every locale/link/accessibility
+or performance checklist case. The crowded four/five-tab menu was rejected; the swipeable replacement is now
+accepted on the phone as recorded above. Remaining checks include
+long content, real links, large text and returning to an active draw. No native
+rebuild is needed for Info. Work remains uncommitted; no new commit/push was
+requested. Preserve local
+Expo files, raw audit report and Android SDK/JDK configuration. Prior History and
+notification phone checks and deferred slider/security work remain separate.
 
 ## Drawing history — implemented, phone review next (2026-11-09)
 

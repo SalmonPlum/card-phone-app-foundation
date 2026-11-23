@@ -1,3 +1,4 @@
+import Info from '../../app/(tabs)/info';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
 import { router } from 'expo-router';
@@ -21,7 +22,7 @@ function Probe({ draw = false }) {
   useLayoutEffect(() => { session = current; theme = settings; }, [current, settings]);
   return draw ? <Draw/> : <Catalogue/>;
 }
-const routes = { _layout: Root, '(tabs)/_layout': Tabs, '(tabs)/index': () => <Probe draw/>, '(tabs)/catalogue': Probe, '(tabs)/settings': Settings, 'card/[id]': Details };
+const routes = { _layout: Root, '(tabs)/info': Info, '(tabs)/_layout': Tabs, '(tabs)/index': () => <Probe draw/>, '(tabs)/catalogue': Probe, '(tabs)/settings': Settings, 'card/[id]': Details };
 const methods = jest.requireActual('@react-native/jest-preset/jest/MockNativeMethods').default;
 const initialAppState = AppState.currentState;
 beforeEach(() => { resetClock(); AppState.currentState = 'active'; methods.measureInWindow.mockImplementation((done: (x:number,y:number,w:number,h:number)=>void) => done(0,0,360,800)); });

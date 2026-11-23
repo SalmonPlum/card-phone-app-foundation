@@ -1,3 +1,4 @@
+import Info from '../../app/(tabs)/info';
 import { loadArtwork } from '../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
@@ -50,7 +51,7 @@ beforeEach(() => { jest.mocked(AppState.addEventListener).mockImplementation(nat
 afterEach(() => { AppState.currentState = nativeAppState; measure.mockReset(); });
 
 test('Draw consumes the root session and configured artwork/results without resetting on mount', async () => {
-  await renderRouter({ _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': DrawPreview, '(tabs)/catalogue': Idle, '(tabs)/settings': Settings, 'card/[id]': Details }, { initialUrl: '/catalogue' });
+  await renderRouter({ _layout: RootLayout, '(tabs)/info': Info, '(tabs)/_layout': Tabs, '(tabs)/index': DrawPreview, '(tabs)/catalogue': Idle, '(tabs)/settings': Settings, 'card/[id]': Details }, { initialUrl: '/catalogue' });
   expect(current.state).toMatchObject({ sessionId: 'draw-owner-1', deckId: 'alternate' });
   expect(screen.getByRole('button', { name: 'Wave' })).toBeVisible();
   const first = current.state!;
@@ -82,7 +83,7 @@ test('Draw consumes the root session and configured artwork/results without rese
 });
 
 test('Settings manual reveal survives tab and language changes; changing the preference affects only later draws',async()=>{
- await renderRouter({_layout:RootLayout,'(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
+ await renderRouter({_layout:RootLayout,'(tabs)/info': Info, '(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
  await act(()=>router.navigate('/settings'));
  await fireEvent.press(screen.getByRole('radio',{name:'Tap to flip'}));
  await act(()=>router.navigate('/'));
@@ -117,7 +118,7 @@ test.each([['background','flip'],['tab','flip'],['background','strip'],['tab','s
   });
   const change=async(state:AppStateStatus)=>act(()=>{AppState.currentState=state;listeners.forEach(listener=>listener(state));});
   try {
-    await renderRouter({_layout:RootLayout,'(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
+    await renderRouter({_layout:RootLayout,'(tabs)/info': Info, '(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
     await act(()=>router.navigate('/'));
     const initial=current.state!;
     if(phase==='flip') await act(()=>current.draw({x:620,y:330,angle:0,scale:1},initial.sessionId,initial.epoch));
@@ -145,7 +146,7 @@ test.each(['flip','reveal'] as const)('reminder tap opens Draw and preserves an 
   let receive!:(response:{key:string})=>void;
   jest.mocked(localNotifications.subscribeResponses).mockImplementation(listener=>{receive=listener;return ()=>{};});
   try {
-    await renderRouter({_layout:RootLayout,'(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
+    await renderRouter({_layout:RootLayout,'(tabs)/info': Info, '(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
     const first=current.state!;await act(()=>current.draw({x:620,y:330,angle:0,scale:1},first.sessionId,first.epoch));
     for(let i=0;i<(phase==='flip'?2:3);i++){const s=current.state!;await act(()=>current.complete(s.sessionId,s.epoch));}
     const existing=current.state!;expect(existing.phase).toBe(phase);
@@ -158,7 +159,7 @@ test.each(['flip','reveal'] as const)('reminder tap opens Draw and preserves an 
 test('a cold reminder tap waits for root readiness and opens Draw without a second session',async()=>{
   jest.mocked(localNotifications.getLastResponse).mockResolvedValue({key:'daily:cold'});
   try {
-    await renderRouter({_layout:RootLayout,'(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
+    await renderRouter({_layout:RootLayout,'(tabs)/info': Info, '(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
     expect(screen.getByTestId('draw-screen')).toBeVisible();expect(current.state!.sessionId).toBe('draw-owner-1');expect(mockId).toBe(1);
   } finally {jest.mocked(localNotifications.getLastResponse).mockResolvedValue(null);}
 });
@@ -168,7 +169,7 @@ test('a reminder tap closes a mounted Settings time picker before opening Draw',
   let receive!:(response:{key:string})=>void;
   jest.mocked(localNotifications.subscribeResponses).mockImplementation(listener=>{receive=listener;return ()=>{};});
   try {
-    await renderRouter({_layout:RootLayout,'(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
+    await renderRouter({_layout:RootLayout,'(tabs)/info': Info, '(tabs)/_layout':Tabs,'(tabs)/index':DrawPreview,'(tabs)/catalogue':Idle,'(tabs)/settings':Settings,'card/[id]':Details},{initialUrl:'/catalogue'});
     await act(()=>router.navigate('/settings'));
     await fireEvent.press(screen.getByRole('button',{name:'Reminder time: 09:00'}));
     expect(screen.getByTestId('reminder-time-picker')).toBeVisible();

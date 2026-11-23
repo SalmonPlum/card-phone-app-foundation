@@ -1,3 +1,4 @@
+import Info from '../../app/(tabs)/info';
 import { loadArtwork } from '../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../app/(tabs)/settings';
 import type { TestInstance } from 'test-renderer';
@@ -54,7 +55,7 @@ test.each([
   function RootWithInsets() { return <SafeArea.SafeAreaInsetsContext.Provider value={insets}><RootLayout /></SafeArea.SafeAreaInsetsContext.Provider>; }
   (methods.measureInWindow as jest.Mock).mockImplementation((callback: (x: number, y: number, width: number, height: number) => void) => callback(0, 0, fixture.width, hostHeight));
   try {
-    await renderRouter({ _layout: RootWithInsets, '(tabs)/_layout': Tabs, '(tabs)/index': DrawWithHeight, '(tabs)/catalogue': CatalogueWithHeight, '(tabs)/settings': Settings, 'card/[id]': Details });
+    await renderRouter({ _layout: RootWithInsets, '(tabs)/info': Info, '(tabs)/_layout': Tabs, '(tabs)/index': DrawWithHeight, '(tabs)/catalogue': CatalogueWithHeight, '(tabs)/settings': Settings, 'card/[id]': Details });
     const stop = screen.getByRole('button', { name: 'Stop' });
     let scroll = stop.parent;
     while (scroll && scroll.type !== 'RCTScrollView') scroll = scroll.parent;
@@ -68,7 +69,7 @@ test.each([
     for (const tab of screen.getAllByRole('tab')) {
       expect(StyleSheet.flatten(tab.props.style)).toMatchObject({ minHeight: 48, minWidth: 48 });
     }
-    expect(screen.getByText('Catalogue').props.numberOfLines).toBeUndefined();
+    expect(screen.getByText('Catalogue').props.numberOfLines).toBe(1);
     expect(screen.getByText('Catalogue')).toHaveStyle({fontSize:13*(fixture.size==='large'?1.15:1)});
     await fireEvent(dock, 'layout', { nativeEvent: { layout: { x: 0, y: hostHeight, width: fixture.width, height: fixture.dockHeight } } });
     expect(StyleSheet.flatten(screen.getByTestId('draw-screen').props.style).paddingBottom??0).toBe(0);

@@ -1,3 +1,4 @@
+import {configuredInfoPage} from '../../info';
 import {useHistory} from '../../history/HistoryProvider';
 import { Tabs } from 'expo-router';
 import { BottomDock } from '../../navigation/BottomDock';
@@ -12,7 +13,8 @@ export default function TabLayout() {
       screenOptions={{ headerShown: false, animation: 'none', freezeOnBlur: false }}>
       <Tabs.Screen name="index" />
       <Tabs.Screen name="catalogue" />
-      {archive.enabled&&<Tabs.Screen name="history" />}
+      {archive.enabled?[<Tabs.Screen key="history" name="history" />]:[]}
+      {configuredInfoPage?[<Tabs.Screen key="info" name="info" />]:[]}
       <Tabs.Screen name="settings" />
     </Tabs>
   </TabInteractionProvider>;

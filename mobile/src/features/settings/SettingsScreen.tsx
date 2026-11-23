@@ -38,6 +38,7 @@ export function SettingsScreen({reminderFocusVersion=0}:{reminderFocusVersion?:n
           <Pressable accessibilityRole="button" onPress={retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
         </View>}
       </View>
+      <SettingsDivider styles={styles}/>
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.heading}>{t('textSize',locale)}</Text>
         <TextSizeSlider value={textSize.size} locale={locale} onChange={textSize.setTextSize}/>
@@ -46,6 +47,7 @@ export function SettingsScreen({reminderFocusVersion=0}:{reminderFocusVersion?:n
           <Pressable accessibilityRole="button" onPress={textSize.retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
         </View>}
       </View>
+      <SettingsDivider styles={styles}/>
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.heading}>{t('revealMode',locale)}</Text>
         <View accessibilityRole="radiogroup" accessibilityLabel={t('revealMode',locale)} style={[styles.segments,stacked&&styles.stacked]}>
@@ -58,6 +60,7 @@ export function SettingsScreen({reminderFocusVersion=0}:{reminderFocusVersion?:n
           <Pressable accessibilityRole="button" onPress={reveal.retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
         </View>}
       </View>
+      <SettingsDivider styles={styles}/>
       <View style={styles.section}>
         <View style={styles.switchRow}>
           <Text style={[styles.heading,styles.switchLabel]}>{t('hapticFeedback',locale)}</Text>
@@ -69,8 +72,11 @@ export function SettingsScreen({reminderFocusVersion=0}:{reminderFocusVersion?:n
           <Pressable accessibilityRole="button" onPress={haptics.retrySave} style={styles.retry}><Text style={styles.retryText}>{t('retry',locale)}</Text></Pressable>
         </View>}
       </View>
+      <SettingsDivider styles={styles}/>
       <HistorySettings/>
+      <SettingsDivider styles={styles}/>
       <ReminderSettings key={reminderFocusVersion}/>
+      <SettingsDivider styles={styles}/>
       <View style={styles.section}>
         <Text accessibilityRole="header" style={styles.heading}>{t('theme',locale)}</Text>
         <View accessibilityRole="radiogroup" accessibilityLabel={t('theme',locale)} style={styles.choices}>
@@ -101,6 +107,10 @@ export function SettingsScreen({reminderFocusVersion=0}:{reminderFocusVersion?:n
 
 type SettingsStyles = ReturnType<typeof makeStyles>;
 
+function SettingsDivider({styles}:{styles:SettingsStyles}) {
+  return <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.divider}/>;
+}
+
 function SelectionMark({selected,styles}:{selected:boolean;styles:SettingsStyles}) {
   return <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
     style={[styles.radio,selected&&styles.selectedRadio]}>
@@ -120,8 +130,9 @@ function SegmentChoice({label,selected,stacked,onPress,styles}:{
 
 const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
   screen:{flex:1,backgroundColor:colors.canvas},
-  content:{paddingHorizontal:20,paddingTop:spacing.xl,paddingBottom:spacing.xxl,gap:32},
+  content:{paddingHorizontal:20,paddingTop:spacing.xl,paddingBottom:spacing.xxl,gap:spacing.lg},
   section:{gap:spacing.md},
+  divider:{height:1,backgroundColor:colors.border},
   switchRow:{flexDirection:'row',alignItems:'center',gap:spacing.md,minHeight:48},
   switchLabel:{flex:1},
   switchTrack:{color:colors.border},

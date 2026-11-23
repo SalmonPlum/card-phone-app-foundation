@@ -1,6 +1,6 @@
 import { artworkSize, useArtworkDefinitions } from '../../artwork/ArtworkProvider';
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef } from 'react';
-import { AccessibilityInfo, findNodeHandle, Pressable, StyleSheet, Text, View } from 'react-native';
+import { AccessibilityInfo, findNodeHandle, StyleSheet, View } from 'react-native';
 import Animated, { cancelAnimation, Easing, ReduceMotion, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { scheduleOnRN, scheduleOnUI } from 'react-native-worklets';
 import type { Card, DetailTemplate, Locale } from '../../domain/contracts';
@@ -11,8 +11,8 @@ import { CardFace } from './CardTile';
 import { CardDetailReader } from './CardDetailReader';
 import { compactFaceRect, fitForegroundRect, readingFaceRect, type Rect } from './overlayGeometry';
 import type { OverlayState } from './useCardOverlay';
-import { spacing, radius } from '../../ui/theme';
-import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui/useThemeStyles';
+import {IconButton} from '../../ui/IconButton';
+import { useThemeStyles, type ThemeColors } from '../../ui/useThemeStyles';
 
 export type CardDetailOverlayProps = {
   detailTemplate:DetailTemplate; card: Card; locale: Locale; assetRegistry: AssetRegistry; state: OverlayState;
@@ -121,10 +121,8 @@ export function CardDetailOverlay({ detailTemplate,card, locale, assetRegistry, 
     <Animated.View testID="overlay-details-body" style={[StyleSheet.absoluteFill, detailsStyle]}>
       <CardDetailReader detailTemplate={detailTemplate} card={card} locale={locale} expanded={expanded} scrollOffset={scrollOffset}
         headerHeight={headerHeight} onHeaderHeight={measureHeader} topInset={topInset} bottomInset={bottomInset}
-        reducedMotion={reducedMotion===true} active={stage==='open'}
-        action={<Pressable ref={closeControl} accessibilityRole="button" onPress={onClose} style={styles.close}>
-          <Text style={styles.link}>{t('close',locale)}</Text>
-        </Pressable>}/>
+        reducedMotion={reducedMotion===true} active={stage==='open'} onArtworkPress={onClose} artworkActionKey={`${card.id}:${generation}`}
+        action={<IconButton variant="circle" ref={closeControl} icon="close" label={t('close',locale)} onPress={onClose}/>}/>
     </Animated.View>
     <Animated.View testID="overlay-face-surface" pointerEvents="none" onLayout={() => setLaidOut(true)}
       style={[{ position: 'absolute', width: baseWidth, height: baseHeight }, faceStyle]}>
@@ -132,8 +130,6 @@ export function CardDetailOverlay({ detailTemplate,card, locale, assetRegistry, 
     </Animated.View>
   </View>;
 }
-const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   backdrop: { backgroundColor: `${colors.canvas}ed` },
-  close: { maxWidth:'45%', minHeight: 48, minWidth: 64, justifyContent: 'center', paddingHorizontal: spacing.lg, backgroundColor: colors.surface, borderRadius: radius.pill },
-  link: { ...typography.label, color: colors.primary },
 });

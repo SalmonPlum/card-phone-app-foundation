@@ -1,3 +1,5 @@
+import Settings from '../app/(tabs)/settings';
+import Info from '../app/(tabs)/info';
 import { resetClock } from '../features/cards/__tests__/helpers/overlayClock';
 import { AppState } from 'react-native';
 import { renderRouter, screen } from 'expo-router/testing-library';
@@ -11,12 +13,13 @@ const nativeAppState = AppState.currentState;
 beforeEach(() => { AppState.currentState = 'active'; });
 afterEach(() => { AppState.currentState = nativeAppState; });
 
-test('launch opens Draw with exactly two functional tabs and no Home landing', async () => {
+test('launch opens Draw with the configured functional tabs and no Home landing', async () => {
   resetClock();
-  await renderRouter({ _layout: Layout, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': Catalogue, 'card/[id]': () => null });
+  await renderRouter({ _layout: Layout, '(tabs)/settings': Settings, '(tabs)/info': Info, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': Catalogue, 'card/[id]': () => null });
   expect(screen.getByRole('tab', { name: 'Draw' })).toBeVisible();
   expect(screen.getByRole('tab', { name: 'Catalogue' })).toBeVisible();
-  expect(screen.getAllByRole('tab')).toHaveLength(2);
+  expect(screen.getAllByRole('tab')).toHaveLength(4);
+  expect(screen.getByRole('tab', { name: 'About me' })).toBeVisible();
   expect(screen.getByText('Cards remaining: 20')).toBeVisible();
   expect(screen.queryByTestId('home-screen')).toBeNull();
 });

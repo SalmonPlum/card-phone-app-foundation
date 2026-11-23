@@ -71,3 +71,22 @@ test('direct reader displays a third deck-defined section and updates headings/c
  expect(screen.getByRole('header',{name:'Souvislosti'})).toBeVisible();expect(screen.getByText('České souvislosti.')).toBeVisible();
  expect(screen.queryByText('Meaning')).toBeNull();
 });
+test('tapping standalone artwork returns through the supplied Back action',async()=>{
+  const back=jest.fn();await render(<CardDetails detailTemplate={sampleDeck.detailTemplate} card={sampleDeck.cards[0]} locale="cs" assetRegistry={assetRegistry} onBack={back}/>);
+  await fireEvent.press(screen.getByRole('button',{name:'Zavřít detail karty'}));expect(back).toHaveBeenCalledTimes(1);
+});
+test('standalone Back and artwork share one return and inactive details cannot close a newer screen',async()=>{
+  const back=jest.fn(),base={detailTemplate:sampleDeck.detailTemplate,card:sampleDeck.cards[0],locale:'en' as const,assetRegistry,onBack:back};
+  const view=await render(<CardDetails {...base}/>);
+  await fireEvent.press(screen.getByRole('button',{name:'Back'}));await fireEvent.press(screen.getByRole('button',{name:'Close card details'}));
+  expect(back).toHaveBeenCalledTimes(1);
+  await view.rerender(<CardDetails {...base} active={false}/>);
+  await fireEvent.press(screen.getByTestId('detail-artwork-close',{includeHiddenElements:true}));expect(back).toHaveBeenCalledTimes(1);
+  await view.rerender(<CardDetails {...base} active/>);
+  await fireEvent.press(screen.getByRole('button',{name:'Close card details'}));expect(back).toHaveBeenCalledTimes(2);
+});
+
+test('standalone Back is an icon with a localized accessible name',async()=>{
+  await render(<CardDetails detailTemplate={sampleDeck.detailTemplate} card={sampleDeck.cards[0]} locale="en" assetRegistry={assetRegistry} onBack={jest.fn()}/>);
+  expect(screen.getByRole('button',{name:'Back'})).toBeVisible();expect(screen.queryByText('Back')).toBeNull();
+});

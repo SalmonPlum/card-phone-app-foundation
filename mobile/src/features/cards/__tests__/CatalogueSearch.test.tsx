@@ -1,3 +1,4 @@
+import Info from '../../../app/(tabs)/info';
 import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import { useLayoutEffect } from 'react';
 import { act, fireEvent, renderRouter, screen } from 'expo-router/testing-library';
@@ -21,7 +22,7 @@ function ObservedCatalogue() {
   useLayoutEffect(()=>{session=current;},[current]);
   return <Catalogue/>;
 }
-const routes={_layout:Root,'(tabs)/_layout':Tabs,'(tabs)/index':Draw,'(tabs)/catalogue':ObservedCatalogue,'(tabs)/settings':Settings,'card/[id]':Details};
+const routes={_layout:Root,'(tabs)/info': Info, '(tabs)/_layout':Tabs,'(tabs)/index':Draw,'(tabs)/catalogue':ObservedCatalogue,'(tabs)/settings':Settings,'card/[id]':Details};
 beforeEach(()=>{
   resetClock();AppState.currentState='active';
   methods.measureInWindow.mockImplementation((done:(x:number,y:number,w:number,h:number)=>void)=>done(0,0,360,800));

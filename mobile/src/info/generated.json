@@ -1,0 +1,224 @@
+{
+  "en": {
+    "menuLabel": "About me",
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 1,
+        "children": [
+          {
+            "type": "text",
+            "text": "About me"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "text": "A quiet space to pause, draw a card and reflect."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "children": [
+          {
+            "type": "text",
+            "text": "A moment for yourself"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "text": "Take your time with each reading. Notice what speaks to you and carry it into your day."
+          }
+        ]
+      },
+      {
+        "type": "quote",
+        "children": [
+          {
+            "type": "text",
+            "text": "Every card can be an invitation to look at things with fresh eyes."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "children": [
+          {
+            "type": "text",
+            "text": "About this space"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "text": "This page can share the author's story, the inspiration behind the cards or information about this app."
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "start": 1,
+        "items": [
+          [
+            {
+              "type": "text",
+              "text": "Read at your own pace."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "text": "Return whenever you need a moment of calm."
+            }
+          ]
+        ]
+      },
+      {
+        "type": "rule"
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "strong",
+            "children": [
+              {
+                "type": "text",
+                "text": "Thank you"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": " for being here."
+          }
+        ]
+      }
+    ]
+  },
+  "cs": {
+    "menuLabel": "O mně",
+    "blocks": [
+      {
+        "type": "heading",
+        "level": 1,
+        "children": [
+          {
+            "type": "text",
+            "text": "O mně"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "text": "Klidné místo, kde se můžete zastavit, vytáhnout si kartu a zamyslet se."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "children": [
+          {
+            "type": "text",
+            "text": "Chvilka pro sebe"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "text": "Dopřejte si na každé čtení dostatek času. Všímejte si, co vás oslovuje, a vezměte si to s sebou do svého dne."
+          }
+        ]
+      },
+      {
+        "type": "quote",
+        "children": [
+          {
+            "type": "text",
+            "text": "Každá karta může být pozváním podívat se na věci novýma očima."
+          }
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 2,
+        "children": [
+          {
+            "type": "text",
+            "text": "O tomto prostoru"
+          }
+        ]
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "text",
+            "text": "Tato stránka může představit příběh autora, inspiraci ke kartám nebo informace o této aplikaci."
+          }
+        ]
+      },
+      {
+        "type": "list",
+        "ordered": false,
+        "start": 1,
+        "items": [
+          [
+            {
+              "type": "text",
+              "text": "Čtěte vlastním tempem."
+            }
+          ],
+          [
+            {
+              "type": "text",
+              "text": "Vraťte se, kdykoli potřebujete chvilku klidu."
+            }
+          ]
+        ]
+      },
+      {
+        "type": "rule"
+      },
+      {
+        "type": "paragraph",
+        "children": [
+          {
+            "type": "strong",
+            "children": [
+              {
+                "type": "text",
+                "text": "Děkujeme"
+              }
+            ]
+          },
+          {
+            "type": "text",
+            "text": ", že jste tady."
+          }
+        ]
+      }
+    ]
+  }
+}

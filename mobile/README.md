@@ -110,9 +110,25 @@ Enable Save drawing history in Settings, then start a new drawing session. Histo
 does not capture the session that was already running when it was enabled. Cards
 are saved as soon as they reveal, in order, including unfinished readings. The
 History tab keeps the newest 50 sessions for up to 30 days and opens their saved
-bilingual details without resetting the live session. Select sessions to delete
-with confirmation; Settings also offers confirmed Clear history while off.
+bilingual details without resetting the live session. Hold a session to start selecting; selected rows change color. A floating toolbar
+near the top provides cancel (X), a selected count and confirmed delete
+(trash). Deselecting the final record exits selection; Settings also offers confirmed Clear history while off.
 
 Switching off stops recording and hides the tab while retaining saved records.
 Re-enabling waits for another new session. No new native module is used: reload
 the existing development client. See [verification/phone checklist](../docs/2026-11-09-drawing-history-validation.md).
+
+## Author-configured information page
+
+The optional About me / O mně bottom tab reads its label and text from bundled
+English/Czech Markdown. Authors edit `resources/info/`, then run
+`npm run generate:info`; normal launch scripts also generate it. No Settings
+customization is exposed. See [information page authoring](docs/info-page.md)
+for supported formatting, links, omission and validation.
+
+Card detail artwork can also be tapped to close the detail (or return from a
+standalone link). Scrolling over the artwork keeps the reading open.
+
+History lists and saved-reading headers display only date/time and card count.
+Detail Close/Back controls use accessible X/arrow icons; Settings groups have
+subtle theme-aware divider lines.

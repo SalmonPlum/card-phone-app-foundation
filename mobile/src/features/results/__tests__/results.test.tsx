@@ -1,3 +1,4 @@
+import Info from '../../../app/(tabs)/info';
 import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
@@ -30,7 +31,7 @@ function ObservedDraw() {
   useLayoutEffect(() => { current = session; }, [session]);
   return <Draw />;
 }
-const routes = { _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details };
+const routes = { _layout: RootLayout, '(tabs)/info': Info, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details };
 const methods = jest.requireActual('@react-native/jest-preset/jest/MockNativeMethods').default;
 const measure = methods.measureInWindow as jest.Mock;
 const nativeAppState = AppState.currentState;
@@ -83,7 +84,7 @@ test('Stop shows committed sparse IDs in order, with full details only after ope
   expect(current.state).toMatchObject({ phase: 'results', drawnIds: [99, 0, 7] });
   expect(screen.queryByRole('header', { name: 'Drawn cards' })).toBeNull();
   expect(screen.getByText('Cards drawn: 3')).toBeVisible();
-  expect(screen.getAllByRole('button').map(button => button.props.accessibilityLabel).filter(Boolean)).toEqual(['Circle', 'Seed', 'Spring']);
+  expect(screen.getAllByRole('button').map(button => button.props.accessibilityLabel).filter(label => label && label !== 'New session')).toEqual(['Circle', 'Seed', 'Spring']);
   expect(screen.queryByText(originalCards[0].translations.en.sections.meaning)).toBeNull();
   const grid = screen.getByTestId('card-grid'), host = screen.getByTestId('results-host');
   await fireEvent.scroll(grid, { nativeEvent: { contentOffset: { x: 0, y: 160 } } });
@@ -94,7 +95,7 @@ test('Stop shows committed sparse IDs in order, with full details only after ope
   expect(screen.queryByText('Cards drawn: 3')).toBeNull();
   expect(screen.queryByRole('button', { name: 'New session' })).toBeNull();
   expect(screen.queryAllByRole('tab')).toHaveLength(0);
-  await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Close card details' }));
   expect(screen.getByTestId('overlay-face-0')).toBe(image);
   await finishClose();
   expect(screen.getByTestId('card-grid')).toBe(grid);
@@ -116,6 +117,7 @@ test('empty results offer an explicit Draw cards action and never restart on a t
   const old = current.state!;
   expect(screen.getByText('No cards drawn yet.')).toBeVisible();
   expect(screen.getByText('Cards drawn: 0')).toBeVisible();
+  expect(screen.queryByRole('button',{name:'New session'})).toBeNull();
   await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
   await fireEvent.press(screen.getByRole('tab', { name: 'Draw' }));
   expect(current.state).toBe(old);
@@ -180,7 +182,7 @@ test('failed New session retains old results and offers Retry, then rejects old 
   expect(current.state).toBe(fresh);
   expect(screen.queryByTestId('results-host')).toBeNull();
   expect(screen.queryByTestId('overlay-face-0')).toBeNull();
-  expect(screen.getAllByRole('tab')).toHaveLength(3);
+  expect(screen.getAllByRole('tab')).toHaveLength(4);
 });
 
 test('an inactive results collection mounting cannot unlock a focused catalogue modal', async () => {
@@ -247,7 +249,7 @@ test.each(['background', 'layout'] as const)('results survive %s while details r
     }
     await finishClose();
     expect(screen.queryByTestId('card-detail-overlay')).toBeNull();
-    expect(screen.getAllByRole('tab')).toHaveLength(3);
+    expect(screen.getAllByRole('tab')).toHaveLength(4);
     expect(screen.getByTestId('card-grid')).toBe(grid);
     expect(current.state).toBe(state);
     await open(7, 'Spring');
@@ -271,7 +273,7 @@ test('reset unmounts results while a native opening completion is queued and rej
   expect(current.state!.sessionId).not.toBe(old.sessionId);
   expect(screen.queryByTestId('results-host')).toBeNull();
   expect(screen.queryByTestId('card-detail-overlay')).toBeNull();
-  expect(screen.getAllByRole('tab')).toHaveLength(3);
+  expect(screen.getAllByRole('tab')).toHaveLength(4);
 });
 
 
@@ -285,7 +287,7 @@ test.each([0, 1])('failed reset in a short large-text host keeps controls and %i
     await fireEvent(screen.getByTestId('results-host'), 'layout', { nativeEvent: { layout: { x: 0, y: 0, width: 280, height: 250 } } });
     const old = current.state;
     mockEntropyError = true;
-    await fireEvent.press(screen.getByRole('button', { name: 'New session' }));
+    await fireEvent.press(screen.getByRole('button', { name: count?'New session':'Draw cards' }));
     const grid = screen.getByTestId('card-grid');
     expect(within(grid).getByRole('button', { name: 'Try again' })).toBeVisible();
     if (count) expect(within(grid).getByRole('button', { name: 'Circle' })).toBeVisible();
@@ -330,4 +332,15 @@ test('queued exhausted-exit completion cannot replace a freshly reset session wi
   expect(current.state).toBe(fresh);
   expect(current.state).toMatchObject({phase:'regrip',drawnIds:[]});
   expect(screen.queryByTestId('results-host')).toBeNull();
+});
+
+test('nonempty results offer a compact icon-only New session in the top-right count row',async()=>{
+  await stopAfter(1);const old=current.state!;
+  const header=screen.getByTestId('results-controls');
+  expect(within(header).getByText('Cards drawn: 1')).toBeVisible();
+  const button=within(header).getByRole('button',{name:'New session'});
+  expect(within(button).queryByText('New session')).toBeNull();
+  expect(within(button).getByTestId('icon-cards-restart',{includeHiddenElements:true})).toBeTruthy();
+  await fireEvent.press(button);
+  expect(current.state!.sessionId).not.toBe(old.sessionId);expect(current.state!.drawnIds).toEqual([]);
 });

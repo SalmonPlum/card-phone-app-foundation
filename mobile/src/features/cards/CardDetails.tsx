@@ -1,6 +1,6 @@
 import { artworkSize, useArtworkDefinitions } from '../../artwork/ArtworkProvider';
-import { useState } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useEffect,useLayoutEffect,useRef,useState } from 'react';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue } from 'react-native-reanimated';
 import type { Card, DetailTemplate, Locale } from '../../domain/contracts';
 import type { AssetRegistry } from '../../decks/assets';
@@ -10,13 +10,25 @@ import { CardFace } from './CardTile';
 import { CardDetailReader } from './CardDetailReader';
 import { compactFaceRect, fitForegroundRect, readingFaceRect } from './overlayGeometry';
 import { useReducedMotion } from './useReducedMotion';
-import { spacing, radius } from '../../ui/theme';
-import { useThemeStyles, type ThemeColors, type ThemeTypography } from '../../ui/useThemeStyles';
+import {IconButton} from '../../ui/IconButton';
+import { useThemeStyles, type ThemeColors } from '../../ui/useThemeStyles';
 export { CardDetailsText } from './CardDetailsText';
 
-export type CardDetailsProps = {detailTemplate:DetailTemplate;card:Card;locale:Locale;assetRegistry:AssetRegistry;onBack?:()=>void};
-export function CardDetails({detailTemplate,card,locale,assetRegistry,onBack}:CardDetailsProps) {
+export type CardDetailsProps = {detailTemplate:DetailTemplate;card:Card;locale:Locale;assetRegistry:AssetRegistry;onBack?:()=>void;active?:boolean};
+export function CardDetails({detailTemplate,card,locale,assetRegistry,onBack,active=true}:CardDetailsProps) {
   const styles = useThemeStyles(makeStyles);
+  const identity=String(card.id);
+  const returnState=useRef({identity,active,used:false,callback:onBack});
+  useLayoutEffect(()=>{
+    const previous=returnState.current;
+    returnState.current={identity,active,used:previous.identity===identity&&!(active&&!previous.active)&&previous.used,callback:onBack};
+  },[identity,active,onBack]);
+  useEffect(()=>()=>{returnState.current.active=false;},[]);
+  const returnOnce=()=>{
+    const current=returnState.current;
+    if(current.identity!==identity||!current.active||current.used||!current.callback)return;
+    current.used=true;current.callback();
+  };
   const definitions = useArtworkDefinitions();
   const window=useWindowDimensions();
   const [host,setHost]=useState({width:window.width,height:window.height});
@@ -32,16 +44,14 @@ export function CardDetails({detailTemplate,card,locale,assetRegistry,onBack}:Ca
   });
   return <View testID="direct-detail-host" style={styles.screen} onLayout={event=>setHost(event.nativeEvent.layout)}>
     <CardDetailReader detailTemplate={detailTemplate} card={card} locale={locale} expanded={expanded} scrollOffset={scrollOffset}
-      headerHeight={headerHeight} onHeaderHeight={setHeaderHeight} topInset={0} bottomInset={0} active reducedMotion={reduced}
-      scrollTestID="direct-detail-scroll"
-      action={onBack?<Pressable accessibilityRole="button" onPress={onBack} style={styles.back}><Text style={styles.link}>{t('back',locale)}</Text></Pressable>:undefined}/>
+      headerHeight={headerHeight} onHeaderHeight={setHeaderHeight} topInset={0} bottomInset={0} active={active} reducedMotion={reduced}
+      scrollTestID="direct-detail-scroll" onArtworkPress={onBack?returnOnce:undefined}
+      actionPosition="start" action={onBack?<IconButton variant="circle" icon="back" label={t('back',locale)} onPress={returnOnce} disabled={!active}/>:undefined}/>
     <Animated.View testID="direct-detail-face-surface" pointerEvents="none" style={[{position:'absolute',width:baseWidth,height:baseHeight},faceStyle]}>
       <CardFace card={card} locale={locale} assetRegistry={assetRegistry} testID={`detail-face-${card.id}`}/>
     </Animated.View>
   </View>;
 }
-const makeStyles = (colors: ThemeColors, typography: ThemeTypography) => StyleSheet.create({
+const makeStyles = (colors: ThemeColors) => StyleSheet.create({
   screen:{flex:1,backgroundColor:colors.canvas},
-  back:{maxWidth:'45%',minHeight:48,minWidth:64,paddingHorizontal:spacing.lg,justifyContent:'center',backgroundColor:colors.surface,borderRadius:radius.pill},
-  link:{...typography.label,color:colors.primary},
 });

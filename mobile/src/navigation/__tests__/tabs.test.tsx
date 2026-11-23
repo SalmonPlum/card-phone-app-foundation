@@ -1,3 +1,4 @@
+import Info from '../../app/(tabs)/info';
 import { failArtwork } from '../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../app/(tabs)/settings';
 import { useLayoutEffect } from 'react';
@@ -28,7 +29,7 @@ function ObservedDraw() {
   useLayoutEffect(() => { current = session; }, [session]);
   return <Draw />;
 }
-const routes = { _layout: RootLayout, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details, 'draw-preview': LegacyDraw };
+const routes = { _layout: RootLayout, '(tabs)/info': Info, '(tabs)/_layout': Tabs, '(tabs)/index': ObservedDraw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details, 'draw-preview': LegacyDraw };
 const nativeAppState = AppState.currentState;
 const nativeAppSubscription = (AppState.addEventListener as jest.Mock).getMockImplementation();
 const nativeLocales = Localization.getLocales();
@@ -193,7 +194,7 @@ test('dock forwards press and long-press events and respects router prevention b
       <RouterTabs.Screen name="catalogue" listeners={{ tabPress: event => { presses++; if (prevent) event.preventDefault(); }, tabLongPress: () => { holds++; } }} />
     </RouterTabs></TabInteractionProvider>;
   }
-  await renderRouter({ ...routes, '(tabs)/_layout': EventTabs });
+  await renderRouter({ ...routes, '(tabs)/info': Info, '(tabs)/_layout': EventTabs });
   await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
   expect(presses).toBe(1); expect(screen).toHavePathname('/');
   await fireEvent(screen.getByRole('tab', { name: 'Catalogue' }), 'longPress');

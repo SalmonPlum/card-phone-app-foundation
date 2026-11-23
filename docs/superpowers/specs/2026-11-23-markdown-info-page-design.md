@@ -54,7 +54,7 @@ offline app. Multiple destinations were considered; the user selected one.
 
 ## Implementation choices left to the plan
 
-These are assistant proposals awaiting design approval: locale files, tab order,
+The approved assistant proposals cover locale files, tab order,
 initial Markdown subset, optional inclusion, and link behavior. Choose exact
 resource paths, bundling/parser mechanics and renderer during planning, using the
 existing Expo/React Native stack. Bundle source Markdown offline and expose one
@@ -72,6 +72,7 @@ not establish physical layout or performance acceptance.
 
 ## Status
 
-Single-page scope selected by the user. This short design awaits approval before
-implementation. Preserve existing uncommitted feature work and local Expo/audit
-files; no commit or push requested.
+Single-page scope selected by the user. Approved on 2026-11-23: “pushed lets
+continue. I like the design of about me page”. The user reported pushing the
+existing implementation checkpoint before this work. Preserve local Expo/audit
+files; no further commit or push requested.

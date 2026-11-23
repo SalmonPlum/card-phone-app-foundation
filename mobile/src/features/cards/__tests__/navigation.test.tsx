@@ -1,3 +1,5 @@
+import {findEventHandler} from '@testing-library/react-native/dist/events/propagation';
+import Info from '../../../app/(tabs)/info';
 import { loadArtwork } from '../../../artwork/__tests__/helpers/nativeArtwork';
 import Settings from '../../../app/(tabs)/settings';
 import { router } from 'expo-router';
@@ -28,7 +30,7 @@ async function enterOverlay() {
   await settle(); await advance(420); await flushRn();
 }
 async function finishClose() { await settle(); await advance(420); await flushRn(); }
-const routes = { _layout: Layout, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details };
+const routes = { _layout: Layout, '(tabs)/info': Info, '(tabs)/_layout': Tabs, '(tabs)/index': Draw, '(tabs)/catalogue': Catalogue, '(tabs)/settings': Settings, 'card/[id]': Details };
 test('opens the live catalogue from Draw, opens zero, and can open another card after Back', async () => {
   await renderRouter(routes);
   await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
@@ -39,7 +41,7 @@ test('opens the live catalogue from Draw, opens zero, and can open another card 
   expect(screen).toHavePathname('/catalogue');
   await enterOverlay();
   expect(screen.getByText('A small beginning that needs care.')).toBeVisible();
-  await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
+  await fireEvent.press(screen.getByRole('button', { name: 'Close card details' }));
   await finishClose();
   expect(screen).toHavePathname('/catalogue');
   expect(screen.getByTestId('card-grid')).toBe(mountedGrid);
@@ -207,4 +209,12 @@ test('modal locks dock touches and accessibility without resizing the host, then
   expect(screen).toHavePathname('/');
   await fireEvent.press(screen.getByRole('tab', { name: 'Catalogue' }));
   expect(screen.getByTestId('card-grid')).toBe(grid);
+});
+test('an older standalone artwork callback cannot dismiss a newer detail and works again after refocus',async()=>{
+  await renderRouter(routes,{initialUrl:'/card/0'});await settle();
+  const oldPress=findEventHandler(screen.getByRole('button',{name:'Close card details'}),'press',{bubbles:true}).handler!;
+  await act(()=>router.push('/card/7'));await settle();
+  await act(()=>{oldPress();});expect(screen).toHavePathname('/card/7');
+  await fireEvent.press(screen.getByRole('button',{name:'Back'}));await settle();expect(screen).toHavePathname('/card/0');
+  await fireEvent.press(screen.getByRole('button',{name:'Close card details'}));await settle();expect(screen).toHavePathname('/catalogue');
 });

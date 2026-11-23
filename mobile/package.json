@@ -4,7 +4,9 @@
   "private": true,
   "type": "module",
   "main": "expo-router/entry",
-  "engines": { "node": "^22.13.0 || ^24.3.0 || ^26.0.0 || >=27.0.0" },
+  "engines": {
+    "node": "^22.13.0 || ^24.3.0 || ^26.0.0 || >=27.0.0"
+  },
   "scripts": {
     "start": "expo start --dev-client",
     "android": "expo run:android",
@@ -15,7 +17,13 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "validate:decks": "node --experimental-strip-types scripts/validate-decks.ts",
-    "validate:themes": "node --experimental-strip-types scripts/validate-theme-fonts.ts"
+    "validate:themes": "node --experimental-strip-types scripts/validate-theme-fonts.ts",
+    "generate:info": "node --experimental-strip-types scripts/generate-info.ts",
+    "validate:info": "node --experimental-strip-types scripts/generate-info.ts --check",
+    "prestart": "npm run generate:info",
+    "preandroid": "npm run generate:info",
+    "preandroid:release": "npm run generate:info",
+    "test:info": "node --experimental-strip-types --test --experimental-test-isolation=none src/info/__tests__/markdown.node.test.ts scripts/__tests__/generate-info.node.test.ts"
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "9.2.1",
