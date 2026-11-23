@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveLocale, t } from '../locale.ts';
+import {resolveLocale,createTranslator} from '../locale.ts';
+import {validatePresentation} from '../../config/presentationResource.ts';
+const t=createTranslator(validatePresentation({schemaVersion:1}));
 for (const [tags, want] of [[['cs-CZ'], 'cs'], [['de-DE', 'cs-CZ'], 'cs'], [['en-GB', 'cs-CZ'], 'en'], [[], 'en'], [['CS-cz'], 'cs'], [['de', 'fr'], 'en'], [['english', 'cs'], 'cs']] as const) {
   test(`first supported preferred locale: ${tags.join(',')} → ${want}`, () => { assert.equal(resolveLocale(tags), want); });
 }

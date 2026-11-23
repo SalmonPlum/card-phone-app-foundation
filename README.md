@@ -1,13 +1,26 @@
-# Modular card app development
+# Card app foundation
 
-Read [current status and next work](docs/current-status.md) first: the user approved current results on their phone; the initial enlargement works on their phone; the slower 900ms travel was accepted, and its new solid ivory cover is implemented and awaits feedback. The fixed-title/scroll-responsive card details are implemented. Settings now provides English-default English/Čeština selection, with a palette placeholder and implemented Automatic / Tap to flip preferences; phone persistence/layout review is pending. The drawn-card screen now also supports swipe-up reading with reversible artwork shrinking; phone review is pending. Manual-reveal settings are now implemented too; deck-defined detail sections are implemented across all readers; palette selection is the next saved feature after phone review. This order supersedes older next-work notes.
+Start with the [foundation implementation guide](docs/foundation-guide.md) to build
+an app with your own identity, deck, artwork, themes, interface wording and Markdown
+information page. It includes a resource map, an AI-agent brief and targeted checks.
 
-The React Native application lives in `mobile/`. This separate repository keeps application changes apart from the surrounding Obsidian workspace.
+The Expo/React Native TypeScript application lives in `mobile/`. Run Git commands
+from this repository and app commands from `mobile/`. See the [app README](mobile/README.md)
+for features and [current status](docs/current-status.md) for accepted work, open
+phone checks and backlog. Current explicit user decisions supersede older plans.
 
-Approved design: `../docs/superpowers/specs/2026-10-26-card-app-design.md`.
-Implementation plan: `../docs/superpowers/plans/2026-10-26-card-app-implementation.md`.
-Approved motion reference: `../prototypes/overhand-shuffle.html`.
+The foundation uses one offline bundled deck, English/Czech content, secure draws
+without replacement and a session that survives tab changes. Android is the
+current phone-tested development target; iOS acceptance remains separate.
 
-Initial scope: Android, Czech/English interface and deck content, secure draws without replacement, and a later shared iOS implementation.
+Authoring references: [deck](mobile/docs/deck-authoring.md),
+[artwork](mobile/docs/card-artwork.md), [themes](mobile/docs/theme-authoring.md),
+[presentation](mobile/docs/app-presentation.md), [Info](mobile/docs/info-page.md).
 
-The current native presentation follows the supplied [forest and ivory Stitch references](docs/design-references/stitch-forest/). See the [app README](mobile/README.md#forest-and-ivory-presentation) for font approximations and pending phone review.
+Development references: [setup](mobile/docs/development.md),
+[Android checks](mobile/docs/android-validation.md),
+[security follow-up](mobile/docs/security/follow-up.md).
+
+The accepted motion reference is `../prototypes/overhand-shuffle.html`; visual
+references are in [design-references](docs/design-references/). Preserve approved
+motion, persistent artwork and session behavior when branding a final app.

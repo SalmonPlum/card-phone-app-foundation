@@ -1,14 +1,36 @@
 # Temporary card foundation
 
-Android-first Expo Router/TypeScript app in the first development phase. The app name and `com.example.temporarycards` application ID remain temporary. The configured bundled deck is `sample`.
+Android-first Expo Router/TypeScript foundation with one bundled deck and complete
+English/Czech content. The temporary native identity is configured in `app.config.ts`;
+`src/config/appConfig.ts` selects the sample deck.
 
-The foundation includes complete Czech/English sample content, validated replaceable decks, secure-random primitives, and the packet-aware session engine. The app opens directly on Draw, with a native overhand-shuffle preview, card reveal, confirmation, and drawn-card results after Stop or final-card confirmation. The persistent Draw/Catalogue/Settings bottom dock also opens the card catalogue: responsive face tiles, full bilingual details, and Close/Android Back to the same list. One root in-memory session survives tab switches; only **New session** explicitly starts over. Restarting the process starts a fresh live session; optional History retains saved readings.
+**Building a final app:** read the [foundation guide](../docs/foundation-guide.md)
+first. It covers author resource entry points, an AI-agent brief, identity/rebuild
+requirements and targeted verification. See [current status](../docs/current-status.md)
+for outstanding phone checks and backlog rather than older milestone notes.
 
-Dependencies are installed and the genuine npm lockfile is committed. Application/domain/motion tests, TypeScript, lint, deck validation, and an Android Metro bundle have passed. The user confirmed the baseline development app runs on a phone; the current shuffle movement has been visually accepted on the phone. The user reviewed the current results and said they look good on 2026-10-28. The new larger drawing reveal needs phone review; exhaustive layout/accessibility checks remain separate. The separate security regression remains failing until the targeted CLI Zod refresh is installed.
+Draw opens with the native shuffle/reveal flow and secure draws without replacement.
+A swipeable bottom dock connects Draw, Catalogue, optional History/Info and Settings.
+One root live session survives tab switches; New session resets it. Process restart
+starts a fresh live session; optional History retains saved readings.
 
-See [phase-one status and phone launch instructions](docs/phase-one-status.md), [development setup](docs/development.md), [deck authoring](docs/deck-authoring.md), and the [security follow-up](docs/security/follow-up.md). The user requested the recorded audit findings be addressed next iteration.
+Run `npm start -- --clear` to launch Metro for an installed development client.
+After native identity/config/module changes, follow the guide's native regeneration
+steps before `npm run android` when an existing native folder is present.
+The app includes haptics and local reminders; a client built before those modules
+were added needs rebuilding. See [development setup](docs/development.md) and
+[security follow-up](docs/security/follow-up.md). Targeted automated results are
+recorded per feature; they do not replace phone accessibility/performance checks.
 
-For the native preview, start Metro with `npm start` and reload the existing development app. Draw opens immediately; the short tab labels are **Tahání / Draw** and **Katalog / Catalogue**. Drawing haptics adds the native `expo-haptics` module: after installing dependencies, rebuild and install the development app once with `npm run android` before testing feedback. Reloading alone cannot add this module to an older app. See [haptics validation](../docs/2026-11-09-draw-haptics-validation.md) and [Android motion validation](docs/android-validation.md).
+## App-author customization
+
+`resources/app/presentation.json` provides bilingual interface text overrides and
+named bundled menu icons. Missing overrides keep foundation defaults. This is a
+source resource for app authors, not user Settings. Run `npm run validate:app` and
+see the [presentation contract/key reference](docs/app-presentation.md).
+
+Normal npm launch/native-build scripts validate presentation and generate Info.
+No new native dependency is required for presentation resource edits; reload Metro.
 
 ## Try the catalogue
 

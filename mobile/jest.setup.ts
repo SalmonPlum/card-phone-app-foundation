@@ -38,3 +38,7 @@ jest.mock('./src/platform/historyStorage',()=>({historyStorage:{read:jest.fn(asy
 // Navigation fixtures stay stable when app authors edit or omit their Info resource.
 // Source validity and generation are checked separately by test:info / validate:info.
 jest.mock('./src/info',()=>({configuredInfoPage:jest.requireActual('./src/info/__tests__/fixture').infoFixture}));
+
+// Generic behavior tests use defaults even when an app author customizes the JSON.
+// Dedicated presentation tests supply overrides and exercise the real validator.
+jest.mock('./resources/app/presentation.json',()=>({schemaVersion:1,texts:{},menuIcons:{}}));

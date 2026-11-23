@@ -14,6 +14,9 @@ import Info from '../../app/(tabs)/info';
 import {useSession} from '../../session/SessionProvider';
 import {historyStorage} from '../../platform/historyStorage';
 import type {InfoPage} from '../../info/markdown';
+import {validatePresentation,type AppPresentation} from '../../config/presentationResource';
+let mockPresentation:AppPresentation;
+jest.mock('../../config/presentation',()=>({get appPresentation(){return mockPresentation;}}));
 let mockInfo:InfoPage;
 jest.mock('../../info',()=>({get configuredInfoPage(){return mockInfo;}}));
 jest.mock('expo-router/build/testing-library/mocks',()=>({}));
@@ -23,7 +26,7 @@ let session:ReturnType<typeof useSession>;
 function ObservedDraw(){const current=useSession();useLayoutEffect(()=>{session=current;},[current]);return <Draw/>;}
 const routes={_layout:Root,'(tabs)/_layout':Tabs,'(tabs)/index':ObservedDraw,'(tabs)/catalogue':Catalogue,'(tabs)/settings':Settings,'(tabs)/history':History,'(tabs)/info':Info,'card/[id]':Details};
 const nativeState=AppState.currentState;
-beforeEach(()=>{mockInfo=JSON.parse(JSON.stringify(jest.requireActual('../../info/__tests__/fixture').infoFixture));resetClock();mockId=0;AppState.currentState='active';jest.mocked(historyStorage.read).mockResolvedValue(null);});
+beforeEach(()=>{mockPresentation=validatePresentation({schemaVersion:1});mockInfo=JSON.parse(JSON.stringify(jest.requireActual('../../info/__tests__/fixture').infoFixture));resetClock();mockId=0;AppState.currentState='active';jest.mocked(historyStorage.read).mockResolvedValue(null);});
 afterEach(()=>{AppState.currentState=nativeState;jest.mocked(historyStorage.read).mockResolvedValue(null);jest.restoreAllMocks();});
 test.each([false,true])('Info appears before Settings with History enabled=%s',async enabled=>{
   jest.mocked(historyStorage.read).mockResolvedValue(JSON.stringify({schemaVersion:1,enabled,sessions:[]}));
@@ -67,4 +70,35 @@ test('long labels and five tabs consume measured dock height without truncating 
   expect(screen.getByText(mockInfo!.en.menuLabel).props.numberOfLines).toBe(1);
   await fireEvent(screen.getByTestId('bottom-dock'),'layout',{nativeEvent:{layout:{x:0,y:400,width:280,height:174}}});
   expect(StyleSheet.flatten(screen.getByTestId('info-scroll').props.contentContainerStyle).paddingBottom).toBe(198);
+});
+
+test('author labels and icons retain routes and the renamed Stop retains its action',async()=>{
+  mockPresentation=validatePresentation({schemaVersion:1,texts:{drawTab:{en:'Reading',cs:'Výklad'},stop:{en:'Finish reading',cs:'Dokončit výklad'}},menuIcons:{index:'grid'}});
+  await renderRouter(routes);await settle();
+  const identity=session.state!.sessionId;
+  expect(screen.getByRole('tab',{name:'Reading'})).toBeVisible();
+  expect(screen.getAllByTestId('dock-icon-grid',{includeHiddenElements:true})).toHaveLength(2);
+  await fireEvent.press(screen.getByRole('button',{name:'Finish reading'}));
+  expect(session.state).toMatchObject({sessionId:identity,phase:'results',drawnIds:[]});
+  await fireEvent.press(screen.getByRole('tab',{name:'Catalogue'}));
+  await fireEvent.press(screen.getByRole('tab',{name:'Reading'}));
+  expect(screen).toHavePathname('/');expect(session.state!.sessionId).toBe(identity);
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
+  expect(screen.getByRole('tab',{name:'Výklad'})).toBeVisible();
+});
+test('explicit bilingual Info menu label wins over Markdown without changing its page',async()=>{
+  mockPresentation=validatePresentation({schemaVersion:1,infoMenuLabel:{en:'Our story',cs:'Náš příběh'},menuIcons:{info:'cards'}});
+  await renderRouter(routes);await settle();
+  await fireEvent.press(screen.getByRole('tab',{name:'Our story'}));
+  expect(screen).toHavePathname('/info');expect(screen.getByRole('header',{name:'About me'})).toBeVisible();
+  await fireEvent.press(screen.getByRole('tab',{name:'Settings'}));
+  await fireEvent.press(screen.getByRole('radio',{name:'Čeština'}));
+  await fireEvent.press(screen.getByRole('tab',{name:'Náš příběh'}));
+  expect(screen.getByRole('header',{name:'O mně'})).toBeVisible();
+});
+test('Info override cannot enable an omitted page',async()=>{
+  mockInfo=null;mockPresentation=validatePresentation({schemaVersion:1,infoMenuLabel:{en:'Story',cs:'Příběh'}});
+  await renderRouter(routes);await settle();
+  expect(screen.queryByRole('tab',{name:'Story'})).toBeNull();
 });

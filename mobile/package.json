@@ -20,10 +20,12 @@
     "validate:themes": "node --experimental-strip-types scripts/validate-theme-fonts.ts",
     "generate:info": "node --experimental-strip-types scripts/generate-info.ts",
     "validate:info": "node --experimental-strip-types scripts/generate-info.ts --check",
-    "prestart": "npm run generate:info",
-    "preandroid": "npm run generate:info",
-    "preandroid:release": "npm run generate:info",
-    "test:info": "node --experimental-strip-types --test --experimental-test-isolation=none src/info/__tests__/markdown.node.test.ts scripts/__tests__/generate-info.node.test.ts"
+    "prestart": "npm run validate:app && npm run generate:info",
+    "preandroid": "npm run validate:app && npm run generate:info",
+    "preandroid:release": "npm run validate:app && npm run generate:info",
+    "test:info": "node --experimental-strip-types --test --experimental-test-isolation=none src/info/__tests__/markdown.node.test.ts scripts/__tests__/generate-info.node.test.ts",
+    "validate:app": "node --experimental-strip-types scripts/validate-app.ts",
+    "test:app": "node --experimental-strip-types --test --experimental-test-isolation=none src/config/__tests__/presentationResource.node.test.ts"
   },
   "dependencies": {
     "@react-native-community/datetimepicker": "9.2.1",

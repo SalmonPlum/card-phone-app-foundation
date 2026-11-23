@@ -72,7 +72,9 @@ full-suite run or unrelated export/domain/security checks.
 
 ## Status
 
-The user chose the existing bundled icon set. This short design consolidates the
-request and recommended resource approach. The user subsequently deferred this
-feature to the backlog; do not implement it until they resume it.
-Preserve all current uncommitted work; no commit or push requested.
+The user resumed and authorized customization implementation after pushing commit
+754ec2e, and requested comprehensive foundation documentation for AI agents building
+final apps. Implement the resource design above, plus a developer/agent onboarding
+guide that links existing deck, artwork, theme and Markdown contracts. Audio stays
+backlogged. Work in the existing checkout; preserve local Expo edits and raw audit
+export. No commit or push requested for this next change.

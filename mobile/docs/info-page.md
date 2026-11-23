@@ -26,7 +26,9 @@ Your introduction, with **bold**, *italic* and a [website](https://example.com).
 ```
 
 Use `menuLabel: O mně` and Czech text in `cs.md`. The selected app language
-controls both the menu label and content. Keep labels short for the five-tab dock. The bottom menu scrolls horizontally and visual labels stay on one line.
+controls both the menu label and content. An optional bilingual `infoMenuLabel` in
+`resources/app/presentation.json` overrides only the tab label; Markdown headings
+and body stay unchanged. See [presentation authoring](app-presentation.md). Keep labels short for the five-tab dock. The bottom menu scrolls horizontally and visual labels stay on one line.
 A label wider than the viewport ends in an ellipsis; accessibility labels retain
 the complete authored name.
 The metadata supports exactly one plain, unquoted `menuLabel` line; it is not a

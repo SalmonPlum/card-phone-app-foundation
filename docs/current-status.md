@@ -23,8 +23,9 @@ consistency and staged whitespace checks passed during preparation. No full test
 suite was rerun. Remaining phone checks are listed in the feature validation notes.
 
 Local Expo-generated `.gitignore`/`expo-env.d.ts` edits and raw
-`mobile/npm-audit-after.json` are excluded from the prepared commit. No commit or
-push has been made by this preparation step.
+`mobile/npm-audit-after.json` are excluded from the prepared commit. This checkpoint was committed as `754ec2e` and the user confirmed pushing it
+before resuming customization. Earlier per-feature uncommitted notes below are
+historical; new customization work is separate and remains uncommitted.
 
 ## Draw/results controls — implemented (2026-11-23)
 
@@ -91,33 +92,37 @@ implemented. Track selection, looping/transitions, playback scope, default enabl
 state, music/effects volume controls and background/interruption behavior remain
 to be decided when the audio work is resumed.
 
-## Per-app text and menu icon configuration — backlogged by user (2026-11-23)
+## Per-app text/menu icon customization and foundation guide — implemented (2026-11-23)
 
-The user wants programmatic author configuration for menu names/icons and action
-copy such as Stop in drawing, to customize the first app built on this foundation.
-This is per-app source/bundled configuration, not an end-user Settings feature.
+After pushing 754ec2e, the user resumed customization and asked for documentation
+that lets AI agents create final apps from the foundation. Edit
+`mobile/resources/app/presentation.json`: optional complete en/cs overrides for
+existing interface text keys, named bundled menu icons by stable route, and
+optional `infoMenuLabel`. Omitted keys retain defaults; Info otherwise uses its
+Markdown menuLabel. An override never enables an omitted Info page or changes its
+body. No user Settings, route reordering/hiding or arbitrary icon assets added.
 
-Current text comes from typed English/Czech dictionaries through `t()`. Most dock
-labels map directly to those keys; Info reads its label from Markdown. Dock icon
-rendering is hardcoded by route. Existing `src/config/appConfig.ts` selects only
-the bundled deck. Themes and Info already have separately authored resources.
+The pure validator rejects unknown fields/keys/routes/icons/schema versions,
+blank/missing locale values and incorrect placeholder names. Existing `t()` calls
+use overrides, including spoken action labels and notification copy. Menu icons
+reuse existing drawings, colors and dimensions. New `validate:app` and `test:app`
+scripts check the contract; npm launch/native-build pre-hooks validate presentation
+before generating Info. Default JSON preserves current UI. Generic Jest resources
+and pure translator fixtures remain independent of editable branding.
 
-Proposed direction: a separate app presentation/branding resource with optional
-bilingual text overrides and menu icon references, defaulting to current values.
-Use stable route/action identities so renaming Stop or Draw changes presentation,
-not navigation/session behavior. Keep complete cs/en text, valid interpolation
-placeholders, accessible labels, offline assets and the accepted swipeable dock.
-Info's Markdown label remains its default, with any explicit app override taking
-precedence only if agreed. No new menu ordering/hiding or feature settings inferred.
-The user chose to keep the existing bundled icons (native drawings, not an
-external icon library); expose them by name rather than adding custom artwork.
-The [short design](superpowers/specs/2026-11-23-app-presentation-resource-design.md)
-proposes a JSON author resource, bilingual interface-key overrides, named menu
-icons and explicit optional Info-label precedence. The user explicitly deferred this feature to the backlog; do not implement it
-before the newly requested Draw/results control polish. No approval or
-implementation is implied by selecting the existing icon set.
-Verification remains targeted to changed configuration/translation/menu/action
-behavior; no automatic full-suite run.
+Start final-app implementation at [foundation guide](foundation-guide.md). It maps
+identity, deck/artwork, themes/fonts, presentation and Markdown resources; includes
+an implementation sequence, targeted validation matrix, phone checklist and
+copyable AI-agent brief. Both READMEs point there. The
+[presentation reference](../mobile/docs/app-presentation.md) documents schema,
+precedence, supported route/icon names and interface keys. Sound/music remain
+backlogged; no audio resources/player were added.
+
+Targeted validation: 30 Node resource/locale tests and 21 Jest translation/router/
+dock cases passed, plus strict types/scoped lint. No full suite/export or unrelated
+resource/security checks. See [validation](2026-11-23-app-customization-validation.md)
+for exact scope and remaining phone review. Work is uncommitted; preserve local
+Expo setup edits and raw audit report.
 
 ## History selection toolbar at the top — phone refinement (2026-11-23)
 

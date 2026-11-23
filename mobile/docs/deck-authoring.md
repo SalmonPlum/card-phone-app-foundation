@@ -130,6 +130,11 @@ Pillow is needed to build or run the bundled app.
 
 ## Interface localization
 
+For app-specific menu/action wording, use `resources/app/presentation.json` rather
+than editing the foundation dictionaries. See [presentation authoring](app-presentation.md)
+and the [foundation workflow](../../docs/foundation-guide.md). Deck section headings,
+card names and card text remain in this deck's bilingual content.
+
 `src/i18n/en.ts` defines `TranslationKey`; `cs.ts` must supply exactly the same
 keys. `t(key, locale, values)` interpolates named `{fields}`. Keep interpolation
 names identical in both languages. Validation checks dictionary parity, blank
@@ -149,7 +154,7 @@ Run from `mobile/`:
 npm run test:domain
 npm run validate:decks
 npm run typecheck
-npm test -- --runInBand
+# Add only affected UI tests when deck registration/behavior changes.
 ```
 
 Domain fixtures for one, two, and 100 cards live in

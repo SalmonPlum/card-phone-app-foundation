@@ -1,3 +1,5 @@
+import {appPresentation} from '../config/presentation';
+import {defaultMenuIcons,type MenuRoute} from '../config/presentationResource';
 import {configuredInfoPage} from '../info';
 import {useHistory} from '../history/HistoryProvider';
 import { useThemeSettings } from '../themes/ThemeProvider';
@@ -20,7 +22,7 @@ export function BottomDock({ state, emitter, navigateToTab, insets }: BottomTabB
   const {fontScale}=useWindowDimensions();
   const reduced=useReducedMotion();
   const routes=state.routes.filter(route => route.name === 'index' || route.name === 'catalogue' || route.name === 'settings' || route.name === 'history' && archive.enabled || route.name === 'info' && !!configuredInfoPage);
-  const labelFor=(name:string)=>name === 'info' && configuredInfoPage ? configuredInfoPage[locale].menuLabel : t(name === 'index' ? 'drawTab' : name === 'catalogue' ? 'catalogueTab' : name === 'history' ? 'historyTab' : 'settings', locale);
+  const labelFor=(name:string)=>name === 'info' && configuredInfoPage ? (appPresentation.infoMenuLabel?.[locale] ?? configuredInfoPage[locale].menuLabel) : t(name === 'index' ? 'drawTab' : name === 'catalogue' ? 'catalogueTab' : name === 'history' ? 'historyTab' : 'settings', locale);
   const keyList=JSON.stringify(routes.map(route=>route.key));
   const geometryKey=JSON.stringify([routes.map(route=>[route.key,labelFor(route.name)]),styles.label,fontScale]);
   const scrollRef=useRef<ComponentRef<typeof ScrollView>>(null);
@@ -44,6 +46,7 @@ export function BottomDock({ state, emitter, navigateToTab, insets }: BottomTabB
       {routes.map(route => {
         const selected = state.routes[state.index].key === route.key;
         const label = labelFor(route.name);
+        const icon = appPresentation.menuIcons[route.name as MenuRoute] ?? defaultMenuIcons[route.name as MenuRoute];
         const ink = selected ? colors.accent : colors.primary;
         return <Pressable key={`${route.key}:${scroll.signature}`} onLayout={event=>scroll.onItemLayout(route.key,event)} onFocus={()=>scroll.onFocus(route.key)} accessibilityRole="tab" accessibilityLabel={label}
           accessibilityState={{ selected, disabled: blocked }} disabled={blocked} style={[styles.item,scroll.viewport>0&&{maxWidth:scroll.viewport}]}
@@ -53,9 +56,9 @@ export function BottomDock({ state, emitter, navigateToTab, insets }: BottomTabB
             if (!selected && !event.defaultPrevented) navigateToTab(route.key);
           }}
           onLongPress={() => { if (!blocked && !scroll.isDragging()) emitter.emit({ type: 'tabLongPress', target: route.key }); }}>
-          <View accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.icon}>
-            {route.name === 'index' ? <><View style={[styles.cardBack, { borderColor: ink }]} /><View style={[styles.card, { borderColor: ink }]} /></>
-              : route.name === 'info' ? <View style={[styles.infoCircle,{borderColor:ink}]}><Text allowFontScaling={false} style={[styles.infoGlyph,{color:ink}]}>i</Text></View> : route.name === 'history' ? <View style={[styles.clock,{borderColor:ink}]}><View style={[styles.clockHand,{backgroundColor:ink}]}/><View style={[styles.clockMinute,{backgroundColor:ink}]}/></View> : route.name === 'settings' ? <Text allowFontScaling={false} style={[styles.gear,{color:ink}]}>⚙︎</Text> : <View style={styles.grid}>{[0, 1, 2, 3].map(index => <View key={index} style={[styles.cell, { borderColor: ink }]} />)}</View>}
+          <View testID={`dock-icon-${icon}`} accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants" style={styles.icon}>
+            {icon === 'cards' ? <><View style={[styles.cardBack, { borderColor: ink }]} /><View style={[styles.card, { borderColor: ink }]} /></>
+              : icon === 'info' ? <View style={[styles.infoCircle,{borderColor:ink}]}><Text allowFontScaling={false} style={[styles.infoGlyph,{color:ink}]}>i</Text></View> : icon === 'clock' ? <View style={[styles.clock,{borderColor:ink}]}><View style={[styles.clockHand,{backgroundColor:ink}]}/><View style={[styles.clockMinute,{backgroundColor:ink}]}/></View> : icon === 'settings' ? <Text allowFontScaling={false} style={[styles.gear,{color:ink}]}>⚙︎</Text> : <View style={styles.grid}>{[0, 1, 2, 3].map(index => <View key={index} style={[styles.cell, { borderColor: ink }]} />)}</View>}
           </View>
           <Text numberOfLines={1} ellipsizeMode="tail" style={[styles.label, { color: ink }]}>{label}</Text>
           <View accessible={false} style={[styles.pip, { backgroundColor: selected ? colors.accent : 'transparent' }]} />
