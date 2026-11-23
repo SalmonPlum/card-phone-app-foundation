@@ -1,5 +1,247 @@
 # Current status and next work
 
+## Checkpoint before Info page (2026-11-23)
+
+The user requested committing/pushing the current changes before continuing.
+The checkpoint contains implemented haptics, local daily reminders and drawing
+history, with their existing phone checks still applicable. Info remains a design
+only; selecting one page does not approve all proposed design defaults.
+
+Fresh checks passed on 2026-11-23: 57 Jest suites / 476 tests, 144 domain tests,
+TypeScript, full lint, deck validation, theme/font validation, Android Metro export
+(`/tmp/cards-checkpoint-android-export`) and whitespace checks. No application
+code changes were needed. Local Expo files, raw audit report and machine-specific
+Android settings are excluded from the checkpoint. Fetching GitHub failed with
+`Could not resolve host: github.com`, including the elevated retry; remote
+synchronization has not yet been established.
+
+## Markdown information page — new requirement (2026-11-23)
+
+The user requests an author-configured information page in the bottom menu,
+such as About me or other informational content. A Markdown resource must supply
+both the menu label and the page text. This is app-author configuration, with no
+end-user Settings customization. Design/implementation is not yet complete.
+
+Current navigation explicitly registers and filters Draw, Catalogue, optional
+History and Settings; adding a resource-driven destination touches both the tab
+layout and BottomDock. With History enabled, one information page would make
+five destinations, requiring small-screen/large-text review. No Markdown renderer
+is currently declared in the app dependencies. Proposed defaults, not yet agreed:
+bundle content offline, follow the selected English/Czech locale and app theme,
+and preserve drawing session identity when navigating to the information page.
+The user chose a single page on 2026-11-23. The
+[short design](superpowers/specs/2026-11-23-markdown-info-page-design.md)
+proposes locale-specific Markdown with `menuLabel` metadata, one optional tab
+before Settings, a themed native reader and basic Markdown/link support.
+These implementation defaults await design approval; no app code changed.
+
+Latest implementation baseline remains the History implementation below; fresh
+checkpoint verification is recorded above. The Info page update records the
+requirement and proposed design only; it adds no application behavior.
+
+## Drawing history — implemented, phone review next (2026-11-09)
+
+The user authorized the approved device-only History design, keeping the current
+100-card deck cap. Settings now has a default-off history switch and confirmed
+Clear action; enabled History adds a fourth dock tab between Catalogue and
+Settings. Recording starts only with a new session, saves immediately after reveal
+in draw order, and stops immediately when switched off. Off retains saved data;
+turning on again never resumes the existing session. Partial readings are kept.
+
+The read-only archive keeps the newest 50 sessions for 30 elapsed days. Saved
+bilingual text/templates/artwork metadata survive deck edits; missing images show
+a placeholder while saved text remains readable. Selected/all deletion is confirmed
+and cannot recreate the deleted current session on later reveals. Root session
+identity, existing randomness, artwork proportions and accepted animations stay
+intact. Invalid storage and failed saves/deletions have localized recovery.
+
+Async private-file writes publish fresh committed generations before cleanup;
+there is no fallback to old deleted data. Startup enrollment waits for preference
+loading, while read failure keeps drawing usable. Timer/load/delete races and
+independent review's legacy-snapshot validation gap have RED→GREEN regressions.
+No material findings remain. Full checks passed: 57 Jest suites / 476 tests,
+144 domain tests, TypeScript/full lint, deck/theme/font validation and Android
+export. A later test-only Back-event typing correction/Settings assertion passed
+nine UI cases; no production change after the full run. See
+[verification and phone checklist](2026-11-09-drawing-history-validation.md).
+
+Next: reload, enable History, then start a new session (Stop the existing session
+and choose New session if needed). Review persistence, ordered saved details,
+selective/all deletion, four-tab/large-text layout and phone performance. No native
+rebuild/dependency or commit/push requested. Notification acceptance, Catalogue
+intermittency, slider repair and 1,000-card support remain separate. Preserve local
+Expo files/raw audit report and local SDK/JDK settings.
+
+## Larger deck support — explicitly deferred (2026-11-09)
+
+The user asked about the current 100-card validation cap and potential support
+for 1,000 cards. After discussing the scope, they explicitly said it is not a
+priority and requested saving it for later implementation. Keep the current
+1–100-card support boundary; do not expand it as part of History.
+
+Saved follow-up: support decks up to 1,000 cards, updating validator/contracts and
+boundary regressions; verify secure draw/session behavior, packet-shuffle behavior,
+Catalogue/results search and virtualization, realistic artwork loading/storage and
+phone performance. Review history scaling at the same time: up to 50 retained
+sessions could contain 50,000 card entries. Consider shared immutable deck-version
+content plus per-session order/timestamps instead of repeatedly copying full text.
+That storage approach is a recommendation for future design, not an approved
+implementation decision. Do not infer that changing the validator alone proves
+1,000-card support. No implementation or priority ahead of History authorized.
+
+## Catalogue intermittent blank tiles — cleared by reload, not reproduced (2026-11-09)
+
+The user reported some Catalogue cards were visually missing but remained tappable
+and opened working details. They clarified the entire tile, including its name,
+was blank. Reloading the app restored all cards; the trigger is unknown and the
+issue is not currently reproducible. This is not confirmed artwork-load failure:
+the whole-tile symptom also warrants examining search transition/native opacity,
+virtualized cell reuse and overlay visibility if it recurs.
+
+Inspected grid transitions, card hosts and artwork loading without modifying code.
+No root cause or fix claimed, and no speculative rendering/animation change made.
+If it recurs, capture the last action (search/clear, scrolling, detail close,
+theme/text-size/tab/background changes), affected IDs and visual evidence before
+reloading, then reproduce with a behavioral regression. Preserve accepted search
+and detail animation timing and persistent native artwork surfaces. Notification
+phone review remains separate; no history implementation started.
+
+## Daily reminder — implemented, rebuild/phone review next (2026-11-09)
+
+The user approved the separate device-only reminder design (“Its oka”). Settings
+now offers a default-off reminder and native time picker, initially 09:00. One
+local daily best-effort notification uses selected-language copy; time/language
+changes replace its owned schedule and switching off cancels it. Permissions
+are requested only by explicit enable. Denied/revoked app or channel permissions,
+save/scheduling/cancellation failures and older native clients have recovery UI.
+Taps open Draw after startup readiness, preserving the current drawing session.
+The Settings picker closes on navigation away, including notification taps.
+
+Pinned compatible Notifications 58.1.6 and DateTimePicker 9.2.1 were installed by
+the user after environment DNS failure. Prebuild regenerated Android; local SDK
+and Android Studio JDK settings were restored and verified. Native module
+registration/configuration is verified; native compilation/install/delivery is
+still a phone/host check. No exact-alarm permission or remote push setup.
+
+Independent review's coalesced permission-intent race and the picker-focus edge
+were reproduced RED and fixed GREEN. Full verification: 53 Jest suites / 445
+tests, 144 domain tests, TypeScript/full lint, deck/theme/font validation and
+Android export passed; the final picker fix then passed nine affected suites /
+95 tests plus TypeScript/lint/final Android export. Combined coverage: 53 suites /
+446 tests, no unresolved failures. One minor UX note: denied-permission guidance
+clears on a later off reconciliation; the switch stays off and a fresh enable
+shows current guidance. See [verification and phone checklist](2026-11-09-daily-reminder-validation.md).
+
+Phone follow-up: Expo reported Custom sound 'default' not found. The installed
+Android channel bridge treats any explicit sound string as a bundled resource
+filename; omitting the channel sound selects the OS default. Removed only that
+channel field, retaining the stable channel ID/user settings and valid notification
+content sound. A native-boundary regression observed RED then GREEN. Four affected
+suites / 47 tests, TypeScript, scoped lint and Android export passed. No new native
+assets/config or rebuild needed for this fix; notification phone acceptance remains
+pending.
+
+Next: reload the rebuilt app, enable the reminder and review selected time,
+closed-app delivery, notification taps and cancellation on the phone.
+No commit/push requested. Keep accepted haptics unchanged; history remains the
+next separate feature and slider repair stays deferred. Preserve local Expo
+files and raw audit report.
+
+## Drawing haptics — accepted on phone (2026-11-09)
+
+The user approved the separate device-only haptics design and implementation.
+One stronger Heavy impact is requested after automatic/manual reveal, plus one
+gentle Light impact when each shuffle packet lands. Both use the same
+persistent default-on Settings switch and complete Czech/English labels and save
+retry. Feedback is guarded against duplicate/stale callbacks, disabled/loading
+preferences and background or deferred tab/resume completion. Session identity,
+artwork surfaces and approved animation timing remain unchanged.
+
+Pinned Expo Haptics 58.0.7 was installed by the user after this environment's DNS
+failure. Independent scoped review's delayed-resume pulse finding was reproduced
+RED and fixed GREEN with real-root background/tab regressions. Final checks:
+48 Jest suites / 392 tests, 144 domain tests, TypeScript, full lint, deck/theme/
+font validation and final Android export passed. See the
+[validation and phone checklist](2026-11-09-draw-haptics-validation.md).
+
+Phone feedback: the switch is visible but no vibration is felt. Functional phone
+acceptance is not established. The local debug APK is dated 2026-10-26, before
+Expo Haptics was installed (2026-11-09); this suggests an old client but does not
+prove which APK is on the phone. The user confirmed using `npm start --clear`, which starts Metro but does not
+rebuild/install the native client. Next step is `npm run android` from mobile
+with the phone connected for installation, then review again. Direct ADB
+inspection was not authorized. No haptic strength/API changes
+made without runtime evidence. README's stale no-native-modules note corrected.
+
+Build failure follow-up: the host Gradle daemon log identifies the actual error
+as `SDK location not found`. Added ignored `mobile/android/local.properties` with
+`sdk.dir=/home/salmon/Android/Sdk`, after verifying the installed SDK. Local
+verification could not run Gradle: the default environment denied its cache lock;
+the allowed retry failed earlier with “Could not determine a usable wildcard IP
+for this machine.” This is a verification-environment limitation, not a new host
+build diagnosis. Ask user to retry `npm run android`; native success remains
+unverified until that host build completes.
+
+Subsequent host retry passed the SDK-location stage but failed selecting the
+Java compiler: `/usr/lib/jvm/java-25-openjdk` lacks `JAVA_COMPILER` (no bin/javac).
+Verified `/usr/local/android-studio/jbr/bin/javac` exists and runs (25.0.3), then
+set `org.gradle.java.home=/usr/local/android-studio/jbr` in the ignored local
+`mobile/android/gradle.properties`. This uses Android Studio's complete JDK
+without changing the system Java or shared app configuration. The independent
+build retry remains blocked before configuration by the same wildcard-IP
+limitation. Host native build/install still requires verification.
+
+The user confirmed the rebuilt app works on the phone. This resolves the native
+build/module-availability blocker, but the reveal pulse is too weak. They request
+stronger drawing feedback and suggest reusing the current gentle strength during
+shuffling. They approved a stronger reveal pulse plus one current-strength
+pulse per packet landing under the existing switch (“yes exactly”). Implemented
+Heavy reveal / Light strip-to-contact feedback, with shared preference/foreground
+and deferred-callback guards. No new dependencies or native changes. The user accepted strength and
+cadence on the phone (“yes thats good”). Affected six suites / 53 tests, TypeScript,
+scoped lint, diff check and Android export passed. Existing unrelated full/domain
+checks remain valid; no repeat full-suite run for this narrow refinement.
+
+The user accepted the stronger reveal and gentle packet-landing feedback on the
+phone. Preserve this strength/cadence baseline; this does not establish every
+persistence, accessibility or lifecycle checklist case. Haptics is complete.
+Next separate feature is daily local reminder support; its design remains to be
+agreed before implementation. Session history follows separately. No commit
+or push requested for these changes. Notifications and session history remain
+separate upcoming features; do not implement them together. Slider repair stays
+deferred. Preserve local Expo files and raw audit report.
+
+## Accepted artwork checkpoint and requested foundation features (2026-11-09)
+
+At the user's request, accepted theme-aware artwork was committed locally as
+`e77352c` (`feat: add theme-aware card artwork`). The user subsequently reported pushing this checkpoint on 2026-11-09. Local Expo
+files and the raw audit report remain outside the checkpoint. Fresh TypeScript,
+deck validation and staged whitespace checks passed; earlier integrated test
+results remain applicable to unchanged code, with functional phone acceptance.
+
+The user next requested:
+
+- Haptic feedback when drawing, with a Settings on/off control.
+- Notification support: a configurable daily time to remind the user to draw
+  cards. This is reusable foundation support; specific apps can expand it later.
+- Optional drawing history controlled in Settings, with an additional bottom tab
+  when enabled. Tentative retention: last 30 days, maximum 50 draws.
+
+The user confirmed that
+one history entry represents an entire drawing session, preserving card draw
+order. The tentative 50-entry limit therefore means 50 sessions, not 50 cards.
+The user approved turning history off stopping recording and hiding the tab,
+while retaining existing sessions until expiry. They also approved a Clear
+history action and requested deleting selected history records while retaining
+others, explicitly including incomplete drawing sessions. The user confirmed saving each card immediately after reveal, without waiting
+for confirmation, updating the same session entry in draw order and preserving
+partial sessions. For manual reveal, do not record a face-down waiting card.
+The user requested a device-only approach and separate feature delivery.
+Proceed with separate designs/implementations: haptics first, daily reminder next,
+then history (order chosen by the assistant). The first design,
+[Drawing haptics](superpowers/specs/2026-11-09-draw-haptics-design.md), was approved
+and implemented as recorded above. Slider repair remains deferred.
+
 ## Theme-aware artwork — accepted on phone (2026-11-09)
 
 After pushing `d57fea6`, the user chose authored layers with runtime theme colors
